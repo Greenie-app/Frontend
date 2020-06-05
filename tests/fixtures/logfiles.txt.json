@@ -1,0 +1,55 @@
+[
+  {
+    "id":         1,
+    "state":      "pending",
+    "progress":   1.0,
+    "created_at": "2020-06-09T23:31:25.178Z",
+    "destroyed?": false,
+    "files":      [
+      {
+        "filename":  "dcs.log",
+        "byte_size": 170261
+      }
+    ]
+  },
+  {
+    "id":         2,
+    "state":      "in_progress",
+    "progress":   1.0,
+    "created_at": "2020-06-10T22:31:25.178Z",
+    "destroyed?": false,
+    "files":      [
+      {
+        "filename":  "dcs.log",
+        "byte_size": 170261
+      }
+    ]
+  },
+  {
+    "id":         3,
+    "state":      "complete",
+    "progress":   1.0,
+    "created_at": "2020-06-07T23:31:25.178Z",
+    "destroyed?": false,
+    "files":      [
+      {
+        "filename":  "dcs.log",
+        "byte_size": 170261
+      }
+    ]
+  },
+  {
+    "id":         3,
+    "state":      "failed",
+    "progress":   1.0,
+    "created_at": "2020-06-10T23:31:25.178Z",
+    "destroyed?": false,
+    "files":      [
+      {
+        "filename":  "dcs.log",
+        "byte_size": 170261
+      }
+    ]
+  }
+]
+

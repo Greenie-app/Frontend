@@ -1,0 +1,13 @@
+{
+  "id":            12,
+  "time":          "2020-06-03T01:39:16.834Z",
+  "ship_name":     "CVN-73",
+  "aircraft_type": null,
+  "grade":         "cut",
+  "score":         "0.0",
+  "trap":          true,
+  "wire":          3,
+  "notes":         "GRADE:C : (DLX)  _LULX_  _FX_  _LULIM_  (DLIM)  _LULIC_  _LOIC_  _PIC_  _PPPIC_  _LOAR_  WO(AFU)TL  3PTSIW  _EGIW_  WIRE# 3[BC]",
+  "destroyed?":    false,
+  "pilot":         "Newguy"
+}

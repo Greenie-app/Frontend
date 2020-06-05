@@ -1,0 +1,13 @@
+{
+  "id":                 1,
+  "name":               "72nd VFW",
+  "username":           "72nd",
+  "email":              "tim@example.com",
+  "created_at":         "2020-06-09T23:31:18.725Z",
+  "updated_at":         "2020-06-09T23:31:18.770Z",
+  "boarding_rate":      0.5,
+  "unknown_pass_count": 7,
+  "image":              {
+    "url": "/rails/active_storage/representations/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBCZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d6260388794cc3233d48d9a4870f6b6b458e2caf/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCam9VY21WemFYcGxYM1J2WDJ4cGJXbDBXd2RwQWl3QmFRSXNBUT09IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--1f020c44d7d4a6b9b03b3f5c20b233cc7a1e08a3/image.png"
+  }
+}
