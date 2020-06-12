@@ -37,12 +37,12 @@
     @Action logOut!: () => Promise<void>
 
     goHome(): void {
-      this.$router.push({ name: 'Home' })
+      if (this.$route.name !== 'Home') this.$router.push({ name: 'Home' })
     }
 
     async logOutClicked(): Promise<void> {
       await this.logOut()
-      await this.$router.push({ name: 'Home' })
+      this.goHome()
     }
   }
 </script>
