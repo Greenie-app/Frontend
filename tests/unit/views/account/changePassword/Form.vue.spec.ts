@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils'
 import { Ok } from 'ts-results'
 import { expect } from 'chai'
 import { componentLocalVue } from '../../../utils'
-import Form from '@/views/account/changePasword/Form.vue'
+import Form from '@/views/account/changePassword/Form.vue'
 import i18n from '@/i18n'
 
 describe('account/changePassword/Form.vue', () => {

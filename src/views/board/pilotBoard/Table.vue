@@ -24,7 +24,6 @@
       </template>
     </b-table>
   </div>
-
 </template>
 
 <script lang="ts">

@@ -1,14 +1,18 @@
 import VueRouter, { RouteConfig } from 'vue-router'
-import Home from '@/views/Home.vue'
-import SquadronLayout from '@/views/SquadronLayout.vue'
-import ResetPassword from '@/views/account/ResetPassword.vue'
-import ChangePassword from '@/views/account/ChangePassword.vue'
-import ForgotPassword from '@/views/account/ForgotPassword.vue'
-import SquadronBoard from '@/views/board/SquadronBoard.vue'
-import PilotBoard from '@/views/board/PilotBoard.vue'
-import EditSquadron from '@/views/squadron/EditSquadron.vue'
-import LogIn from '@/views/account/LogIn.vue'
-import NotFound from '@/views/NotFound.vue'
+
+const Home = (/* webpackChunkName: "logged-out" */) => import('@/views/Home.vue')
+const ForgotPassword = (/* webpackChunkName: "logged-out" */) => import('@/views/account/ForgotPassword.vue')
+const LogIn = (/* webpackChunkName: "logged-out" */) => import('@/views/account/LogIn.vue')
+const SquadronBoard = (/* webpackChunkName: "logged-out" */) => import('@/views/board/SquadronBoard.vue')
+const PilotBoard = (/* webpackChunkName: "logged-out" */) => import('@/views/board/PilotBoard.vue')
+const SquadronLayout = (/* webpackChunkName: "logged-out" */) => import('@/views/SquadronLayout.vue')
+
+const ChangePassword = (/* webpackChunkName: "logged-in" */) => import('@/views/account/ChangePassword.vue')
+const EditSquadron = (/* webpackChunkName: "logged-in" */) => import('@/views/squadron/EditSquadron.vue')
+
+const NotFound = () => import('@/views/NotFound.vue')
+const ResetPassword = () => import('@/views/account/ResetPassword.vue')
+
 
 const routes: Array<RouteConfig> = [
   {

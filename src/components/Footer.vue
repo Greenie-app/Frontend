@@ -2,7 +2,9 @@
   <footer class="footer mt-auto py-3">
     <b-container>
       <span class="text-muted">{{$t('footer.copyright')}} </span>
-      <a href="https://github.com/Greenie-app">{{$t('footer.contributeLink')}}</a>
+      <a href="https://github.com/Greenie-app" rel="noopener" target="_blank">
+        {{$t('footer.contributeLink')}}
+      </a>
     </b-container>
   </footer>
 </template>

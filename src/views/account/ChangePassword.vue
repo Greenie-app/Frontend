@@ -10,7 +10,7 @@
 <script lang="ts">
   import Vue from 'vue'
   import Component from 'vue-class-component'
-  import Form from '@/views/account/changePasword/Form.vue'
+  import Form from '@/views/account/changePassword/Form.vue'
   import Narrow from '@/components/Narrow.vue'
   import MustBeAuthenticated from '@/components/MustBeAuthenticated.vue'
 

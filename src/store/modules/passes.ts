@@ -189,6 +189,8 @@ const mutations: MutationTree<PassesState> = {
         passFromJSON(passJSON)
       ]
     } else {
+      if (state.passCurrentPage !== 1) return
+      // don't append new backups except on the first page
       state.passes = concat(state.passes, passFromJSON(passJSON))
     }
   },

@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Bugsnag from '@bugsnag/js'
 import BugsnagPluginVue from '@bugsnag/plugin-vue'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
 import VueRouter from 'vue-router'
 import router from './router'
@@ -10,6 +9,7 @@ import secrets from '@/config/secrets'
 import '@/assets/styles/bootstrap.scss'
 import i18n from '@/i18n'
 import Layout from '@/views/Layout.vue'
+import '@/config/bootstrap'
 import '@/config/filters'
 
 if (process.env.NODE_ENV === 'production') {
@@ -21,8 +21,6 @@ if (process.env.NODE_ENV === 'production') {
   Vue.config.productionTip = false
 }
 
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
 Vue.use(VueRouter)
 
 new Vue({

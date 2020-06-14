@@ -37,9 +37,9 @@
       return this.passCurrentPage
     }
 
-    set page(value: number) {
+    set page(page: number) {
       if (isNull(this.squadron)) return
-      this.loadPasses({ squadron: this.squadron.username, page: value })
+      this.loadPasses({ squadron: this.squadron.username, page })
     }
   }
 </script>
