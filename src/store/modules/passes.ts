@@ -34,6 +34,7 @@ import {
 let passesSubscription: ActionCable.Channel | null = null
 
 function createPassesSubscription(consumer: ActionCable.Cable, dispatch: Dispatch) {
+  if (passesSubscription) passesSubscription.unsubscribe()
   passesSubscription = consumer.subscriptions.create({
     channel: 'PassesChannel'
   }, {
