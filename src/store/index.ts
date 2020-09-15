@@ -33,5 +33,4 @@ store.subscribe(() => {
   window.localStorage.setItem('store', JSON.stringify(frozenState))
 })
 
-
 export default store

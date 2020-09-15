@@ -17,7 +17,6 @@ context('Logged in', () => {
           mimeType: 'image/png'
         }, { subjectType: 'input' })
 
-
         cy.dataCy('signUpSubmit').click()
         cy.dataCy('squadron-password_confirmation-group').get('.invalid-feedback').should('contain', 'doesn’t match password')
       })

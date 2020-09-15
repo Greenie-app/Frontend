@@ -14,7 +14,6 @@ import {
   ignoreResponseBodyOrThrowError
 } from '@/store/utils'
 
-
 interface JWTPayload {
   iss: string;
   sub: string;

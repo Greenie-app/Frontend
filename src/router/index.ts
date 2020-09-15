@@ -13,7 +13,6 @@ const EditSquadron = (/* webpackChunkName: "logged-in" */) => import('@/views/sq
 const NotFound = () => import('@/views/NotFound.vue')
 const ResetPassword = () => import('@/views/account/ResetPassword.vue')
 
-
 const routes: Array<RouteConfig> = [
   {
     path: '/',
