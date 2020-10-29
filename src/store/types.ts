@@ -5,6 +5,12 @@ import {
   Logfile, Pass, Squadron
 } from '@/types'
 
+/**
+ * The shape of validation errors received from the backend. A dictionary mapping field names to a
+ * list of their errors.
+ */
+export type Errors = Record<string, string[]>
+
 export interface RootState {
   squadron: Squadron | null;
   squadronLoading: boolean;
@@ -49,9 +55,3 @@ export interface APIFailure {
 }
 
 export type APIResponse<T> = Result<APISuccess<T>, APIFailure>
-
-/**
- * The shape of validation errors received from the backend. A dictionary mapping field names to a
- * list of their errors.
- */
-export type Errors = Record<string, string[]>

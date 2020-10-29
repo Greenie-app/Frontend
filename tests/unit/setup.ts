@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function,
-    mocha/no-top-level-hooks */
+    mocha/no-top-level-hooks,mocha/no-exports */
 
-import 'isomorphic-fetch'
+import 'cross-fetch/polyfill'
 import chai from 'chai'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
