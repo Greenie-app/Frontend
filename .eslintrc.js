@@ -9,7 +9,6 @@ module.exports = {
     'plugin:vue/essential'
   ],
   parserOptions: {
-    parser: '@typescript-eslint/parser', // the typescript-parser for eslint, instead of tslint
     ecmaVersion: 2020,
     ecmaFeatures: {
       jsx: false
