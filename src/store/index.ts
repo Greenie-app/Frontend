@@ -1,8 +1,7 @@
 import Vue from 'vue'
-import Vuex from 'vuex'
+import Vuex, { createLogger } from 'vuex'
 
 import { capitalize } from 'lodash-es'
-import createLogger from 'vuex/dist/logger'
 import { AnyModuleState, RootState } from '@/store/types'
 import root from '@/store/modules/root'
 import pilots from '@/store/modules/pilots'

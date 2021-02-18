@@ -1,3 +1,5 @@
+/* eslint-disable no-shadow */
+
 import { DateTime } from 'luxon'
 
 interface Image {
