@@ -12,7 +12,7 @@ import Layout from '@/views/Layout.vue'
 import '@/config/bootstrap'
 import '@/config/filters'
 
-if (process.env.NODE_ENV === 'production') {
+if (secrets.bugsnagAPIKey !== 'disabled') {
   Bugsnag.start({
     apiKey: secrets.bugsnagAPIKey,
     plugins: [new BugsnagPluginVue(Vue)]
