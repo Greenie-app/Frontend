@@ -149,6 +149,7 @@ const en: VueI18n.LocaleMessageObject = {
       perfect: '_OK_ — Perfect',
       technique_waveoff: 'Waveoff: Technique',
       foul_deck_waveoff: 'Waveoff: Foul Deck',
+      pattern_waveoff: 'Waveoff: Pattern',
       own_waveoff: 'Own Waveoff'
     },
     trap: {
@@ -167,6 +168,7 @@ const en: VueI18n.LocaleMessageObject = {
       perfect: '_OK_',
       technique_waveoff: 'WO',
       foul_deck_waveoff: 'WO',
+      pattern_waveoff: 'WO',
       own_waveoff: 'OWO'
     }
   },

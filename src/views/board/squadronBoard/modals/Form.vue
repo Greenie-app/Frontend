@@ -169,6 +169,7 @@
         case Grade.Bolter:
         case Grade.FoulDeckWaveoff:
         case Grade.TechniqueWaveoff:
+        case Grade.PatternWaveoff:
         case Grade.OwnWaveoff:
           return false
         default:

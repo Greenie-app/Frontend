@@ -28,6 +28,7 @@ export enum Grade {
   Perfect = 'perfect',
   TechniqueWaveoff = 'technique_waveoff',
   FoulDeckWaveoff = 'foul_deck_waveoff',
+  PatternWaveoff = 'pattern_waveoff',
   OwnWaveoff = 'own_waveoff'
 }
 
