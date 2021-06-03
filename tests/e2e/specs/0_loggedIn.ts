@@ -51,7 +51,7 @@ context('Logged in', () => {
       cy.get('#pass-pilot').should('have.value', 'Stretch')
       cy.get('#pass-aircraft_type').should('have.value', 'F-14B')
       cy.get('#pass-score').should('have.value', '')
-      cy.get('#pass-wire').should('have.value', '')
+      cy.get('#pass-wire').should('not.exist')
       cy.get('#pass-trap').should('have.value', '')
 
       cy.get('button.close').click()

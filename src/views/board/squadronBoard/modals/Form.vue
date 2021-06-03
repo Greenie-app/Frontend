@@ -66,7 +66,8 @@
                            object="pass"
                            placeholder=""
                            type="select"
-                           v-model="pass.wire" />
+                           v-model="pass.wire"
+                           v-if="showWire" />
       </b-form-row>
 
       <field-with-errors :errors="formErrors"
@@ -119,7 +120,7 @@
   import { Prop, Watch } from 'vue-property-decorator'
   import { DateTime } from 'luxon'
   import { Getter } from 'vuex-class'
-  import { isNil, range } from 'lodash-es'
+  import { isNil, isNull, range } from 'lodash-es'
   import { Errors } from '@/store/types'
   import FieldWithErrors from '@/components/FieldWithErrors.vue'
   import { Grade, Pass } from '@/types'
@@ -158,10 +159,21 @@
     }
 
     get wireOptions(): { text: string, value: number | null }[] {
-      return [
-        { text: 'WO / B', value: null },
-        ...range(1, 5).map(n => ({ text: n.toString(), value: n }))
-      ]
+      return range(1, 5).map(n => ({ text: n.toString(), value: n }))
+    }
+
+    get showWire(): boolean {
+      console.log(this.pass, this.pass.grade)
+      if (isNil(this.pass.grade)) return false
+      switch (this.pass.grade) {
+        case Grade.Bolter:
+        case Grade.FoulDeckWaveoff:
+        case Grade.TechniqueWaveoff:
+        case Grade.OwnWaveoff:
+          return false
+        default:
+          return true
+      }
     }
 
     get isUpdate(): boolean {
