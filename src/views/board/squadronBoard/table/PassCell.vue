@@ -85,6 +85,7 @@
 
 <style lang="scss" scoped>
   td {
+    background-blend-mode: overlay;
     background-position: center center;
     background-repeat: no-repeat;
     background-size: contain;
