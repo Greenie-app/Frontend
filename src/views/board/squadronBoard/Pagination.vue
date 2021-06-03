@@ -13,7 +13,7 @@
   import { isNull } from 'lodash-es'
   import { Squadron } from '@/types'
 
-  const perPage = 50
+  const perPage = 10
 
   @Component
   export default class Pagination extends Vue {

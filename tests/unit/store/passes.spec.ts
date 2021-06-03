@@ -45,7 +45,7 @@ describe('Vuex: passes', () => {
         expect(passesByPilot.map(([name, passes]) => [name, passes.map(p => p.ID)])).to.eql([
           ['Jambo72nd', [12]],
           ['Raamon', [10]],
-          ['Stretch | 55FS', [11, 4]],
+          ['Stretch | 55FS', [4, 11]],
           [null, [9, 8, 7, 6, 5, 3, 2, 1]]
         ])
       })

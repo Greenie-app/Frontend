@@ -170,11 +170,11 @@ context('Logged in', () => {
 
     context('Deleting passes', () => {
       it('deletes a pass', () => {
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=unknown]').dataCy('passCell').first()
+        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch]').dataCy('passCell').first()
           .click()
         cy.dataCy('deletePassButton').click()
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=unknown]').dataCy('passCell')
-          .should('have.length', 6)
+        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch]').dataCy('passCell')
+          .should('have.length', 3)
       })
 
       it('deletes all unassigned passes', () => {

@@ -86,7 +86,7 @@ const getters: GetterTree<PassesState, RootState> = {
     const pilots = keys(passes).sort((a, b) => collator.compare(a, b))
     const pilotsAndPasses: [string | null, Pass[]][] = pilots.map(pilot => [
       pilot,
-      sortBy(passes[pilot], p => -p.time.diffNow().milliseconds)
+      sortBy(passes[pilot], p => p.time.diffNow().milliseconds)
     ])
 
     const unknownPasses = sortBy(
@@ -191,7 +191,7 @@ const mutations: MutationTree<PassesState> = {
       ]
     } else {
       if (state.passCurrentPage !== 1) return
-      // don't append new backups except on the first page
+      // don't append new passes except on the first page
       state.passes = concat(state.passes, passFromJSON(passJSON))
     }
   },
