@@ -119,7 +119,7 @@
   import { Prop, Watch } from 'vue-property-decorator'
   import { DateTime } from 'luxon'
   import { Getter } from 'vuex-class'
-  import { isNil, times } from 'lodash-es'
+  import { isNil, range } from 'lodash-es'
   import { Errors } from '@/store/types'
   import FieldWithErrors from '@/components/FieldWithErrors.vue'
   import { Grade, Pass } from '@/types'
@@ -160,7 +160,7 @@
     get wireOptions(): { text: string, value: number | null }[] {
       return [
         { text: 'WO / B', value: null },
-        ...times(4, n => ({ text: n.toString(), value: n }))
+        ...range(1, 5).map(n => ({ text: n.toString(), value: n }))
       ]
     }
 
