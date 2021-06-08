@@ -24,6 +24,8 @@
   import { Prop } from 'vue-property-decorator'
   import { Action } from 'vuex-class'
   import { Result } from 'ts-results'
+  import Bugsnag from '@bugsnag/js'
+  import { isString } from 'lodash-es'
   import FieldWithErrors from '@/components/FieldWithErrors.vue'
   import FormErrors from '@/mixins/FormErrors'
   import { Errors } from '@/store/types'
@@ -52,8 +54,16 @@
           })
           this.$bvModal.hide('rename-modal')
         } else this.formErrors = result.val
-      } catch (error) {
-        this.formError = error.message
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.formError = error.message
+          Bugsnag.notify(error)
+        } else if (isString(error)) {
+          this.formError = error
+          Bugsnag.notify(error)
+        } else {
+          throw error
+        }
       } finally {
         this.busy = false
       }

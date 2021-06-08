@@ -258,9 +258,13 @@ const actions: ActionTree<PassesState, RootState> = {
       const passCount = result.val.response.headers.has('X-Count')
         ? Number.parseInt(result.val.response.headers.get('X-Count')!, 10) : 1
       commit('UPDATE_PASS_PAGES', { page: currentPage, count: passCount })
-    } catch (error) {
-      commit('SET_PASSES_ERROR', { error })
-      Bugsnag.notify(error)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        commit('SET_PASSES_ERROR', { error })
+        Bugsnag.notify(error)
+      } else {
+        throw error
+      }
     }
   },
 

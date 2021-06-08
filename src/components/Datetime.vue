@@ -82,8 +82,8 @@
         this.dateValue = null
         this.timeValue = null
       } else {
-        this.dateValue = this.value.toFormat(internalDateFormat, { timeZone: 'utc' })
-        this.timeValue = this.value.toFormat(internalTimeFormat, { timeZone: 'utc' })
+        this.dateValue = this.value.setZone('utc').toFormat(internalDateFormat)
+        this.timeValue = this.value.setZone('utc').toFormat(internalTimeFormat)
       }
     }
 

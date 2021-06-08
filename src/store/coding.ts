@@ -36,8 +36,15 @@ export type SquadronJSONUp =
 
 export function squadronFromJSON(JSON: SquadronJSONDown): Squadron {
   return {
-    ...omit(JSON,
-      'id', 'created_at', 'updated_at', 'is_editable', 'boarding_rate', 'unknown_pass_count'),
+    ...omit(
+      JSON,
+      'id',
+      'created_at',
+      'updated_at',
+      'is_editable',
+      'boarding_rate',
+      'unknown_pass_count'
+    ),
     ID: JSON.id,
     createdAt: DateTime.fromISO(JSON.created_at, { setZone: true }),
     updatedAt: DateTime.fromISO(JSON.updated_at, { setZone: true }),
@@ -56,8 +63,16 @@ export function squadronFromJSON(JSON: SquadronJSONDown): Squadron {
 
 export function squadronToJSON(squadron: Squadron): Partial<SquadronJSONUp> {
   return {
-    ...omit(squadron,
-      'ID', 'createdAt', 'updatedAt', 'isEditable', 'image', 'boarding_rate', 'unknown_pass_count')
+    ...omit(
+      squadron,
+      'ID',
+      'createdAt',
+      'updatedAt',
+      'isEditable',
+      'image',
+      'boarding_rate',
+      'unknown_pass_count'
+    )
   }
 }
 

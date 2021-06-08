@@ -43,7 +43,7 @@
   import { Action } from 'vuex-class'
   import { Result } from 'ts-results'
   import Bugsnag from '@bugsnag/js'
-  import { has } from 'lodash-es'
+  import { has, isString } from 'lodash-es'
   import MustBeUnauthenticated from '@/components/MustBeUnauthenticated.vue'
   import Narrow from '@/components/Narrow.vue'
   import FormErrors from '@/mixins/FormErrors'
@@ -81,9 +81,16 @@
           await this.$bvModal.msgBoxOk(<string> this.$t('resetPassword.badToken'))
           await this.$router.push({ name: 'Home' })
         } else this.formErrors = result.val
-      } catch (error) {
-        this.formError = error.message
-        Bugsnag.notify(error)
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.formError = error.message
+          Bugsnag.notify(error)
+        } else if (isString(error)) {
+          this.formError = error
+          Bugsnag.notify(error)
+        } else {
+          throw error
+        }
       }
     }
   }

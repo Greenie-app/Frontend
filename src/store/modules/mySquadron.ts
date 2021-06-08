@@ -86,9 +86,13 @@ const actions: ActionTree<MySquadronState, RootState> = {
       })
       const squadron = loadResponseBodyOrThrowError(result)
       commit('FINISH_MY_SQUADRON', { squadron: squadronFromJSON(squadron) })
-    } catch (error) {
-      commit('SET_MY_SQUADRON_ERROR', { error })
-      Bugsnag.notify(error)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        commit('SET_MY_SQUADRON_ERROR', { error })
+        Bugsnag.notify(error)
+      } else {
+        throw error
+      }
     }
   },
 
@@ -117,7 +121,7 @@ const actions: ActionTree<MySquadronState, RootState> = {
         return new Ok(changedSquadron)
       }
       return squadronResult
-    } catch (error) {
+    } catch (error: unknown) {
       commit('SET_MY_SQUADRON_ERROR', { error })
       throw error
     }

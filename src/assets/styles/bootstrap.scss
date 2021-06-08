@@ -1,9 +1,9 @@
 $enable-responsive-font-sizes: true;
 
-@import '~bootswatch/dist/flatly/variables';
-@import '~bootstrap';
-@import '~bootstrap-vue';
-@import '~bootswatch/dist/flatly/bootswatch';
+@import "~bootswatch/dist/flatly/variables";
+@import "~bootstrap";
+@import "~bootstrap-vue";
+@import "~bootswatch/dist/flatly/bootswatch";
 
 body {
   height: 100vh;

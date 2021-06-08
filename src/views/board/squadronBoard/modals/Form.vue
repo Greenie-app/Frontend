@@ -120,7 +120,7 @@
   import { Prop, Watch } from 'vue-property-decorator'
   import { DateTime } from 'luxon'
   import { Getter } from 'vuex-class'
-  import { isNil, isNull, range } from 'lodash-es'
+  import { isNil, range } from 'lodash-es'
   import { Errors } from '@/store/types'
   import FieldWithErrors from '@/components/FieldWithErrors.vue'
   import { Grade, Pass } from '@/types'
@@ -166,14 +166,14 @@
       console.log(this.pass, this.pass.grade)
       if (isNil(this.pass.grade)) return false
       switch (this.pass.grade) {
-        case Grade.Bolter:
-        case Grade.FoulDeckWaveoff:
-        case Grade.TechniqueWaveoff:
-        case Grade.PatternWaveoff:
-        case Grade.OwnWaveoff:
-          return false
-        default:
-          return true
+      case Grade.Bolter:
+      case Grade.FoulDeckWaveoff:
+      case Grade.TechniqueWaveoff:
+      case Grade.PatternWaveoff:
+      case Grade.OwnWaveoff:
+        return false
+      default:
+        return true
       }
     }
 
@@ -184,42 +184,42 @@
     @Watch('pass.grade')
     onGradeChanged(): void {
       switch (this.pass.grade) {
-        case Grade.Cut:
-          this.pass.score = 0.0
-          this.pass.trap = true
-          break
-        case Grade.NoGrade:
-          this.pass.score = 2.0
-          this.pass.trap = true
-          break
-        case Grade.Bolter:
-          this.pass.score = 2.5
-          this.pass.wire = null
-          this.pass.trap = false
-          break
-        case Grade.Fair:
-          this.pass.score = 3.0
-          this.pass.trap = true
-          break
-        case Grade.OK:
-          this.pass.score = 4.0
-          this.pass.trap = true
-          break
-        case Grade.Perfect:
-          this.pass.score = 5.0
-          this.pass.wire = 3
-          this.pass.trap = true
-          break
-        case Grade.TechniqueWaveoff:
-          this.pass.score = 1.0
-          this.pass.wire = null
-          this.pass.trap = false
-          break
-        default:
-          this.pass.score = null
-          this.pass.wire = null
-          this.pass.trap = null
-          break
+      case Grade.Cut:
+        this.pass.score = 0.0
+        this.pass.trap = true
+        break
+      case Grade.NoGrade:
+        this.pass.score = 2.0
+        this.pass.trap = true
+        break
+      case Grade.Bolter:
+        this.pass.score = 2.5
+        this.pass.wire = null
+        this.pass.trap = false
+        break
+      case Grade.Fair:
+        this.pass.score = 3.0
+        this.pass.trap = true
+        break
+      case Grade.OK:
+        this.pass.score = 4.0
+        this.pass.trap = true
+        break
+      case Grade.Perfect:
+        this.pass.score = 5.0
+        this.pass.wire = 3
+        this.pass.trap = true
+        break
+      case Grade.TechniqueWaveoff:
+        this.pass.score = 1.0
+        this.pass.wire = null
+        this.pass.trap = false
+        break
+      default:
+        this.pass.score = null
+        this.pass.wire = null
+        this.pass.trap = null
+        break
       }
     }
 

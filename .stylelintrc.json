@@ -1,5 +1,8 @@
 {
-  "extends": "stylelint-config-sass-guidelines",
+  "extends": [
+    "stylelint-config-standard-scss",
+    "stylelint-config-recommended-vue/scss"
+  ],
   "rules": {
     "function-parentheses-space-inside": "never-single-line",
     "max-nesting-depth": null,

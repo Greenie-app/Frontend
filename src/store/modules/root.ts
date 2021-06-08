@@ -165,9 +165,13 @@ const actions: ActionTree<RootState, RootState> = {
       })
       const squadron = loadResponseBodyOrThrowError(result)
       commit('FINISH_SQUADRON', { squadron: squadronFromJSON(squadron) })
-    } catch (error) {
-      commit('SET_SQUADRON_ERROR', { error })
-      Bugsnag.notify(error)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        commit('SET_SQUADRON_ERROR', { error })
+        Bugsnag.notify(error)
+      } else {
+        throw error
+      }
     }
   }
 }

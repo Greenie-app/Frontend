@@ -34,8 +34,8 @@
   import { Prop } from 'vue-property-decorator'
   import { isNull } from 'lodash-es'
   import { Action, Getter } from 'vuex-class'
-  import { Squadron } from '@/types'
   import AuthCheck from '@/mixins/AuthCheck'
+  import { Squadron } from '@/types'
 
   @Component
   export default class PassHeaderCell extends mixins(AuthCheck) {
@@ -43,11 +43,11 @@
 
     @Prop({ type: Number }) average!: number | null
 
-    @Getter unknownPassCount!: number
-
     @Getter squadron!: Squadron | null
 
     @Getter mySquadron!: Squadron | null
+
+    @Getter unknownPassCount!: number
 
     @Action deleteAllUnknown!: () => Promise<void>
 
@@ -75,7 +75,7 @@
       this.busy = true
       try {
         await this.deleteAllUnknown()
-      } catch (error) {
+      } catch (error: unknown) {
         await this.$bvModal.msgBoxOk(<string> this.$t('squadronBoard.deleteAll.error.message'), {
           title: <string> this.$t('squadronBoard.deleteAll.title'),
           okTitle: <string> this.$t('squadronBoard.deleteAll.error.okButton')

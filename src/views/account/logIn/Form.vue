@@ -50,6 +50,7 @@
   import { Action } from 'vuex-class'
   import { Result } from 'ts-results'
   import Bugsnag from '@bugsnag/js'
+  import { isString } from 'lodash-es'
 
   @Component
   export default class Form extends Vue {
@@ -74,9 +75,16 @@
         })
         if (result.ok) await this.$router.push({ name: 'Home' })
         else this.loginError = result.val
-      } catch (error) {
-        this.loginError = error
-        Bugsnag.notify(error)
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.loginError = error.message
+          Bugsnag.notify(error)
+        } else if (isString(error)) {
+          this.loginError = error
+          Bugsnag.notify(error)
+        } else {
+          throw error
+        }
       }
     }
   }

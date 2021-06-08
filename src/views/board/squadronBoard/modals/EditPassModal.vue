@@ -16,7 +16,8 @@
   import { Prop, Watch } from 'vue-property-decorator'
   import { Action } from 'vuex-class'
   import { Result } from 'ts-results'
-  import { cloneDeep } from 'lodash-es'
+  import { cloneDeep, isString } from 'lodash-es'
+  import Bugsnag from '@bugsnag/js'
   import { Pass } from '@/types'
   import FormErrors from '@/mixins/FormErrors'
   import { Errors } from '@/store/types'
@@ -61,8 +62,16 @@
         if (result.ok) {
           this.$bvModal.hide(this.id)
         } else this.formErrors = result.val
-      } catch (error) {
-        this.formError = error.message
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.formError = error.message
+          Bugsnag.notify(error)
+        } else if (isString(error)) {
+          this.formError = error
+          Bugsnag.notify(error)
+        } else {
+          throw error
+        }
       } finally {
         this.busy = false
       }
@@ -75,8 +84,10 @@
       try {
         await this.deletePass({ pass: this.pass })
         this.$bvModal.hide(this.id)
-      } catch (error) {
-        this.formError = error.message
+      } catch (error: unknown) {
+        if (error instanceof Error) this.formError = error.message
+        else if (isString(error)) this.formError = error
+        else throw error
       } finally {
         this.busy = false
       }

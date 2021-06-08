@@ -97,11 +97,11 @@
   }
 
   .f18 {
-    background-image: url('../../../../assets/images/f18.png');
+    background-image: url("../../../../assets/images/f18.png");
   }
 
   .f14 {
-    background-image: url('../../../../assets/images/f14.png');
+    background-image: url("../../../../assets/images/f14.png");
   }
 
   .unscored {

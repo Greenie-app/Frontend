@@ -33,20 +33,20 @@
   import Component, { mixins } from 'vue-class-component'
   import { Prop } from 'vue-property-decorator'
   import { Action, Getter } from 'vuex-class'
-  import { Squadron } from '@/types'
   import RenameModal from '@/views/board/pilotBoard/RenameModal.vue'
   import MergeModal from '@/views/board/pilotBoard/MergeModal.vue'
-  import AuthCheck from '@/mixins/AuthCheck'
+  import AuthCheckRequiredSquadron from '@/mixins/AuthCheckRequiredSquadron'
+  import { Squadron } from '@/types'
 
   @Component({
     components: { MergeModal, RenameModal }
   })
-  export default class Header extends mixins(AuthCheck) {
-    @Prop({ type: Object, required: true }) squadron!: Squadron
-
+  export default class Header extends mixins(AuthCheckRequiredSquadron) {
     @Prop({ type: String, required: true }) pilot!: string
 
     @Getter pilotNames!: string[]
+
+    @Getter squadron!: Squadron
 
     @Getter mySquadron!: Squadron | null
 
@@ -87,7 +87,7 @@
           okTitle: <string> this.$t('pilotBoard.deleteConfirmModal.okButton'),
           okVariant: 'danger'
         }
-)
+      )
 
       if (shouldDelete) {
         try {
@@ -97,10 +97,14 @@
             name: 'SquadronBoard',
             params: { squadron: this.squadron.username }
           })
-        } catch (error) {
-          await this.$bvModal.msgBoxOk(error.message, {
-            title: <string> this.$t('errorModal')
-          })
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            await this.$bvModal.msgBoxOk(error.message, {
+              title: <string> this.$t('errorModal')
+            })
+          } else {
+            throw error
+          }
         }
       }
     }

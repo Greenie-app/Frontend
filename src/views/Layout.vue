@@ -3,7 +3,7 @@
     <header>
       <navbar />
     </header>
-    <main class="flex-shrink-0 py-5" role="main">
+    <main class="flex-shrink-0 py-5">
       <b-container>
         <router-view />
       </b-container>

@@ -1,7 +1,7 @@
-/* eslint-disable no-param-reassign */
+/* eslint-disable no-param-reassign,@typescript-eslint/no-var-requires */
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const CompressionPlugin = require('compression-webpack-plugin')
+const StyleLintPlugin = require('stylelint-webpack-plugin')
 
 module.exports = {
   lintOnSave: false,
@@ -39,17 +39,16 @@ module.exports = {
       return options
     })
 
-    // load *.txt.json files as plain strings, not parsed JSON (used for test fixtures)
-    config.module
-      .rule('json-fixture')
-      .test(/\.txt.json$/)
-      .type('javascript/auto')
-      .use('text-loader')
-      .loader('text-loader')
-      .end()
-
     // speed up first load
     config.plugins.delete('prefetch')
     config.plugin('CompressionPlugin').use(CompressionPlugin)
+  },
+
+  configureWebpack: {
+    plugins: [
+      new StyleLintPlugin({
+        files: ['src/**/*.{vue,scss}']
+      })
+    ]
   }
 }

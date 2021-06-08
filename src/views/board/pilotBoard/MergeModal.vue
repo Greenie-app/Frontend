@@ -50,8 +50,12 @@
         await this.mergePilots({ predator: this.predator, prey: this.prey })
         await this.loadPasses({ squadron: this.$route.params.squadron })
         await this.$router.push({ name: 'SquadronBoard', params: { squadron: this.$route.params.squadron } })
-      } catch (error) {
-        this.error = error
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.error = error
+        } else {
+          throw error
+        }
       } finally {
         this.busy = false
       }

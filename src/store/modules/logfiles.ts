@@ -127,9 +127,13 @@ const actions: ActionTree<LogfilesState, RootState> = {
       if (rootGetters.actionCableConsumer) {
         createLogfilesSubscription(rootGetters.actionCableConsumer, dispatch)
       }
-    } catch (error) {
-      commit('SET_LOGFILES_ERROR', { error })
-      Bugsnag.notify(error)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        commit('SET_LOGFILES_ERROR', { error })
+        Bugsnag.notify(error)
+      } else {
+        throw error
+      }
     }
   },
 

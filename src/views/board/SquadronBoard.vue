@@ -20,7 +20,6 @@
   import Component, { mixins } from 'vue-class-component'
   import { Getter } from 'vuex-class'
   import SquadronMustBeLoaded from '@/components/SquadronMustBeLoaded.vue'
-  import { Squadron } from '@/types'
   import Error from '@/components/Error.vue'
   import Spinner from '@/components/Spinner.vue'
   import Table from '@/views/board/squadronBoard/Table.vue'
@@ -28,6 +27,7 @@
   import Actions from '@/views/board/squadronBoard/Actions.vue'
   import Pagination from '@/views/board/squadronBoard/Pagination.vue'
   import AuthCheck from '@/mixins/AuthCheck'
+  import { Squadron } from '@/types'
 
   @Component({
     components: {
@@ -43,12 +43,12 @@
   export default class SquadronBoard extends mixins(AuthCheck) {
     @Getter squadron!: Squadron | null
 
+    @Getter mySquadron!: Squadron | null
+
     @Getter passesLoaded!: boolean
 
     @Getter passesError!: Error | null
 
     @Getter noPasses!: boolean
-
-    @Getter mySquadron!: Squadron | null
   }
 </script>

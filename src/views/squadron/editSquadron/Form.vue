@@ -48,6 +48,8 @@
   import { Action, Getter } from 'vuex-class'
   import { Result } from 'ts-results'
   import { Watch } from 'vue-property-decorator'
+  import Bugsnag from '@bugsnag/js'
+  import { isString } from 'lodash-es'
   import { Errors } from '@/store/types'
   import { Squadron } from '@/types'
   import { SquadronJSONUp, squadronToJSON } from '@/store/coding'
@@ -84,8 +86,16 @@
           })
           await this.loadSquadron({ username: result.val.username })
         } else this.formErrors = result.val
-      } catch (error) {
-        this.formError = error.message
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.formError = error.message
+          Bugsnag.notify(error)
+        } else if (isString(error)) {
+          this.formError = error
+          Bugsnag.notify(error)
+        } else {
+          throw error
+        }
       }
     }
 

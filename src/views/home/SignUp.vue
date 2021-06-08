@@ -69,7 +69,7 @@
   import { Result } from 'ts-results'
   import { Watch } from 'vue-property-decorator'
   import slugify from 'slugify'
-  import { isUndefined } from 'lodash-es'
+  import { isString, isUndefined } from 'lodash-es'
   import Bugsnag from '@bugsnag/js'
   import { SquadronJSONUp } from '@/store/coding'
   import { Errors } from '@/store/types'
@@ -100,9 +100,16 @@
             params: { squadron: result.val.username }
           })
         } else this.formErrors = result.val
-      } catch (error) {
-        this.formError = error.message
-        Bugsnag.notify(error)
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.formError = error.message
+          Bugsnag.notify(error)
+        } else if (isString(error)) {
+          this.formError = error
+          Bugsnag.notify(error)
+        } else {
+          throw error
+        }
       }
     }
 

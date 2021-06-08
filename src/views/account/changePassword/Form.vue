@@ -53,6 +53,7 @@
   import { Result } from 'ts-results'
   import { Action } from 'vuex-class'
   import Bugsnag from '@bugsnag/js'
+  import { isString } from 'lodash-es'
   import FormErrors from '@/mixins/FormErrors'
   import { Errors } from '@/store/types'
   import FieldWithErrors from '@/components/FieldWithErrors.vue'
@@ -91,9 +92,16 @@
           this.passwordConfirmation = ''
           this.success = true
         } else this.formErrors = result.val
-      } catch (error) {
-        this.formError = error.message
-        Bugsnag.notify(error)
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.formError = error.message
+          Bugsnag.notify(error)
+        } else if (isString(error)) {
+          this.formError = error
+          Bugsnag.notify(error)
+        } else {
+          throw error
+        }
       }
     }
   }

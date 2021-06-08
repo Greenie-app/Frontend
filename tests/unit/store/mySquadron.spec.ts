@@ -83,7 +83,7 @@ describe('Vuex: mySquadron', () => {
       try {
         await store.dispatch('updateMySquadron', { body: new FormData() })
         // eslint-disable-next-line no-empty
-      } catch (error) {}
+      } catch (error: unknown) {}
 
       const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
       expect(state.mySquadronLoading).to.be.false
