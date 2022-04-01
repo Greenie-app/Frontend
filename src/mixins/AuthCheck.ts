@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { isNull } from 'lodash-es'
+import { Getter } from 'vuex-class'
 import { Squadron } from '@/types'
 
 /**
@@ -9,9 +10,9 @@ import { Squadron } from '@/types'
 
 @Component
 export default class AuthCheck extends Vue {
-  squadron!: Squadron | null
+  @Getter squadron!: Squadron | null
 
-  mySquadron!: Squadron | null
+  @Getter mySquadron!: Squadron | null
 
   /**
    * @return Whether or not the currently-shown squadron is the same as the logged-in squadron.

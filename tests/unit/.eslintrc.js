@@ -10,8 +10,9 @@ module.exports = {
     'plugin:mocha/recommended'
   ],
   rules: {
-    strict: 'off',
+    '@typescript-eslint/no-var-requires': 'off',
     'mocha/no-hooks-for-single-case': 'off',
-    'mocha/no-mocha-arrows': 'off'
+    'mocha/no-mocha-arrows': 'off',
+    strict: 'off'
   }
 }

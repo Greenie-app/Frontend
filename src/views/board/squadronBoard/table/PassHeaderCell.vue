@@ -35,17 +35,12 @@
   import { isNull } from 'lodash-es'
   import { Action, Getter } from 'vuex-class'
   import AuthCheck from '@/mixins/AuthCheck'
-  import { Squadron } from '@/types'
 
   @Component
   export default class PassHeaderCell extends mixins(AuthCheck) {
     @Prop({ type: String, required: false }) pilot!: string | null
 
     @Prop({ type: Number }) average!: number | null
-
-    @Getter squadron!: Squadron | null
-
-    @Getter mySquadron!: Squadron | null
 
     @Getter unknownPassCount!: number
 

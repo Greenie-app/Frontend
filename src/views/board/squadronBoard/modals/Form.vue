@@ -163,7 +163,6 @@
     }
 
     get showWire(): boolean {
-      console.log(this.pass, this.pass.grade)
       if (isNil(this.pass.grade)) return false
       switch (this.pass.grade) {
       case Grade.Bolter:

@@ -76,7 +76,7 @@
         })
         if (result.ok) {
           await this.$bvModal.msgBoxOk(<string> this.$t('resetPassword.successMessage'))
-          await this.$router.push({ name: 'Home' })
+          await this.$router.push({ name: 'Home' }).catch()
         } else if (has(result.val, 'reset_password_token')) {
           await this.$bvModal.msgBoxOk(<string> this.$t('resetPassword.badToken'))
           await this.$router.push({ name: 'Home' })

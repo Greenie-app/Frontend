@@ -49,6 +49,7 @@ module.exports = {
       new StyleLintPlugin({
         files: ['src/**/*.{vue,scss}']
       })
-    ]
+    ],
+    devtool: 'source-map' // fix for stack overflow in source-map-support
   }
 }

@@ -1,12 +1,20 @@
 import { shallowMount } from '@vue/test-utils'
 import { expect } from 'chai'
+import { Store } from 'vuex'
 import { getSandbox } from '../../../setup'
-import { componentLocalVue } from '../../../utils'
+import { componentLocalVue, createTestStore } from '../../../utils'
 import i18n from '@/i18n'
 import Header from '@/views/board/pilotBoard/Header.vue'
-import store from '@/store'
+import { RootState } from '@/store/types'
 
 describe('pilotBoard/Header.vue', () => {
+  let store: Store<RootState>
+
+  beforeEach(() => {
+    store = createTestStore()
+    store.commit('FINISH_SQUADRON', { squadron: { username: '72nd', name: '72nd VFW' } })
+  })
+
   describe('#confirmDelete', () => {
     it('asks for confirmation and deletes the user if approved', async () => {
       const routerSpy = getSandbox().stub().resolves()
@@ -20,8 +28,7 @@ describe('pilotBoard/Header.vue', () => {
           pilotNames: ['Stretch']
         },
         propsData: {
-          pilot: 'Jambo',
-          squadron: { username: '72nd' }
+          pilot: 'Jambo'
         },
         i18n,
         store
@@ -45,11 +52,11 @@ describe('pilotBoard/Header.vue', () => {
           $route: { params: { squadron: '72nd' } },
           mySquadron: { username: '72nd' },
           loadPasses: getSandbox().stub().resolves(),
-          pilotNames: ['Stretch']
+          pilotNames: ['Stretch'],
+          squadron: { username: '72nd', name: '72nd VFW' }
         },
         propsData: {
-          pilot: 'Jambo',
-          squadron: { username: '72nd' }
+          pilot: 'Jambo'
         },
         i18n,
         store
@@ -73,11 +80,11 @@ describe('pilotBoard/Header.vue', () => {
           $route: { params: { squadron: '72nd' } },
           mySquadron: { username: '72nd' },
           loadPasses: getSandbox().stub().resolves(),
-          pilotNames: ['Stretch']
+          pilotNames: ['Stretch'],
+          squadron: { username: '72nd', name: '72nd VFW' }
         },
         propsData: {
-          pilot: 'Jambo',
-          squadron: { username: '72nd' }
+          pilot: 'Jambo'
         },
         i18n,
         store

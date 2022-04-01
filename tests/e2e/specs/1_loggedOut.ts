@@ -81,7 +81,7 @@ context('Logged out', () => {
         cy.get('#login-field').type('squadron-1')
         cy.get('#password-field').type('password123')
         cy.dataCy('loginSubmitButton').click()
-        cy.location('hash').should('eql', '#/squadrons/squadron-1/')
+        cy.location('hash').should('eql', '#/')
       })
     })
   })

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Bugsnag from '@bugsnag/js'
+import Bugsnag, { Plugin } from '@bugsnag/js'
 import BugsnagPluginVue from '@bugsnag/plugin-vue'
 
 import VueRouter from 'vue-router'
@@ -15,7 +15,7 @@ import '@/config/filters'
 if (secrets.bugsnagAPIKey !== 'disabled') {
   Bugsnag.start({
     apiKey: secrets.bugsnagAPIKey,
-    plugins: [new BugsnagPluginVue(Vue)]
+    plugins: [<Plugin> new BugsnagPluginVue(Vue)]
   })
 
   Vue.config.productionTip = false

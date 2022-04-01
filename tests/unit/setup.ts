@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function,
-    mocha/no-top-level-hooks,mocha/no-exports */
+    mocha/no-top-level-hooks,import/prefer-default-export */
 
 import 'cross-fetch/polyfill'
 import chai from 'chai'
@@ -7,7 +7,7 @@ import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import deepEqualInAnyOrder from 'deep-equal-in-any-order'
 import Sinon, { SinonSandbox } from 'sinon'
-import { getLocal } from 'mockttp'
+import nock from 'nock'
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
@@ -23,17 +23,16 @@ const localStorage = {
 }
 
 let sandbox: SinonSandbox
-export const mockServer = getLocal()
 
-beforeEach(async () => {
+beforeEach(() => {
   sandbox = Sinon.createSandbox()
   sandbox.replaceGetter(window, 'localStorage', () => localStorage)
-  await mockServer.start(8080)
+  nock.disableNetConnect()
 })
 
-afterEach(async () => {
+afterEach(() => {
   sandbox.restore()
-  await mockServer.stop()
+  nock.cleanAll()
 })
 
 export function getSandbox(): SinonSandbox { return sandbox }

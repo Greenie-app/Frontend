@@ -27,7 +27,6 @@
   import Actions from '@/views/board/squadronBoard/Actions.vue'
   import Pagination from '@/views/board/squadronBoard/Pagination.vue'
   import AuthCheck from '@/mixins/AuthCheck'
-  import { Squadron } from '@/types'
 
   @Component({
     components: {
@@ -41,10 +40,6 @@
     }
   })
   export default class SquadronBoard extends mixins(AuthCheck) {
-    @Getter squadron!: Squadron | null
-
-    @Getter mySquadron!: Squadron | null
-
     @Getter passesLoaded!: boolean
 
     @Getter passesError!: Error | null

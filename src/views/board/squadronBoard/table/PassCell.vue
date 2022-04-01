@@ -20,8 +20,7 @@
   import { Prop } from 'vue-property-decorator'
   import { isNull } from 'lodash-es'
   import { DateTime } from 'luxon'
-  import { Getter } from 'vuex-class'
-  import { Grade, Pass, Squadron } from '@/types'
+  import { Grade, Pass } from '@/types'
   import EditPassModal from '@/views/board/squadronBoard/modals/EditPassModal.vue'
   import { variant } from '@/config/utils'
   import AuthCheck from '@/mixins/AuthCheck'
@@ -36,10 +35,6 @@
   })
   export default class PassCell extends mixins(AuthCheck) {
     @Prop({ type: Object, required: true }) pass!: Pass
-
-    @Getter squadron!: Squadron | null
-
-    @Getter mySquadron!: Squadron | null
 
     get cellVariant(): string | null {
       return variant(this.pass)

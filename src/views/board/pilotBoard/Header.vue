@@ -36,7 +36,6 @@
   import RenameModal from '@/views/board/pilotBoard/RenameModal.vue'
   import MergeModal from '@/views/board/pilotBoard/MergeModal.vue'
   import AuthCheckRequiredSquadron from '@/mixins/AuthCheckRequiredSquadron'
-  import { Squadron } from '@/types'
 
   @Component({
     components: { MergeModal, RenameModal }
@@ -45,10 +44,6 @@
     @Prop({ type: String, required: true }) pilot!: string
 
     @Getter pilotNames!: string[]
-
-    @Getter squadron!: Squadron
-
-    @Getter mySquadron!: Squadron | null
 
     @Action deletePilot!: (args: { pilot: string }) => Promise<void>
 

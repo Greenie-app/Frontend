@@ -95,10 +95,10 @@
       try {
         const result = await this.signUp({ body: new FormData(this.$refs.form) })
         if (result.ok) {
-          await this.$router.push({
-            name: 'SquadronBoard',
-            params: { squadron: result.val.username }
-          })
+          // await this.$router.push({
+          //   name: 'SquadronBoard',
+          //   params: { squadron: result.val.username }
+          // })
         } else this.formErrors = result.val
       } catch (error: unknown) {
         if (error instanceof Error) {

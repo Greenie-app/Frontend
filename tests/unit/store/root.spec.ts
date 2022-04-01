@@ -1,9 +1,11 @@
+import 'cross-fetch/polyfill'
 import { Store } from 'vuex'
 import { expect } from 'chai'
+import nock from 'nock'
 import { createTestStore } from '../utils'
-import squadronJSON from '../../fixtures/squadron.txt.json'
-import { mockServer } from '../setup'
 import { RootState } from '@/store/types'
+
+const squadronJSON = require('../../fixtures/squadron.json')
 
 describe('Vuex', () => {
   let store: Store<RootState>
@@ -14,12 +16,16 @@ describe('Vuex', () => {
 
   describe('#loadSquadron', () => {
     it('loads a squadron', async () => {
-      await mockServer.get('/squadrons/72nd.json').thenReply(200, squadronJSON)
+      const scope = nock('http://localhost:5100')
+        .get('/squadrons/72nd.json')
+        .reply(200, squadronJSON)
+
       await store.dispatch('loadSquadron', { username: '72nd' })
 
       expect(store.state.squadron?.name).to.eql('72nd VFW')
       expect(store.state.squadronLoading).to.be.false
       expect(store.state.squadronError).to.be.null
+      expect(scope.isDone()).to.be.true
     })
 
     it('resets the stored squadron', async () => {
@@ -31,12 +37,16 @@ describe('Vuex', () => {
     })
 
     it('handles errors', async () => {
-      await mockServer.get('/squadrons/72nd.json').thenReply(404, '{"error":"not found"}')
+      const scope = nock('http://localhost:5100')
+        .get('/squadrons/72nd.json')
+        .reply(404, { error: 'not found' })
+
       await store.dispatch('loadSquadron', { username: '72nd' })
 
       expect(store.state.squadron).to.be.null
       expect(store.state.squadronLoading).to.be.false
       expect(store.state.squadronError?.message).to.eql('Invalid HTTP response: 404')
+      expect(scope.isDone()).to.be.true
     })
   })
 })
