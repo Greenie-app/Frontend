@@ -23,9 +23,7 @@ jobs:
           node-version: 16.x
           cache: "yarn"
       - name: Install Dependencies
-        run: |
-          yarn install
-          npm install @vue/cli
+        run: yarn install
       - name: Unit Tests
         run: yarn ci:unit
   lint:
@@ -41,9 +39,7 @@ jobs:
           node-version: 16.x
           cache: "yarn"
       - name: Install Dependencies
-        run: |
-          yarn install
-          npm install @vue/cli
+        run: yarn install
       - name: Run ESLint
         run: npx vue-cli-service lint
       - name: Run Stylelint
