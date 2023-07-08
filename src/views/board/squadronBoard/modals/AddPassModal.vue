@@ -1,11 +1,12 @@
 <template>
   <b-modal :title="$t('addPassModal.title')" hide-footer id="add-pass-modal">
-    <pass-form :busy="busy"
-               :form-error="formError"
-               :form-errors="formErrors"
-               @submit="onSubmit"
-               ref="form"
-               submit-string="addPassModal.submitButton" />
+    <pass-form
+      :busy="busy"
+      :form-error="formError"
+      :form-errors="formErrors"
+      @submit="onSubmit"
+      ref="form"
+      submit-string="addPassModal.submitButton" />
   </b-modal>
 </template>
 

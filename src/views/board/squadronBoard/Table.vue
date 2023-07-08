@@ -1,10 +1,11 @@
 <template>
   <b-table-simple responsive="sm">
     <b-tbody>
-      <pass-row :key="pilot"
-                :passes="passes"
-                :pilot="pilot"
-                v-for="[pilot, passes] in passesByPilot" />
+      <pass-row
+        :key="pilot"
+        :passes="passes"
+        :pilot="pilot"
+        v-for="[pilot, passes] in passesByPilot" />
     </b-tbody>
   </b-table-simple>
 </template>

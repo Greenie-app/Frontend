@@ -4,9 +4,9 @@ import {
   ActionTree, GetterTree, Module, MutationTree
 } from 'vuex'
 import { assign, isNull } from 'lodash-es'
-import * as queryString from 'query-string'
 import { Result } from 'ts-results'
 import * as ActionCable from 'actioncable'
+import queryString from 'query-string'
 import { AuthState, RootState } from '@/store/types'
 import secrets from '@/config/secrets'
 import {

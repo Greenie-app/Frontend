@@ -1,11 +1,10 @@
 import { Store } from 'vuex'
 import { expect } from 'chai'
 import { DateTime } from 'luxon'
-import nock from 'nock'
+import { http, HttpResponse } from 'msw'
 import { logIn, createTestStore } from '../utils'
+import backend from '../backend'
 import { MySquadronState, RootState } from '@/store/types'
-
-const squadronJSON = require('../../fixtures/squadron.json')
 
 describe('Vuex: mySquadron', () => {
   let store: Store<RootState>
@@ -17,30 +16,27 @@ describe('Vuex: mySquadron', () => {
 
   describe('#loadMySquadron', () => {
     it("loads the user's squadron", async () => {
-      const scope = nock('http://localhost:5100')
-        .get('/squadrons/72nd.json')
-        .reply(200, squadronJSON)
-
       await store.dispatch('loadMySquadron')
       const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
 
       expect(state.mySquadron?.ID).to.eql(1)
       expect(state.mySquadronLoading).to.be.false
       expect(state.mySquadronError).to.be.null
-      expect(scope.isDone()).to.be.true
     })
 
     it('handles errors', async () => {
-      const scope = nock('http://localhost:5100')
-        .get('/squadrons/72nd.json')
-        .reply(422, { error: 'oops' })
+      backend.use(
+        http.get('http://localhost:5100/squadrons/72nd.json', () => HttpResponse.json(
+          { error: 'oops' },
+          { status: 422 }
+        ))
+      )
 
       await store.dispatch('loadMySquadron')
       const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
 
       expect(state.mySquadronLoading).to.be.false
       expect(state.mySquadronError?.message).to.eql('Invalid HTTP response: 422')
-      expect(scope.isDone()).to.be.true
     })
   })
 
@@ -62,23 +58,21 @@ describe('Vuex: mySquadron', () => {
     })
 
     it("updates the user's squadron", async () => {
-      const scope = nock('http://localhost:5100')
-        .put('/squadron.json')
-        .reply(200, squadronJSON)
-
       await store.dispatch('updateMySquadron', { body: new FormData() })
       const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
 
       expect(state.mySquadron?.name).to.eql('72nd VFW')
       expect(state.mySquadronLoading).to.be.false
       expect(state.mySquadronError).to.be.null
-      expect(scope.isDone()).to.be.true
     })
 
     it('handles validation errors', async () => {
-      const scope = nock('http://localhost:5100')
-        .put('/squadron.json')
-        .reply(422, { errors: { name: ['must be present'] } })
+      backend.use(
+        http.put('http://localhost:5100/squadron.json', () => HttpResponse.json(
+          { errors: { name: ['must be present'] } },
+          { status: 422 }
+        ))
+      )
 
       const result = await store.dispatch('updateMySquadron', { body: new FormData() })
       const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
@@ -89,14 +83,15 @@ describe('Vuex: mySquadron', () => {
 
       expect(result.ok).to.be.false
       expect(result.val).to.eql({ name: ['must be present'] })
-
-      expect(scope.isDone()).to.be.true
     })
 
     it('handles other errors', async () => {
-      const scope = nock('http://localhost:5100')
-        .put('/squadron.json')
-        .reply(500, { error: 'oops' })
+      backend.use(
+        http.put('http://localhost:5100/squadron.json', () => HttpResponse.json(
+          { error: 'oops' },
+          { status: 500 }
+        ))
+      )
 
       try {
         await store.dispatch('updateMySquadron', { body: new FormData() })
@@ -106,8 +101,6 @@ describe('Vuex: mySquadron', () => {
       const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
       expect(state.mySquadronLoading).to.be.false
       expect(state.mySquadronError?.message).to.eql('Invalid HTTP response: 500')
-
-      expect(scope.isDone()).to.be.true
     })
   })
 })

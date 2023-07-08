@@ -6,18 +6,15 @@
       "dom"
     ],
     "module":    "es6",
-    "paths":     {
-      "@/*": [
-        "src/*"
-      ]
-    },
     "strict":    true,
     "target":    "es6",
     "typeRoots": [
       "./support"
     ],
     "types":     [
-      "cypress"
+      "cypress",
+      "mocha",
+      "chai"
     ]
   },
   "include":         [

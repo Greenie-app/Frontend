@@ -5,14 +5,15 @@
       <p>{{$t('forgotPassword.text')}}</p>
 
       <b-form @submit.prevent="onSubmit" class="d-flex">
-        <field-with-errors :errors="formErrors"
-                           field="email"
-                           form-group-class="flex-grow-1"
-                           label="forgotPassword.placeholder"
-                           object="squadron"
-                           required
-                           sr-only
-                           v-model="email" />
+        <field-with-errors
+          :errors="formErrors"
+          field="email"
+          form-group-class="flex-grow-1"
+          label="forgotPassword.placeholder"
+          object="squadron"
+          required
+          sr-only
+          v-model="email" />
         <div class="ml-3">
           <b-button data-cy="forgotPasswordSubmit" type="submit" variant="primary">
             {{$t('forgotPassword.submitButton')}}

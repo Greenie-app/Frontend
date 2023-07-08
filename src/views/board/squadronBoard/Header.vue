@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="d-flex align-items-center mb-5">
-      <b-img :src="squadron.image.url"
-             class="flex-grow-0 mr-3"
-             fluid
-             id="squadron-header-image"
-             v-if="squadron.image" />
+      <b-img
+        :src="squadron.image.url"
+        class="flex-grow-0 mr-3"
+        fluid
+        id="squadron-header-image"
+        v-if="squadron.image" />
       <h1 class="flex-grow-1" data-cy="squadronBoardTitle">
         {{$t('squadronBoard.title', [squadron.name])}}
       </h1>
@@ -26,7 +27,7 @@
 
   @Component
   export default class Header extends Vue {
-    @Prop({ type: Object, required: true }) squadron!: Squadron
+    @Prop({ type: Object, required: true }) readonly squadron!: Squadron
 
     get boardingRate(): string {
       if (isNull(this.squadron.boardingRate)) return ''

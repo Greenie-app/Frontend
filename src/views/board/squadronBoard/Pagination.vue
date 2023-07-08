@@ -1,8 +1,9 @@
 <template>
-  <b-pagination :per-page="perPage"
-                :total-rows="passCount"
-                v-if="showPagination"
-                v-model="page" />
+  <b-pagination
+    :per-page="perPage"
+    :total-rows="passCount"
+    v-if="showPagination"
+    v-model="page" />
   <div v-else />
 </template>
 

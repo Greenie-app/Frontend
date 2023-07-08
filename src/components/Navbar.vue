@@ -5,13 +5,13 @@
 
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav class="ml-auto">
-        <b-nav-item :to="{name: 'LogIn'}" data-cy="logInLink" v-if="!loggedIn">
+        <b-nav-item :to="{ name: 'LogIn' }" data-cy="logInLink" v-if="!loggedIn">
           {{$t('navbar.logIn')}}
         </b-nav-item>
-        <b-nav-item :to="{name: 'EditSquadron'}" data-cy="editSquadronLink" v-if="loggedIn">
+        <b-nav-item :to="{ name: 'EditSquadron' }" data-cy="editSquadronLink" v-if="loggedIn">
           {{$t('navbar.editSquadron')}}
         </b-nav-item>
-        <b-nav-item :to="{name: 'ChangePassword'}" data-cy="changePasswordLink" v-if="loggedIn">
+        <b-nav-item :to="{ name: 'ChangePassword' }" data-cy="changePasswordLink" v-if="loggedIn">
           {{$t('navbar.changePassword')}}
         </b-nav-item>
         <b-nav-item @click.prevent="logOutClicked" v-if="loggedIn" data-cy="logOutLink">

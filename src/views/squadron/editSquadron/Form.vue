@@ -1,29 +1,32 @@
 <template>
   <b-form @submit.prevent="onSubmit" ref="form">
-    <field-with-errors :errors="formErrors"
-                       field="name"
-                       label="home.signUp.fields.name"
-                       object="squadron"
-                       placeholder=""
-                       required
-                       v-model="squadron.name" />
+    <field-with-errors
+      :errors="formErrors"
+      field="name"
+      label="home.signUp.fields.name"
+      object="squadron"
+      placeholder=""
+      required
+      v-model="squadron.name" />
 
-    <field-with-errors :errors="formErrors"
-                       field="image"
-                       label="home.signUp.fields.image"
-                       object="squadron"
-                       placeholder=""
-                       type="file"
-                       v-model="squadron.image" />
+    <field-with-errors
+      :errors="formErrors"
+      field="image"
+      label="home.signUp.fields.image"
+      object="squadron"
+      placeholder=""
+      type="file"
+      v-model="squadron.image" />
 
-    <field-with-errors :errors="formErrors"
-                       field="email"
-                       label="home.signUp.fields.email"
-                       object="squadron"
-                       placeholder=""
-                       required
-                       type="email"
-                       v-model="squadron.email" />
+    <field-with-errors
+      :errors="formErrors"
+      field="email"
+      label="home.signUp.fields.email"
+      object="squadron"
+      placeholder=""
+      required
+      type="email"
+      v-model="squadron.email" />
 
     <p class="text-danger" v-if="formError">{{formError}}</p>
 
@@ -31,10 +34,11 @@
       <b-button data-cy="editSquadronSubmit" type="submit" variant="primary">
         {{$t('editSquadron.submitButton')}}
       </b-button>
-      <b-button class="text-danger"
-                data-cy="deleteSquadronButton"
-                v-b-modal.confirm-delete
-                variant="link">
+      <b-button
+        class="text-danger"
+        data-cy="deleteSquadronButton"
+        v-b-modal.confirm-delete
+        variant="link">
         {{$t('editSquadron.deleteButton')}}
       </b-button>
     </b-button-toolbar>

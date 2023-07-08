@@ -10,21 +10,23 @@
     </b-form-group>
 
     <b-form-group><label class="sr-only" for="password-field">
-      {{$t('logIn.passwordPlaceholder')}}
-    </label>
-      <b-input :placeholder="$t('logIn.passwordPlaceholder')"
-               autocomplete="current-password"
-               id="password-field"
-               type="password"
-               v-model="password" />
+                    {{$t('logIn.passwordPlaceholder')}}
+                  </label>
+      <b-input
+        :placeholder="$t('logIn.passwordPlaceholder')"
+        autocomplete="current-password"
+        id="password-field"
+        type="password"
+        v-model="password" />
     </b-form-group>
 
     <b-form-group>
       <div class="form-check custom-control custom-checkbox">
-        <input class="form-check-input custom-control-input"
-               id="remember-me"
-               type="checkbox"
-               v-model="rememberMe">
+        <input
+          class="form-check-input custom-control-input"
+          id="remember-me"
+          type="checkbox"
+          v-model="rememberMe">
         <label class="form-check-label custom-control-label" for="remember-me">
           {{$t('logIn.rememberMe')}}
         </label>
@@ -35,7 +37,7 @@
       <b-button data-cy="loginSubmitButton" type="submit" variant="primary">
         {{$t('logIn.logInButton')}}
       </b-button>
-      <b-button :to="{name: 'ForgotPassword'}" data-cy="forgotPasswordLink" variant="link">
+      <b-button :to="{ name: 'ForgotPassword' }" data-cy="forgotPasswordLink" variant="link">
         {{$t('logIn.forgotPassword')}}
       </b-button>
     </b-button-toolbar>
@@ -73,8 +75,7 @@
           password: this.password,
           rememberMe: this.rememberMe
         })
-        if (result.ok) await this.$router.push({ name: 'Home' })
-        else this.loginError = result.val
+        if (!result.ok) this.loginError = result.val
       } catch (error: unknown) {
         if (error instanceof Error) {
           this.loginError = error.message

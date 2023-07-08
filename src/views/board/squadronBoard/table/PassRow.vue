@@ -22,9 +22,9 @@
     components: { PassHeaderCell, PassCell }
   })
   export default class PassRow extends Vue {
-    @Prop({ type: String, required: false }) pilot!: string | null
+    @Prop({ type: String, required: false }) readonly pilot!: string | null
 
-    @Prop({ type: Array, required: true }) passes!: Pass[]
+    @Prop({ type: Array, required: true }) readonly passes!: Pass[]
 
     @Getter maxPassesForPilot!: number
 

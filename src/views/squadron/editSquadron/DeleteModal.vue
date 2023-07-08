@@ -1,10 +1,11 @@
 <template>
-  <b-modal :cancel-title="$t('editSquadron.confirmDelete.cancelButton')"
-           :ok-title="$t('editSquadron.confirmDelete.okButton')"
-           :title="$t('editSquadron.confirmDelete.title')"
-           @ok="deleteClicked"
-           id="confirm-delete"
-           ok-variant="danger">
+  <b-modal
+    :cancel-title="$t('editSquadron.confirmDelete.cancelButton')"
+    :ok-title="$t('editSquadron.confirmDelete.okButton')"
+    :title="$t('editSquadron.confirmDelete.title')"
+    @ok="deleteClicked"
+    id="confirm-delete"
+    ok-variant="danger">
     <p class="my-4">{{$t('editSquadron.confirmDelete.text', [mySquadron.name])}}</p>
   </b-modal>
 </template>

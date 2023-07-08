@@ -1,14 +1,15 @@
 <template>
   <b-modal :title="$t('pilotBoard.renameModal.title')" hide-footer id="rename-modal">
     <b-form @submit.prevent="onSubmit">
-      <field-with-errors :errors="formErrors"
-                         :interpolations="{oldName: pilot}"
-                         field="name"
-                         label="pilotBoard.renameModal.message"
-                         object="pilot"
-                         placeholder=""
-                         required
-                         v-model="newName" />
+      <field-with-errors
+        :errors="formErrors"
+        :interpolations="{ oldName: pilot }"
+        field="name"
+        label="pilotBoard.renameModal.message"
+        object="pilot"
+        placeholder=""
+        required
+        v-model="newName" />
 
       <b-button data-cy="renameSubmit" :disabled="busy" type="submit" variant="primary">
         {{$t('pilotBoard.renameModal.submit')}}
@@ -34,7 +35,7 @@
     components: { FieldWithErrors }
   })
   export default class RenameModal extends mixins(FormErrors) {
-    @Prop({ type: String, required: true }) pilot!: string
+    @Prop({ type: String, required: true }) readonly pilot!: string
 
     @Action renamePilot!: (args: { oldName: string, newName: string }) =>
       Promise<Result<void, Errors>>

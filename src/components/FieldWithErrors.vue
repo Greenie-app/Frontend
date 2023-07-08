@@ -1,53 +1,57 @@
 <template>
   <b-form-group :class="formGroupClass" :data-cy="cypressGroupName">
-    <label :class="{'sr-only': srOnly}" :for="id">{{$t(label, interpolations)}}</label>
+    <label :class="{ 'sr-only': srOnly }" :for="id">{{$t(label, interpolations)}}</label>
 
-    <b-form-file :class="[klass, {'is-invalid': hasError}]"
-                 :id="id"
-                 :name="name"
-                 :placeholder="$t(placeholderOrLabel, interpolations)"
-                 :value="value"
-                 @input="$emit('input', $event)"
-                 v-bind="$attrs"
-                 v-if="type === 'file'" />
+    <b-form-file
+      :class="[klass, { 'is-invalid': hasError }]"
+      :id="id"
+      :name="name"
+      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :value="value"
+      @input="$emit('input', $event)"
+      v-bind="$attrs"
+      v-if="type === 'file'" />
 
-    <datetime :class="[klass, {'is-invalid': hasError}]"
-              :id="id"
-              :name="name"
-              :value="value"
-              @input="$emit('input', $event)"
-              v-bind="$attrs"
-              v-else-if="type === 'datetime'" />
+    <datetime
+      :class="[klass, { 'is-invalid': hasError }]"
+      :id="id"
+      :name="name"
+      :value="value"
+      @input="$emit('input', $event)"
+      v-bind="$attrs"
+      v-else-if="type === 'datetime'" />
 
-    <b-form-spinbutton :class="[klass, {'is-invalid': hasError}]"
-                       :id="id"
-                       :name="name"
-                       :placeholder="$t(placeholderOrLabel, interpolations)"
-                       :value="value"
-                       @input="$emit('input', $event)"
-                       v-bind="$attrs"
-                       v-else-if="type === 'spinbutton'" />
+    <b-form-spinbutton
+      :class="[klass, { 'is-invalid': hasError }]"
+      :id="id"
+      :name="name"
+      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :value="value"
+      @input="$emit('input', $event)"
+      v-bind="$attrs"
+      v-else-if="type === 'spinbutton'" />
 
-    <b-select :class="[klass, {'is-invalid': hasError}]"
-              :id="id"
-              :name="name"
-              :options="optionList"
-              :placeholder="$t(placeholderOrLabel, interpolations)"
-              :value="value"
-              @input="$emit('input', $event)"
-              v-bind="$attrs"
-              v-else-if="type === 'select'">
-    </b-select>
+    <b-select
+      :class="[klass, { 'is-invalid': hasError }]"
+      :id="id"
+      :name="name"
+      :options="optionList"
+      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :value="value"
+      @input="$emit('input', $event)"
+      v-bind="$attrs"
+      v-else-if="type === 'select'" />
 
-    <b-form-input :class="[klass, {'is-invalid': hasError}]"
-                  :id="id"
-                  :name="name"
-                  :placeholder="$t(placeholderOrLabel, interpolations)"
-                  :type="type"
-                  :value="value"
-                  @input="$emit('input', $event)"
-                  v-bind="$attrs"
-                  v-else />
+    <b-form-input
+      :class="[klass, { 'is-invalid': hasError }]"
+      :id="id"
+      :name="name"
+      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :type="type"
+      :value="value"
+      @input="$emit('input', $event)"
+      v-bind="$attrs"
+      v-else />
 
     <div :key="index" class="invalid-feedback" v-for="(error, index) in fieldErrors">
       {{error}}
@@ -81,48 +85,49 @@
   })
   export default class FieldWithErrors extends Vue {
     /** If true, renders the label for screen readers only. */
-    @Prop({ type: Boolean, default: false }) srOnly!: boolean
+    @Prop({ type: Boolean, default: false }) readonly srOnly!: boolean
 
     /**
      * The errors object binding. The containing vue should mix in {FormErrors} to create this
      * object.
      */
-    @Prop({ type: Object }) errors!: Errors | null
+    @Prop({ type: Object }) readonly errors!: Errors | null
 
     /**
      * The input type (any valid value for `<input type>` or `select`, `spinbutton`, or `datetime`.
      */
-    @Prop({ type: String, default: 'text' }) type!: string
+    @Prop({ type: String, default: 'text' }) readonly type!: string
 
     /** The name of the property on the associated object model, for parameterization. */
-    @Prop({ type: String, required: true }) field!: string
+    @Prop({ type: String, required: true }) readonly field!: string
 
     /** The name of the object, for parameterization. */
-    @Prop({ type: String, required: true }) object!: string
+    @Prop({ type: String, required: true }) readonly object!: string
 
     /** A class attribute to apply to the form group. */
-    @Prop({ type: String }) formGroupClass!: string | null
+    @Prop({ type: String }) readonly formGroupClass!: string | null
 
     /** The value for the form element. */
-    @Prop({}) value!: unknown
+    @Prop({}) readonly value!: unknown
 
     /** The label associated with a form element, as a Vue-I18n key. */
-    @Prop({ type: String, required: true }) label!: string
+    @Prop({ type: String, required: true }) readonly label!: string
 
     /** The placeholder associated with a form element, as a Vue-I18n key. */
-    @Prop({ type: String }) placeholder!: string | null
+    @Prop({ type: String }) readonly placeholder!: string | null
 
     /** A class attribute to apply to the input. */
-    @Prop({ type: String }) klass!: string | null
+    @Prop({ type: String }) readonly klass!: string | null
 
     /** If true, the parameterized name of the input will have `[]` appended to it. */
-    @Prop({ type: Boolean, default: false }) multi!: boolean
+    @Prop({ type: Boolean, default: false }) readonly multi!: boolean
 
     /** Options to use for the select if {@link input} is "select". */
-    @Prop({ required: false }) options!: string | SelectOption<unknown>
+    @Prop({ required: false }) readonly options!: string | SelectOption<unknown>
 
     /** Interpolations to use when resolving the Vue-i18n key to a translated string. */
-    @Prop({ required: false }) interpolations!: unknown[] | Record<string, unknown> | undefined
+    // eslint-disable-next-line vue/max-len
+    @Prop({ required: false }) readonly interpolations!: unknown[] | Record<string, unknown> | undefined
 
     get hasError(): boolean {
       return !isNull(this.errors) && has(this.errors, this.field)

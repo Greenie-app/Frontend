@@ -41,7 +41,7 @@
     components: { MergeModal, RenameModal }
   })
   export default class Header extends mixins(AuthCheckRequiredSquadron) {
-    @Prop({ type: String, required: true }) pilot!: string
+    @Prop({ type: String, required: true }) readonly pilot!: string
 
     @Getter pilotNames!: string[]
 
