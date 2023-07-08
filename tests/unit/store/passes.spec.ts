@@ -1,17 +1,14 @@
-import 'cross-fetch/polyfill'
 import { Store } from 'vuex'
 import { expect } from 'chai'
 import { DateTime } from 'luxon'
 import { Result } from 'ts-results'
-import { merge } from 'lodash-es'
-import nock from 'nock'
+import { http, HttpResponse } from 'msw'
 import { createTestStore } from '../utils'
+import backend from '../backend'
+import passesJSON from '../../fixtures/passes.json'
 import { Errors, PassesState, RootState } from '@/store/types'
 import { passFromJSON, PassJSONDown } from '@/store/coding'
 import { Grade, Pass } from '@/types'
-
-const passJSON = require('../../fixtures/pass.json')
-const passesJSON = require('../../fixtures/passes.json')
 
 describe('Vuex: passes', () => {
   let store: Store<RootState>
@@ -37,7 +34,7 @@ describe('Vuex: passes', () => {
 
   context('getters', () => {
     beforeEach(() => {
-      const passes = passesJSON.map((p: PassJSONDown) => passFromJSON(p))
+      const passes = passesJSON.map(p => passFromJSON(<PassJSONDown>p))
       store.commit('FINISH_PASSES', { passes })
     })
 
@@ -90,14 +87,6 @@ describe('Vuex: passes', () => {
   context('actions', () => {
     describe('#loadPasses', () => {
       it('loads passes', async () => {
-        const scope = nock('http://localhost:5100')
-          .get('/squadrons/72nd/passes.json')
-          .query({ page: 1 })
-          .reply(200, passesJSON, {
-            'X-Page': '1',
-            'X-Count': '12'
-          })
-
         await store.dispatch('loadPasses', { squadron: '72nd' })
         const state = (<RootState & { passes: PassesState }>store.state).passes
 
@@ -106,21 +95,21 @@ describe('Vuex: passes', () => {
         expect(state.passesError).to.be.null
         expect(state.passCount).to.eql(12)
         expect(state.passCurrentPage).to.eql(1)
-
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles errors', async () => {
-        const scope = nock('http://localhost:5100')
-          .get('/squadrons/72nd/passes.json?page=1')
-          .reply(500, { error: 'oops' })
+        backend.use(
+          http.get('http://localhost:5100/squadrons/72nd/passes.json', () => HttpResponse.json(
+            { error: 'oops' },
+            { status: 500 }
+          ))
+        )
 
         await store.dispatch('loadPasses', { squadron: '72nd' })
         const state = (<RootState & { passes: PassesState }>store.state).passes
 
         expect(state.passesLoading).to.be.false
         expect(state.passesError?.message).to.eql('Invalid HTTP response: 500')
-        expect(scope.isDone()).to.be.true
       })
     })
 
@@ -142,38 +131,36 @@ describe('Vuex: passes', () => {
       })
 
       it('creates a pass', async () => {
-        const scope = nock('http://localhost:5100')
-          .post('/squadron/passes.json')
-          .reply(200, passJSON)
-
         const result: Result<Pass, Errors> = await store.dispatch('createPass', { pass: newPass })
 
         expect(result.ok).to.be.true
         expect(result.val.ID).to.eql(12)
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles validation errors', async () => {
-        const scope = nock('http://localhost:5100')
-          .post('/squadron/passes.json')
-          .reply(422, { errors: { score: ['not a number'] } })
+        backend.use(
+          http.post('http://localhost:5100/squadron/passes.json', () => HttpResponse.json(
+            { errors: { score: ['not a number'] } },
+            { status: 422 }
+          ))
+        )
 
         const result: Result<Pass, Errors> = await store.dispatch('createPass', { pass })
 
         expect(result.ok).to.be.false
         expect(result.val).to.eql({ score: ['not a number'] })
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles other errors', () => {
-        const scope = nock('http://localhost:5100')
-          .post('/squadron/passes.json')
-          .reply(500, { error: 'oops' })
+        backend.use(
+          http.post('http://localhost:5100/squadron/passes.json', () => HttpResponse.json(
+            { error: 'oops' },
+            { status: 500 }
+          ))
+        )
 
-        return expect(store.dispatch('createPass', { pass }))
-          .to.be.rejectedWith('Invalid HTTP response: 500').then(() => {
-            expect(scope.isDone()).to.be.true
-          })
+        return expect(store.dispatch('createPass', { pass })).
+          to.be.rejectedWith('Invalid HTTP response: 500')
       })
     })
 
@@ -181,9 +168,6 @@ describe('Vuex: passes', () => {
       it('updates a pass', async () => {
         store.commit('FINISH_PASSES', { passes: [pass] })
 
-        const scope = nock('http://localhost:5100')
-          .put('/squadron/passes/12.json')
-          .reply(200, passJSON)
         const result: Result<Pass, Errors> = await store.dispatch('updatePass', { pass })
 
         expect(result.ok).to.be.true
@@ -191,57 +175,52 @@ describe('Vuex: passes', () => {
 
         const state = (<RootState & { passes: PassesState }>store.state).passes
         expect(state.passes?.find(p => p.ID === 12)?.pilot).to.eql('Newguy')
-
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles validation errors', async () => {
-        const scope = nock('http://localhost:5100')
-          .put('/squadron/passes/12.json')
-          .reply(422, { errors: { score: ['not a number'] } })
+        backend.use(
+          http.put('http://localhost:5100/squadron/passes/12.json', () => HttpResponse.json(
+            { errors: { score: ['not a number'] } },
+            { status: 422 }
+          ))
+        )
 
         const result: Result<Pass, Errors> = await store.dispatch('updatePass', { pass })
 
         expect(result.ok).to.be.false
         expect(result.val).to.eql({ score: ['not a number'] })
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles other errors', () => {
-        const scope = nock('http://localhost:5100')
-          .put('/squadron/passes/12.json')
-          .reply(500, { error: 'oops' })
+        backend.use(
+          http.put('http://localhost:5100/squadron/passes/12.json', () => HttpResponse.json(
+            { error: 'oops' },
+            { status: 500 }
+          ))
+        )
 
-        return expect(store.dispatch('updatePass', { pass }))
-          .to.be.rejectedWith('Invalid HTTP response: 500').then(() => {
-            expect(scope.isDone()).to.be.true
-          })
+        return expect(store.dispatch('updatePass', { pass })).
+          to.be.rejectedWith('Invalid HTTP response: 500')
       })
     })
 
     describe('#deletePass', () => {
       it('deletes a pass', async () => {
         store.commit('FINISH_PASSES', { passes: [pass, { ...pass, ID: 13 }] })
-        const responseJSON = merge(passJSON, { 'destroyed?': true })
-        const scope = nock('http://localhost:5100')
-          .delete('/squadron/passes/12.json')
-          .reply(200, responseJSON)
-
         const deletedPass: Pass = await store.dispatch('deletePass', { pass })
-
         expect(deletedPass.ID).to.eql(12)
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles errors', () => {
-        const scope = nock('http://localhost:5100')
-          .delete('/squadron/passes/12.json')
-          .reply(500, { error: 'oops' })
+        backend.use(
+          http.delete('http://localhost:5100/squadron/passes/12.json', () => HttpResponse.json(
+            { error: 'oops' },
+            { status: 500 }
+          ))
+        )
 
-        return expect(store.dispatch('deletePass', { pass }))
-          .to.be.rejectedWith('Invalid HTTP response: 500').then(() => {
-            expect(scope.isDone()).to.be.true
-          })
+        return expect(store.dispatch('deletePass', { pass })).
+          to.be.rejectedWith('Invalid HTTP response: 500')
       })
     })
   })

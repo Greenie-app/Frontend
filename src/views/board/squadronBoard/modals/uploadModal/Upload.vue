@@ -11,7 +11,7 @@
           </template>
           <template #size>{{logfile.files[0].byteSize | size}}</template>
         </i18n>
-        <p :class="{'text-danger': isFailed}" class="my-0" data-cy="uploadStatus">
+        <p :class="{ 'text-danger': isFailed }" class="my-0" data-cy="uploadStatus">
           <b-spinner small v-if="isLoading" />
           <small>{{$t(`uploadModal.logfile.state.${logfile.state}`)}}</small>
         </p>
@@ -39,7 +39,7 @@
     }
   })
   export default class Upload extends Vue {
-    @Prop({ type: Object, required: true }) logfile!: Logfile
+    @Prop({ type: Object, required: true }) readonly logfile!: Logfile
 
     get isLoading(): boolean {
       return this.logfile.state === LogfileState.InProgress

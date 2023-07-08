@@ -123,9 +123,12 @@ export type PassJSONUp = Omit<Pass, 'ID' | 'time' | 'shipName' | 'aircraftType' 
  */
 
 export function passToJSON(pass: Omit<Pass, 'ID'>): PassJSONUp {
+  const time = pass.time.toISO()
+  if (!time) throw new Error('Invalid time for Pass')
+
   return {
     ...omit(pass, 'ID', 'shipName', 'aircraftType'),
-    time: pass.time?.toISO(),
+    time,
     ship_name: pass.shipName,
     aircraft_type: pass.aircraftType,
     score: isNull(pass.score) ? null : pass.score?.toFixed(1)

@@ -1,13 +1,14 @@
 <template>
   <b-modal :id="id" :title="$t('editPassModal.title')" hide-footer>
-    <pass-form :busy="busy"
-               :form-error="formError"
-               :form-errors="formErrors"
-               :pass="draftPass"
-               @delete="onDelete"
-               @submit="onSubmit"
-               ref="form"
-               submit-string="editPassModal.submitButton" />
+    <pass-form
+      :busy="busy"
+      :form-error="formError"
+      :form-errors="formErrors"
+      :pass="draftPass"
+      @delete="onDelete"
+      @submit="onSubmit"
+      ref="form"
+      submit-string="editPassModal.submitButton" />
   </b-modal>
 </template>
 
@@ -32,9 +33,9 @@
       form: PassForm
     }
 
-    @Prop({ type: Object, required: true }) pass!: Pass
+    @Prop({ type: Object, required: true }) readonly pass!: Pass
 
-    @Prop({ type: String, required: true }) id!: string
+    @Prop({ type: String, required: true }) readonly id!: string
 
     draftPass: Partial<Pass> = {}
 

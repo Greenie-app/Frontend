@@ -64,7 +64,7 @@ const actions: ActionTree<PilotsState, RootState> = {
   ): Promise<Result<void, Errors>> {
     const result: APIResponse<void> = await dispatch('requestJSON', {
       method: 'put',
-      path: `/squadron/pilots/${oldName}.json`,
+      path: `/squadron/pilots/${encodeURIComponent(oldName)}.json`,
       body: { name: newName }
     })
     const bodyResult = await loadResponseBodyOrReturnErrors(result)

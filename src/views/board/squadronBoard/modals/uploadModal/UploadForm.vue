@@ -1,14 +1,15 @@
 <template>
   <b-form @submit.prevent="onSubmit" ref="form">
-    <field-with-errors :errors="formErrors"
-                       field="files"
-                       label="uploadModal.placeholder"
-                       multi
-                       object="logfile"
-                       placeholder=""
-                       required
-                       sr-only
-                       type="file" />
+    <field-with-errors
+      :errors="formErrors"
+      field="files"
+      label="uploadModal.placeholder"
+      multi
+      object="logfile"
+      placeholder=""
+      required
+      sr-only
+      type="file" />
 
     <b-button :disabled="busy" type="submit" variant="primary" data-cy="uploadSubmit">
       <b-spinner small v-if="busy" />

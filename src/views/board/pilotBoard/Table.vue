@@ -1,14 +1,15 @@
 <template>
   <div>
     <p v-if="hasBoardingRate">{{$t('squadronBoard.boardingRate', [boardingRate])}}</p>
-    <b-table :fields="tableFields"
-             :items="passes"
-             :per-page="0"
-             :tbody-tr-class="rowClass"
-             data-cy="pilotBoardTable"
-             id="pilot-table"
-             responsive
-             sticky-header>
+    <b-table
+      :fields="tableFields"
+      :items="passes"
+      :per-page="0"
+      :tbody-tr-class="rowClass"
+      data-cy="pilotBoardTable"
+      id="pilot-table"
+      responsive
+      sticky-header>
       <template #cell(time)="data">
         <i18n path="pilotBoard.zuluTime">
           <template #time>{{data.item.time | time}}</template>
@@ -56,9 +57,9 @@
   export default class Table extends Vue {
     @Getter passesForPilot!: (name: string) => Pass[]
 
-    @Prop({ type: Object, required: true }) squadron!: Squadron
+    @Prop({ type: Object, required: true }) readonly squadron!: Squadron
 
-    @Prop({ type: String, required: true }) pilot!: string
+    @Prop({ type: String, required: true }) readonly pilot!: string
 
     get passes(): Pass[] {
       return this.passesForPilot(this.pilot)

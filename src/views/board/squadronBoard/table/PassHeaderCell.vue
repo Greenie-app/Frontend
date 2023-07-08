@@ -3,7 +3,7 @@
     <i18n class="my-0" path="squadronBoard.pilotAndScore" tag="p" v-if="hasAverage">
       <template #name>
         <b-link
-          :to="{name: 'PilotBoard', params: {squadron: $route.params.squadron, pilot: pilot}}"
+          :to="{ name: 'PilotBoard', params: { squadron: $route.params.squadron, pilot } }"
           data-cy="pilotBoardLink">
           {{pilot}}
         </b-link>
@@ -13,7 +13,7 @@
     </i18n>
 
     <p class="my-0" v-else-if="!isUnknownPilot">
-      <b-link :to="{name: 'PilotBoard', params: {squadron: $route.params.squadron, pilot: pilot}}">
+      <b-link :to="{ name: 'PilotBoard', params: { squadron: $route.params.squadron, pilot } }">
         {{pilot}}
       </b-link>
     </p>
@@ -38,9 +38,9 @@
 
   @Component
   export default class PassHeaderCell extends mixins(AuthCheck) {
-    @Prop({ type: String, required: false }) pilot!: string | null
+    @Prop({ type: String, required: false }) readonly pilot!: string | null
 
-    @Prop({ type: Number }) average!: number | null
+    @Prop({ type: Number }) readonly average!: number | null
 
     @Getter unknownPassCount!: number
 

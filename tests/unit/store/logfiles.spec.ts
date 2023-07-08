@@ -1,13 +1,11 @@
 import { Store } from 'vuex'
 import { DateTime, Duration } from 'luxon'
 import { expect } from 'chai'
-import nock from 'nock'
+import { http, HttpResponse } from 'msw'
 import { createTestStore } from '../utils'
+import backend from '../backend'
 import { LogfilesState, RootState } from '@/store/types'
 import { Logfile, LogfileState } from '@/types'
-
-const logfileJSON = require('../../fixtures/logfile.json')
-const logfilesJSON = require('../../fixtures/logfiles.json')
 
 const logfiles: Logfile[] = [
   {
@@ -60,56 +58,50 @@ describe('Vuex: logfiles', () => {
   context('actions', () => {
     describe('#loadLogfiles', () => {
       it('loads logfiles', async () => {
-        const scope = nock('http://localhost:5100')
-          .get('/squadron/logfiles.json')
-          .reply(200, logfilesJSON)
-
         await store.dispatch('loadLogfiles')
         const state = (<RootState & { logfiles: LogfilesState }>store.state).logfiles
 
         expect(state.logfiles?.length).to.eql(3)
         expect(state.logfilesLoading).to.be.false
         expect(state.logfilesError).to.be.null
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles errors', async () => {
-        const scope = nock('http://localhost:5100')
-          .get('/squadron/logfiles.json')
-          .reply(422, { error: 'Oops' })
+        backend.use(
+          http.get('http://localhost:5100/squadron/logfiles.json', () => HttpResponse.json(
+            { error: 'Oops' },
+            { status: 422 }
+          ))
+        )
 
         await store.dispatch('loadLogfiles')
         const state = (<RootState & { logfiles: LogfilesState }>store.state).logfiles
 
         expect(state.logfilesError?.message).to.eql('Invalid HTTP response: 422')
         expect(state.logfilesLoading).to.be.false
-        expect(scope.isDone()).to.be.true
       })
     })
 
     describe('#uploadLogfiles', () => {
       it('uploads logfiles', async () => {
-        const scope = nock('http://localhost:5100')
-          .post('/squadron/logfiles.json')
-          .reply(201, logfileJSON)
-
         const result = await store.dispatch('uploadLogfiles', { body: new FormData() })
 
         expect(result.ok).to.be.true
         expect(result.val.ID).to.eql(1)
-        expect(scope.isDone()).to.be.true
       })
 
       it('handles errors', async () => {
-        const scope = nock('http://localhost:5100')
-          .post('/squadron/logfiles.json')
-          .reply(422, { errors: { files: ['wrong format'] } })
+        backend.use(
+          http.post('http://localhost:5100/squadron/logfiles.json', () => HttpResponse.json(
+            { errors: { files: ['wrong format'] } },
+            { status: 422 }
+          ))
+        )
 
         const result = await store.dispatch('uploadLogfiles', { body: new FormData() })
 
         expect(result.ok).to.be.false
         expect(result.val).to.eql({ files: ['wrong format'] })
-        expect(scope.isDone()).to.be.true
       })
     })
   })

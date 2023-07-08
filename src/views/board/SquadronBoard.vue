@@ -1,19 +1,19 @@
 <template>
-    <error :error="passesError.message" v-if="passesError" />
+  <error :error="passesError.message" v-if="passesError" />
 
-    <div v-else-if="passesLoaded">
-      <board-header :squadron="squadron" />
+  <div v-else-if="passesLoaded">
+    <board-header :squadron="squadron" />
 
-      <p class="mb-5" v-if="noPasses">{{$t('squadronBoard.noPasses')}}</p>
-      <passes-table v-else />
+    <p class="mb-5" v-if="noPasses">{{$t('squadronBoard.noPasses')}}</p>
+    <passes-table v-else />
 
-      <b-button-toolbar justify>
-        <actions v-if="isMySquadron" />
-        <pagination />
-      </b-button-toolbar>
-    </div>
+    <b-button-toolbar justify>
+      <actions v-if="isMySquadron" />
+      <pagination />
+    </b-button-toolbar>
+  </div>
 
-    <spinner v-else />
+  <spinner v-else />
 </template>
 
 <script lang="ts">

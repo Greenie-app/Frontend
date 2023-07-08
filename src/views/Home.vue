@@ -7,10 +7,11 @@
         <sign-up />
       </narrow>
       <p class="text-center mt-5 pt-5" v-else>
-        <b-button @click.prevent="signUpShown = true"
-                  data-cy="signUpButton"
-                  size="lg"
-                  variant="primary">
+        <b-button
+          @click.prevent="signUpShown = true"
+          data-cy="signUpButton"
+          size="lg"
+          variant="primary">
           {{$t('home.signUpButton')}}
         </b-button>
       </p>

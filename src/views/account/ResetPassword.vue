@@ -3,34 +3,37 @@
     <narrow>
       <h3 class="my-4">{{$t('resetPassword.title')}}</h3>
       <b-form @submit.prevent="onSubmit">
-        <field-with-errors :errors="formErrors"
-                           autocomplete="new-password"
-                           field="password"
-                           klass="mb-2 mr-sm-2 mb-sm-0"
-                           label="changePassword.newPasswordPlaceholder"
-                           object="squadron"
-                           required
-                           sr-only
-                           type="password"
-                           v-model="password" />
+        <field-with-errors
+          :errors="formErrors"
+          autocomplete="new-password"
+          field="password"
+          klass="mb-2 mr-sm-2 mb-sm-0"
+          label="changePassword.newPasswordPlaceholder"
+          object="squadron"
+          required
+          sr-only
+          type="password"
+          v-model="password" />
 
-        <field-with-errors :errors="formErrors"
-                           autocomplete="new-password"
-                           field="password_confirmation"
-                           klass="mb-2 mr-sm-2 mb-sm-0"
-                           label="changePassword.confirmationPlaceholder"
-                           object="squadron"
-                           required
-                           sr-only
-                           type="password"
-                           v-model="passwordConfirmation" />
+        <field-with-errors
+          :errors="formErrors"
+          autocomplete="new-password"
+          field="password_confirmation"
+          klass="mb-2 mr-sm-2 mb-sm-0"
+          label="changePassword.confirmationPlaceholder"
+          object="squadron"
+          required
+          sr-only
+          type="password"
+          v-model="passwordConfirmation" />
 
         <p class="text-danger" data-cy="resetPasswordError" v-if="formError">{{formError}}</p>
 
-        <b-button class="mb-2 mr-sm-2 mb-sm-0"
-                  data-cy="resetPasswordSubmit"
-                  type="submit"
-                  variant="primary">
+        <b-button
+          class="mb-2 mr-sm-2 mb-sm-0"
+          data-cy="resetPasswordSubmit"
+          type="submit"
+          variant="primary">
           {{$t('changePassword.button')}}
         </b-button>
       </b-form>

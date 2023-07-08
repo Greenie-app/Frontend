@@ -1,9 +1,10 @@
 <template>
-  <b-modal :ok-title="$t('pilotBoard.mergeConfirmModal.okButton')"
-           :title="$t('pilotBoard.mergeConfirmModal.title')"
-           hide-footer
-           id="merge-pilot-modal"
-           ok-variant="danger">
+  <b-modal
+    :ok-title="$t('pilotBoard.mergeConfirmModal.okButton')"
+    :title="$t('pilotBoard.mergeConfirmModal.title')"
+    hide-footer
+    id="merge-pilot-modal"
+    ok-variant="danger">
     <i18n path="pilotBoard.mergeConfirmModal.message" tag="p">
       <template #prey>
         <strong>{{prey}}</strong>
@@ -30,9 +31,9 @@
 
   @Component
   export default class MergeModal extends Vue {
-    @Prop({ type: String }) predator!: string | null
+    @Prop({ type: String }) readonly predator!: string | null
 
-    @Prop({ type: String, required: true }) prey!: string
+    @Prop({ type: String, required: true }) readonly prey!: string
 
     @Action mergePilots!: (args: { predator: string; prey: string }) => Promise<void>
 

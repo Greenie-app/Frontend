@@ -1,13 +1,14 @@
 <template>
-  <b-td :class="[aircraftTypeClass, {unscored: isUnscored, 'cursor-pointer': isMySquadron}]"
-        :variant="cellVariant"
-        @click="onClick"
-        data-cy="passCell">
+  <b-td
+    :class="[aircraftTypeClass, { unscored: isUnscored, 'cursor-pointer': isMySquadron }]"
+    :variant="cellVariant"
+    @click="onClick"
+    data-cy="passCell">
     <p class="text-center my-0 small">{{pass.time | date}}</p>
     <p class="text-center my-0">
       <strong data-cy="passCellScore">{{pass.score | score}}</strong>
       <small class="ml-2" data-cy="passCellGrade" v-if="pass.grade">
-        <span :class="{underline: isPerfect}">{{grade}}</span>{{wireIfAny}}
+        <span :class="{ underline: isPerfect }">{{grade}}</span>{{wireIfAny}}
       </small>
     </p>
 
@@ -34,7 +35,7 @@
     }
   })
   export default class PassCell extends mixins(AuthCheck) {
-    @Prop({ type: Object, required: true }) pass!: Pass
+    @Prop({ type: Object, required: true }) readonly pass!: Pass
 
     get cellVariant(): string | null {
       return variant(this.pass)

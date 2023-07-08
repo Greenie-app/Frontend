@@ -1,16 +1,18 @@
 <template>
   <b-input-group>
-    <b-form-datepicker :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
-                       :id="dateID"
-                       :name="dateName"
-                       v-bind="$attrs"
-                       v-model="dateValue" />
+    <b-form-datepicker
+      :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+      :id="dateID"
+      :name="dateName"
+      v-bind="$attrs"
+      v-model="dateValue" />
 
-    <b-form-timepicker :hour12="false"
-                       :id="timeID"
-                       :name="timeName"
-                       v-bind="$attrs"
-                       v-model="timeValue" />
+    <b-form-timepicker
+      :hour12="false"
+      :id="timeID"
+      :name="timeName"
+      v-bind="$attrs"
+      v-model="timeValue" />
   </b-input-group>
 </template>
 
@@ -37,13 +39,13 @@
   })
   export default class Datetime extends Vue {
     /** The value to pre-set the datetime to. */
-    @Prop({ type: Object, required: false }) value!: DateTime | null
+    @Prop({ type: Object, required: false }) readonly value!: DateTime | null
 
     /** The form element name. */
-    @Prop({ type: String, required: true }) name!: string
+    @Prop({ type: String, required: true }) readonly name!: string
 
     /** The element ID. */
-    @Prop({ type: String, required: true }) id!: string
+    @Prop({ type: String, required: true }) readonly id!: string
 
     dateValue: string | null = null
 

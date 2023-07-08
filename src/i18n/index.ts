@@ -1,3 +1,5 @@
+/* eslint-disable import/no-import-module-exports */
+
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
 import messages from '@/i18n/messages'

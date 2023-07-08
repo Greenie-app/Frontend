@@ -12,6 +12,6 @@
 
   @Component
   export default class Error extends Vue {
-    @Prop({ type: String, required: true }) error!: string
+    @Prop({ type: String, required: true }) readonly error!: string
   }
 </script>
