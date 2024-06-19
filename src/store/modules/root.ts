@@ -118,7 +118,8 @@ const actions: ActionTree<RootState, RootState> = {
       fetch(secrets.APIURL + path, {
         method: (method || 'get'),
         body: serializedBody,
-        headers
+        headers,
+        credentials: 'include'
       }).then(response => {
         if (response.status === 401 && !skipResetAuth) {
           commit('RESET_AUTH')

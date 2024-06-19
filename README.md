@@ -46,8 +46,8 @@ as an entire suite, in order.
 
 ### Deployment
 
-The application is deployed using the `deploy.sh` script, which builds 
-production assets and copies them to the production server.
+This application is deployed using Fly.io. The `deploy.yml` GitHub Actions
+workflow runs automatically after CI completes.
 
 ## Architecture
 
