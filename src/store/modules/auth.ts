@@ -5,8 +5,8 @@ import {
 } from 'vuex'
 import { assign, isNull } from 'lodash-es'
 import { Result } from 'ts-results'
-import * as ActionCable from 'actioncable'
 import queryString from 'query-string'
+import { Consumer, createConsumer } from '@rails/actioncable'
 import { AuthState, RootState } from '@/store/types'
 import secrets from '@/config/secrets'
 import {
@@ -52,10 +52,10 @@ const getters: GetterTree<AuthState, RootState> = {
     return payload.u
   },
 
-  actionCableConsumer(state): ActionCable.Cable | null {
+  actionCableConsumer(state): Consumer | null {
     if (isNull(state.JWT)) return null
     const URL = `${secrets.actionCableURL}?${queryString.stringify({ jwt: state.JWT })}`
-    return ActionCable.createConsumer(URL)
+    return createConsumer(URL)
   },
 
   authHeader(state): string | null {

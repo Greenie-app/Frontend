@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign,@typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports,no-param-reassign */
 
 const CompressionPlugin = require('compression-webpack-plugin')
 const StyleLintPlugin = require('stylelint-webpack-plugin')
@@ -22,22 +22,26 @@ module.exports = {
     }
 
     // allow BootstrapVue components to transform URLs for Webpack
-    config.module.rule('vue').use('vue-loader').loader('vue-loader').tap(options => {
-      options.transformAssetUrls = {
-        img: 'src',
-        image: 'xlink:href',
-        'b-avatar': 'src',
-        'b-img': 'src',
-        'b-img-lazy': ['src', 'blank-src'],
-        'b-card': 'img-src',
-        'b-card-img': 'src',
-        'b-card-img-lazy': ['src', 'blank-src'],
-        'b-carousel-slide': 'img-src',
-        'b-embed': 'src'
-      }
+    config.module.
+      rule('vue').
+      use('vue-loader').
+      loader('vue-loader').
+      tap(options => {
+        options.transformAssetUrls = {
+          img: 'src',
+          image: 'xlink:href',
+          'b-avatar': 'src',
+          'b-img': 'src',
+          'b-img-lazy': ['src', 'blank-src'],
+          'b-card': 'img-src',
+          'b-card-img': 'src',
+          'b-card-img-lazy': ['src', 'blank-src'],
+          'b-carousel-slide': 'img-src',
+          'b-embed': 'src'
+        }
 
-      return options
-    })
+        return options
+      })
 
     // speed up first load
     config.plugins.delete('prefetch')

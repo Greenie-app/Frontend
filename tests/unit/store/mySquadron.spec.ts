@@ -26,10 +26,8 @@ describe('Vuex: mySquadron', () => {
 
     it('handles errors', async () => {
       backend.use(
-        http.get('http://localhost:5100/squadrons/72nd.json', () => HttpResponse.json(
-          { error: 'oops' },
-          { status: 422 }
-        ))
+        http.get('http://localhost:5100/squadrons/72nd.json', () =>
+          HttpResponse.json({ error: 'oops' }, { status: 422 }))
       )
 
       await store.dispatch('loadMySquadron')
@@ -68,10 +66,8 @@ describe('Vuex: mySquadron', () => {
 
     it('handles validation errors', async () => {
       backend.use(
-        http.put('http://localhost:5100/squadron.json', () => HttpResponse.json(
-          { errors: { name: ['must be present'] } },
-          { status: 422 }
-        ))
+        http.put('http://localhost:5100/squadron.json', () =>
+          HttpResponse.json({ errors: { name: ['must be present'] } }, { status: 422 }))
       )
 
       const result = await store.dispatch('updateMySquadron', { body: new FormData() })
@@ -87,16 +83,14 @@ describe('Vuex: mySquadron', () => {
 
     it('handles other errors', async () => {
       backend.use(
-        http.put('http://localhost:5100/squadron.json', () => HttpResponse.json(
-          { error: 'oops' },
-          { status: 500 }
-        ))
+        http.put('http://localhost:5100/squadron.json', () =>
+          HttpResponse.json({ error: 'oops' }, { status: 500 }))
       )
 
       try {
         await store.dispatch('updateMySquadron', { body: new FormData() })
         // eslint-disable-next-line no-empty
-      } catch (error: unknown) {}
+      } catch {}
 
       const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
       expect(state.mySquadronLoading).to.be.false

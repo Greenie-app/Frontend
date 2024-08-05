@@ -18,7 +18,7 @@ import {
 } from 'lodash-es'
 import { Ok, Result } from 'ts-results'
 import Bugsnag from '@bugsnag/js'
-import ActionCable from 'actioncable'
+import { Consumer, Subscription } from '@rails/actioncable'
 import {
   APIResponse, Errors, PassesState, RootState
 } from '@/store/types'
@@ -31,9 +31,9 @@ import {
   loadResponseBodyOrThrowError
 } from '@/store/utils'
 
-let passesSubscription: ActionCable.Channel | null = null
+let passesSubscription: Subscription | null = null
 
-function createPassesSubscription(consumer: ActionCable.Cable, dispatch: Dispatch) {
+function createPassesSubscription(consumer: Consumer, dispatch: Dispatch) {
   if (passesSubscription) passesSubscription.unsubscribe()
   passesSubscription = consumer.subscriptions.create({
     channel: 'PassesChannel'
@@ -55,7 +55,6 @@ export function state(): PassesState {
 }
 
 const getters: GetterTree<PassesState, RootState> = {
-
   /** @return Whether the list of Passes has been loaded. */
   passesLoaded(state): boolean {
     return !isNull(state.passes) && !state.passesLoading && isNull(state.passesError)
@@ -185,10 +184,7 @@ const mutations: MutationTree<PassesState> = {
     if (passJSON['destroyed?']) {
       state.passes = state.passes.filter(p => p.ID !== passJSON.id)
     } else if (some(state.passes, p => p.ID === passJSON.id)) {
-      state.passes = [
-        ...state.passes.filter(p => p.ID !== passJSON.id),
-        passFromJSON(passJSON)
-      ]
+      state.passes = [...state.passes.filter(p => p.ID !== passJSON.id), passFromJSON(passJSON)]
     } else {
       if (state.passCurrentPage !== 1) return
       // don't append new passes except on the first page
@@ -196,7 +192,7 @@ const mutations: MutationTree<PassesState> = {
     }
   },
 
-  UPDATE_PASS_PAGES(state, { page, count }: { page: number, count: number }) {
+  UPDATE_PASS_PAGES(state, { page, count }: { page: number; count: number }) {
     state.passCurrentPage = page
     state.passCount = count
   },
@@ -207,24 +203,19 @@ const mutations: MutationTree<PassesState> = {
     const index = state.passes.findIndex(p => p.ID === pass.ID)
     if (index === -1) return
 
-    state.passes = [
-      ...state.passes.slice(0, index),
-      pass,
-      ...state.passes.slice(index + 1)
-    ]
+    state.passes = [...state.passes.slice(0, index), pass, ...state.passes.slice(index + 1)]
   },
 
-  RENAME_PILOT(state, { oldName, newName }: { oldName: string, newName: string }) {
+  RENAME_PILOT(state, { oldName, newName }: { oldName: string; newName: string }) {
     if (isNull(state.passes)) return
     state.passes = state.passes.map(pass => ({
       ...pass,
-      pilot: (pass.pilot === oldName) ? newName : pass.pilot
+      pilot: pass.pilot === oldName ? newName : pass.pilot
     }))
   }
 }
 
 const actions: ActionTree<PassesState, RootState> = {
-
   /**
    * Loads Passes for a squadron. Can be paginated.
    *
@@ -254,10 +245,8 @@ const actions: ActionTree<PassesState, RootState> = {
       commit('FINISH_PASSES', { passes })
 
       const { headers } = result.val.response
-      const currentPage = headers.has('X-Page')
-        ? Number.parseInt(headers.get('X-Page')!, 10) : 1
-      const passCount = headers.has('X-Count')
-        ? Number.parseInt(headers.get('X-Count')!, 10) : 1
+      const currentPage = headers.has('X-Page') ? Number.parseInt(headers.get('X-Page')!, 10) : 1
+      const passCount = headers.has('X-Count') ? Number.parseInt(headers.get('X-Count')!, 10) : 1
       commit('UPDATE_PASS_PAGES', { page: currentPage, count: passCount })
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -364,6 +353,9 @@ const actions: ActionTree<PassesState, RootState> = {
 }
 
 const passes: Module<PassesState, RootState> = {
-  state, getters, mutations, actions
+  state,
+  getters,
+  mutations,
+  actions
 }
 export default passes

@@ -4,6 +4,7 @@ module.exports = {
     mocha: true
   },
   rules: {
+    '@typescript-eslint/no-unused-expressions': 'off',
     'mocha/no-hooks-for-single-case': 'off',
     'mocha/no-mocha-arrows': 'off',
     strict: 'off'

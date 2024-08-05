@@ -1,4 +1,4 @@
-/* eslint-disable arrow-body-style,@typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 // https://docs.cypress.io/guides/guides/plugins-guide.html
 
 // if you need a custom webpack configuration you can uncomment the following import
@@ -11,33 +11,35 @@ const path = require('path')
 const webpack = require('@cypress/webpack-preprocessor')
 
 module.exports = (on, config) => {
-  on('file:preprocessor', webpack({
-    webpackOptions: {
-
-      /* Make module resolution in the Cypress environment the same as in the app environment. This
+  on(
+    'file:preprocessor',
+    webpack({
+      webpackOptions: {
+        /* Make module resolution in the Cypress environment the same as in the app environment. This
          allows us to import app code within Cypress tests. */
 
-      resolve: {
-        extensions: ['.ts', '.tsx', '.js'],
-        alias: {
-          '@': path.resolve(__dirname, '../../../src')
+        resolve: {
+          extensions: ['.ts', '.tsx', '.js'],
+          alias: {
+            '@': path.resolve(__dirname, '../../../src')
+          }
+        },
+
+        // Transpile Cypress tests written in Typescript.
+
+        module: {
+          rules: [
+            {
+              test: /\.tsx?$/,
+              loader: 'ts-loader',
+              options: { transpileOnly: true }
+            }
+          ]
         }
       },
-
-      // Transpile Cypress tests written in Typescript.
-
-      module: {
-        rules: [
-          {
-            test: /\.tsx?$/,
-            loader: 'ts-loader',
-            options: { transpileOnly: true }
-          }
-        ]
-      }
-    },
-    watchOptions: {}
-  }))
+      watchOptions: {}
+    })
+  )
 
   return {
     ...config,

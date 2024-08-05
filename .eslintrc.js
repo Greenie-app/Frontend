@@ -17,6 +17,7 @@ module.exports = {
     }
   },
   rules: {
+    '@typescript-eslint/no-duplicate-enum-values': 'off', // seems to have a bug
     'arrow-parens': ['error', 'as-needed'],
     'class-methods-use-this': 'off',
     'comma-dangle': ['error', 'never'],
@@ -32,6 +33,7 @@ module.exports = {
     'no-shadow': 'off',
     'no-undef': 'off',
     'no-useless-constructor': 'off',
+    'vue/max-len': 'off',
     'vue/script-indent': ['error', 2, { baseIndent: 1 }],
     'vuejs-accessibility/label-has-for': ['error', { required: { some: ['nesting', 'id'] } }],
     'vuejs-accessibility/no-static-element-interactions': 'off',
@@ -47,7 +49,10 @@ module.exports = {
     {
       files: ['.ts', '.tsx'],
       rules: {
-        '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'angle-bracket' }],
+        '@typescript-eslint/consistent-type-assertions': [
+          'error',
+          { assertionStyle: 'angle-bracket' }
+        ],
         '@typescript-eslint/no-loss-of-precision': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off'
       },

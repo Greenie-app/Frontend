@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
 import { Result } from 'ts-results'
-import {
-  Logfile, Pass, Squadron
-} from '@/types'
+import { Logfile, Pass, Squadron } from '@/types'
 
 /**
  * The shape of validation errors received from the backend. A dictionary mapping field names to a
  * list of their errors.
  */
-export type Errors = Record<string, string[]>
+export type Errors = Record<string, string[]>;
 
 export interface RootState {
   squadron: Squadron | null;
@@ -22,7 +20,7 @@ export interface AuthState {
 }
 
 export interface MySquadronState {
-  mySquadron: Squadron | null
+  mySquadron: Squadron | null;
   mySquadronLoading: boolean;
   mySquadronError: Error | null;
 }
@@ -32,17 +30,19 @@ export interface LogfilesState {
   logfilesLoading: boolean;
   logfilesError: Error | null;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface PilotsState {}
 
 export interface PassesState {
   passes: Pass[] | null;
   passesLoading: boolean;
   passesError: Error | null;
-  passCurrentPage: number,
-  passCount: number
+  passCurrentPage: number;
+  passCount: number;
 }
 
-export type AnyModuleState = LogfilesState | PilotsState | PassesState | AuthState
+export type AnyModuleState = LogfilesState | PilotsState | PassesState | AuthState;
 
 export interface APISuccess<T> {
   response: Response;
@@ -51,7 +51,7 @@ export interface APISuccess<T> {
 
 export interface APIFailure {
   response: Response;
-  body: {errors: Errors}
+  body: { errors: Errors };
 }
 
-export type APIResponse<T> = Result<APISuccess<T>, APIFailure>
+export type APIResponse<T> = Result<APISuccess<T>, APIFailure>;

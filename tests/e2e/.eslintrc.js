@@ -1,16 +1,12 @@
 module.exports = {
-  plugins: [
-    'cypress'
-  ],
+  plugins: ['cypress'],
   env: {
     'cypress/globals': true
   },
   rules: {
     strict: 'off'
   },
-  extends: [
-    'plugin:cypress/recommended'
-  ],
+  extends: ['plugin:cypress/recommended'],
   overrides: [
     {
       files: ['.ts', '.tsx'],

@@ -1,12 +1,12 @@
 /* eslint-disable no-shadow */
 
-import * as ActionCable from 'actioncable'
 import {
   ActionContext, ActionTree, Dispatch, GetterTree, Module, MutationTree
 } from 'vuex'
 import { isNull } from 'lodash-es'
 import { Ok, Result } from 'ts-results'
 import Bugsnag from '@bugsnag/js'
+import { Consumer, Subscription } from '@rails/actioncable'
 import { Logfile, LogfileState } from '@/types'
 import {
   APIResponse, Errors, LogfilesState, RootState
@@ -14,9 +14,9 @@ import {
 import { logfileFromJSON, LogfileJSON } from '@/store/coding'
 import { loadResponseBodyOrReturnErrors, loadResponseBodyOrThrowError } from '@/store/utils'
 
-let logfilesSubscription: ActionCable.Channel | null = null
+let logfilesSubscription: Subscription
 
-function createLogfilesSubscription(consumer: ActionCable.Cable, dispatch: Dispatch) {
+function createLogfilesSubscription(consumer: Consumer, dispatch: Dispatch) {
   if (logfilesSubscription) logfilesSubscription.unsubscribe()
   logfilesSubscription = consumer.subscriptions.create({
     channel: 'LogfilesChannel'
@@ -36,7 +36,6 @@ export function state(): LogfilesState {
 }
 
 const getters: GetterTree<LogfilesState, RootState> = {
-
   /** @return Whether the list of Logfiles has finished loading. */
   logfilesLoaded(state): boolean {
     return !isNull(state.logfiles) && !state.logfilesLoading && isNull(state.logfilesError)
@@ -89,10 +88,7 @@ const mutations: MutationTree<LogfilesState> = {
 
     let logfiles
     if (logfileJSON['destroyed?']) {
-      logfiles = [
-        ...state.logfiles.slice(0, index - 1),
-        ...state.logfiles.slice(index + 1)
-      ]
+      logfiles = [...state.logfiles.slice(0, index - 1), ...state.logfiles.slice(index + 1)]
     } else {
       logfiles = [
         ...state.logfiles.slice(0, index - 1),
@@ -106,22 +102,25 @@ const mutations: MutationTree<LogfilesState> = {
 }
 
 const actions: ActionTree<LogfilesState, RootState> = {
-
   /**
    * Loads the list of unfinished Logfiles for the logged-in squadron.
    */
 
-  async loadLogfiles(
-    {
-      commit, dispatch, getters, rootGetters
-    }: ActionContext<LogfilesState, RootState>
-  ): Promise<void> {
+  async loadLogfiles({
+    commit,
+    dispatch,
+    getters,
+    rootGetters
+  }: ActionContext<LogfilesState, RootState>): Promise<void> {
     if (getters.logfilesLoading) return
 
     try {
       commit('START_LOGFILES')
-      const result: APIResponse<LogfileJSON[]> = await dispatch('requestJSON', { path: '/squadron/logfiles.json' })
-      const logfiles = loadResponseBodyOrThrowError(result).map(logfile => logfileFromJSON(logfile))
+      const result: APIResponse<LogfileJSON[]> = await dispatch('requestJSON', {
+        path: '/squadron/logfiles.json'
+      })
+      const logfiles = loadResponseBodyOrThrowError(result).map(logfile =>
+        logfileFromJSON(logfile))
       commit('FINISH_LOGFILES', { logfiles })
 
       if (rootGetters.actionCableConsumer) {
@@ -174,6 +173,9 @@ const actions: ActionTree<LogfilesState, RootState> = {
 }
 
 const logfiles: Module<LogfilesState, RootState> = {
-  state, getters, mutations, actions
+  state,
+  getters,
+  mutations,
+  actions
 }
 export default logfiles

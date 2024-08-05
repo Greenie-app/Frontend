@@ -4,25 +4,26 @@
       <template #name>
         <b-link
           :to="{ name: 'PilotBoard', params: { squadron: $route.params.squadron, pilot } }"
-          data-cy="pilotBoardLink">
-          {{pilot}}
+          data-cy="pilotBoardLink"
+        >
+          {{ pilot }}
         </b-link>
       </template>
 
-      <template #score>{{average | score}}</template>
+      <template #score>{{ average | score }}</template>
     </i18n>
 
     <p class="my-0" v-else-if="!isUnknownPilot">
       <b-link :to="{ name: 'PilotBoard', params: { squadron: $route.params.squadron, pilot } }">
-        {{pilot}}
+        {{ pilot }}
       </b-link>
     </p>
 
-    <p v-else>{{$t('unknownPilot')}}</p>
+    <p v-else>{{ $t("unknownPilot") }}</p>
 
     <p class="my-0 small" v-if="isMySquadron && isUnknownPilot">
       <b-link :disabled="busy" @click.prevent="deleteAll" data-cy="deleteAllUnassigned">
-        {{$t('squadronBoard.deleteAll.link')}}
+        {{ $t("squadronBoard.deleteAll.link") }}
       </b-link>
       <b-spinner class="ml-2" small v-if="busy" />
     </p>
@@ -70,7 +71,7 @@
       this.busy = true
       try {
         await this.deleteAllUnknown()
-      } catch (error: unknown) {
+      } catch {
         await this.$bvModal.msgBoxOk(<string> this.$t('squadronBoard.deleteAll.error.message'), {
           title: <string> this.$t('squadronBoard.deleteAll.title'),
           okTitle: <string> this.$t('squadronBoard.deleteAll.error.okButton')

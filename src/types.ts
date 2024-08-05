@@ -15,8 +15,8 @@ export interface Squadron {
   updatedAt: DateTime;
   image: Image | null;
   isEditable: boolean;
-  boardingRate: number | null,
-  unknownPassCount: number
+  boardingRate: number | null;
+  unknownPassCount: number;
 }
 
 export enum Grade {
@@ -29,7 +29,7 @@ export enum Grade {
   TechniqueWaveoff = 'technique_waveoff',
   FoulDeckWaveoff = 'foul_deck_waveoff',
   PatternWaveoff = 'pattern_waveoff',
-  OwnWaveoff = 'own_waveoff'
+  OwnWaveoff = 'own_waveoff',
 }
 
 export interface Pass {
@@ -54,11 +54,11 @@ export enum LogfileState {
   Pending = 'pending',
   InProgress = 'in_progress',
   Complete = 'complete',
-  Failed = 'failed'
+  Failed = 'failed',
 }
 
 export interface Logfile {
-  ID: number
+  ID: number;
   files: File[];
   state: LogfileState;
   progress: number;
