@@ -1,12 +1,12 @@
 /* eslint-disable no-shadow */
 
-import * as ActionCable from 'actioncable'
 import {
   ActionContext, ActionTree, Dispatch, GetterTree, Module, MutationTree
 } from 'vuex'
 import { isNull } from 'lodash-es'
 import { Ok, Result } from 'ts-results'
 import Bugsnag from '@bugsnag/js'
+import { Consumer, Subscription } from '@rails/actioncable'
 import { Logfile, LogfileState } from '@/types'
 import {
   APIResponse, Errors, LogfilesState, RootState
@@ -14,9 +14,9 @@ import {
 import { logfileFromJSON, LogfileJSON } from '@/store/coding'
 import { loadResponseBodyOrReturnErrors, loadResponseBodyOrThrowError } from '@/store/utils'
 
-let logfilesSubscription: ActionCable.Channel | null = null
+let logfilesSubscription: Subscription
 
-function createLogfilesSubscription(consumer: ActionCable.Cable, dispatch: Dispatch) {
+function createLogfilesSubscription(consumer: Consumer, dispatch: Dispatch) {
   if (logfilesSubscription) logfilesSubscription.unsubscribe()
   logfilesSubscription = consumer.subscriptions.create({
     channel: 'LogfilesChannel'

@@ -18,7 +18,7 @@ import {
 } from 'lodash-es'
 import { Ok, Result } from 'ts-results'
 import Bugsnag from '@bugsnag/js'
-import ActionCable from 'actioncable'
+import { Consumer, Subscription } from '@rails/actioncable'
 import {
   APIResponse, Errors, PassesState, RootState
 } from '@/store/types'
@@ -31,9 +31,9 @@ import {
   loadResponseBodyOrThrowError
 } from '@/store/utils'
 
-let passesSubscription: ActionCable.Channel | null = null
+let passesSubscription: Subscription | null = null
 
-function createPassesSubscription(consumer: ActionCable.Cable, dispatch: Dispatch) {
+function createPassesSubscription(consumer: Consumer, dispatch: Dispatch) {
   if (passesSubscription) passesSubscription.unsubscribe()
   passesSubscription = consumer.subscriptions.create({
     channel: 'PassesChannel'
