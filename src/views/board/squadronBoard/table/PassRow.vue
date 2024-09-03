@@ -32,8 +32,8 @@
       return isNull(this.pilot) ? 'unknown' : this.pilot.replace(/\s+/g, '')
     }
 
-    get emptyCells(): number[] {
-      return times(this.maxPassesForPilot - this.passes.length)
+    get emptyCells(): string[] {
+      return times(this.maxPassesForPilot - this.passes.length).map(index => `empty-${index}`)
     }
 
     get average(): number | null {
