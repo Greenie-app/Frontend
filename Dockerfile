@@ -22,7 +22,6 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY --link .yarnrc.yml package.json yarn.lock ./
-COPY --link .yarn/releases/* .yarn/releases/
 RUN yarn install --immutable
 
 # Copy application code
