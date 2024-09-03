@@ -14,13 +14,11 @@ import {
 import { logfileFromJSON, LogfileJSON } from '@/store/coding'
 import { loadResponseBodyOrReturnErrors, loadResponseBodyOrThrowError } from '@/store/utils'
 
-let logfilesSubscription: Subscription
+let logfilesSubscription: Subscription<Consumer>
 
 function createLogfilesSubscription(consumer: Consumer, dispatch: Dispatch) {
   if (logfilesSubscription) logfilesSubscription.unsubscribe()
-  logfilesSubscription = consumer.subscriptions.create({
-    channel: 'LogfilesChannel'
-  }, {
+  logfilesSubscription = consumer.subscriptions.create('LogfilesChannel', {
     received(logfileJSON: string) {
       dispatch('logfilesSubscriptionMessage', { logfileJSON: JSON.parse(logfileJSON) })
     }

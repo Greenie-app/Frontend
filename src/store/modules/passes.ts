@@ -31,13 +31,11 @@ import {
   loadResponseBodyOrThrowError
 } from '@/store/utils'
 
-let passesSubscription: Subscription | null = null
+let passesSubscription: Subscription<Consumer>
 
 function createPassesSubscription(consumer: Consumer, dispatch: Dispatch) {
   if (passesSubscription) passesSubscription.unsubscribe()
-  passesSubscription = consumer.subscriptions.create({
-    channel: 'PassesChannel'
-  }, {
+  passesSubscription = consumer.subscriptions.create('PassesChannel', {
     received(passJSON: string) {
       dispatch('passesSubscriptionMessage', { passJSON: JSON.parse(passJSON) })
     }
