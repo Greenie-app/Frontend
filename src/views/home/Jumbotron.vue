@@ -1,17 +1,11 @@
 <template>
-  <b-jumbotron :header="$t('home.jumbotron.header')" :lead="$t('home.jumbotron.lead')">
-    <p>{{$t('home.jumbotron.description')}}</p>
-  </b-jumbotron>
+  <n-card>
+    <h1>{{ $t("home.jumbotron.header") }}</h1>
+    <n-text :depth="1" tag="p">{{ $t("home.jumbotron.lead") }}</n-text>
+    <p>{{ $t("home.jumbotron.description") }}</p>
+  </n-card>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-
-  @Component
-  export default class Jumbotron extends Vue {
-    signUp(): void {
-      this.$router.push({ name: 'SignUp' })
-    }
-  }
+<script setup lang="ts">
+import { NCard, NText } from "naive-ui";
 </script>

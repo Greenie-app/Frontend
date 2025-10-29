@@ -1,27 +1,28 @@
-import { Store } from 'vuex'
-import { expect } from 'chai'
+import {
+  describe, it, beforeEach, expect
+} from 'vitest'
 import { DateTime } from 'luxon'
 import { http, HttpResponse } from 'msw'
-import { logIn, createTestStore } from '../utils'
+import { logIn, createTestPinia } from '../utils'
 import backend from '../backend'
-import { MySquadronState, RootState } from '@/store/types'
+import { useMySquadronStore } from '@/stores/mySquadron'
 
-describe('Vuex: mySquadron', () => {
-  let store: Store<RootState>
+describe('Pinia: mySquadron', () => {
+  let mySquadronStore: ReturnType<typeof useMySquadronStore>
 
   beforeEach(() => {
-    store = createTestStore()
-    logIn(store)
+    createTestPinia()
+    mySquadronStore = useMySquadronStore()
+    logIn()
   })
 
   describe('#loadMySquadron', () => {
     it("loads the user's squadron", async () => {
-      await store.dispatch('loadMySquadron')
-      const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
+      await mySquadronStore.loadMySquadron()
 
-      expect(state.mySquadron?.ID).to.eql(1)
-      expect(state.mySquadronLoading).to.be.false
-      expect(state.mySquadronError).to.be.null
+      expect(mySquadronStore.mySquadron?.ID).toEqual(1)
+      expect(mySquadronStore.mySquadronLoading).toBe(false)
+      expect(mySquadronStore.mySquadronError).toBeNull()
     })
 
     it('handles errors', async () => {
@@ -30,18 +31,18 @@ describe('Vuex: mySquadron', () => {
           HttpResponse.json({ error: 'oops' }, { status: 422 }))
       )
 
-      await store.dispatch('loadMySquadron')
-      const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
+      await mySquadronStore.loadMySquadron()
 
-      expect(state.mySquadronLoading).to.be.false
-      expect(state.mySquadronError?.message).to.eql('Invalid HTTP response: 422')
+      expect(mySquadronStore.mySquadronLoading).toBe(false)
+      expect(mySquadronStore.mySquadronError?.message).toEqual('Invalid HTTP response: 422')
     })
   })
 
   describe('#updateMySquadron', () => {
-    beforeEach(() => {
-      store.commit('FINISH_MY_SQUADRON', {
-        squadron: {
+    beforeEach(async () => {
+      // Set initial squadron state by calling initialize
+      mySquadronStore.initialize({
+        mySquadron: {
           ID: 1,
           name: 'OldName',
           username: 'old',
@@ -50,18 +51,18 @@ describe('Vuex: mySquadron', () => {
           updatedAt: DateTime.utc(),
           boardingRate: 0.5,
           unknownPassCount: 7,
-          image: null
+          image: null,
+          isEditable: true
         }
       })
     })
 
     it("updates the user's squadron", async () => {
-      await store.dispatch('updateMySquadron', { body: new FormData() })
-      const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
+      await mySquadronStore.updateMySquadron({ body: new FormData() })
 
-      expect(state.mySquadron?.name).to.eql('72nd VFW')
-      expect(state.mySquadronLoading).to.be.false
-      expect(state.mySquadronError).to.be.null
+      expect(mySquadronStore.mySquadron?.name).toEqual('72nd VFW')
+      expect(mySquadronStore.mySquadronLoading).toBe(false)
+      expect(mySquadronStore.mySquadronError).toBeNull()
     })
 
     it('handles validation errors', async () => {
@@ -70,15 +71,14 @@ describe('Vuex: mySquadron', () => {
           HttpResponse.json({ errors: { name: ['must be present'] } }, { status: 422 }))
       )
 
-      const result = await store.dispatch('updateMySquadron', { body: new FormData() })
-      const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
+      const result = await mySquadronStore.updateMySquadron({ body: new FormData() })
 
-      expect(state.mySquadronLoading).to.be.false
-      expect(state.mySquadronError).to.be.null
-      expect(state.mySquadron?.name).to.eql('OldName')
+      expect(mySquadronStore.mySquadronLoading).toBe(false)
+      expect(mySquadronStore.mySquadronError).toBeNull()
+      expect(mySquadronStore.mySquadron?.name).toEqual('OldName')
 
-      expect(result.ok).to.be.false
-      expect(result.val).to.eql({ name: ['must be present'] })
+      expect(result.ok).toBe(false)
+      expect(result.val).toEqual({ name: ['must be present'] })
     })
 
     it('handles other errors', async () => {
@@ -88,13 +88,12 @@ describe('Vuex: mySquadron', () => {
       )
 
       try {
-        await store.dispatch('updateMySquadron', { body: new FormData() })
-        // eslint-disable-next-line no-empty
+        await mySquadronStore.updateMySquadron({ body: new FormData() })
+         
       } catch {}
 
-      const state = (<RootState & { mySquadron: MySquadronState }>store.state).mySquadron
-      expect(state.mySquadronLoading).to.be.false
-      expect(state.mySquadronError?.message).to.eql('Invalid HTTP response: 500')
+      expect(mySquadronStore.mySquadronLoading).toBe(false)
+      expect(mySquadronStore.mySquadronError?.message).toEqual('Invalid HTTP response: 500')
     })
   })
 })

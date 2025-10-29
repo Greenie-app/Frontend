@@ -1,18 +1,11 @@
 <template>
-  <b-container>
-    <b-row align-v="center" align-h="center">
-      <b-spinner variant="secondary" />
-    </b-row>
-  </b-container>
+  <n-flex justify="center" align="center" style="min-height: 200px">
+    <n-spin size="large" />
+  </n-flex>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
+<script setup lang="ts">
+import { NSpin, NFlex } from "naive-ui";
 
-  /** Renders a more-or-less full-page spinner. */
-
-  @Component
-  export default class Spinner extends Vue {
-  }
+/** Renders a more-or-less full-page spinner. */
 </script>

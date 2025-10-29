@@ -1,65 +1,82 @@
 <template>
-  <b-modal
-    :ok-title="$t('pilotBoard.mergeConfirmModal.okButton')"
+  <n-modal
+    v-model:show="showModal"
+    preset="card"
     :title="$t('pilotBoard.mergeConfirmModal.title')"
-    hide-footer
-    id="merge-pilot-modal"
-    ok-variant="danger">
-    <i18n path="pilotBoard.mergeConfirmModal.message" tag="p">
-      <template #prey>
-        <strong>{{prey}}</strong>
-      </template>
-      <template #predator>
-        <strong>{{predator}}</strong>
-      </template>
-    </i18n>
+    style="max-width: 600px"
+  >
+    <n-space vertical>
+      <i18n-t keypath="pilotBoard.mergeConfirmModal.message" tag="p">
+        <template #prey>
+          <n-text strong tag="strong">{{ prey }}</n-text>
+        </template>
+        <template #predator>
+          <n-text strong tag="strong">{{ predator }}</n-text>
+        </template>
+      </i18n-t>
 
-    <b-button @click="doMerge" variant="danger" :disabled="busy" data-cy="mergeConfirmButton">
-      {{$t('pilotBoard.mergeConfirmModal.okButton')}}
-    </b-button>
+      <n-space>
+        <n-button @click="doMerge" type="warning" :disabled="busy" data-cy="mergeConfirmButton">
+          <n-spin v-if="busy" size="small" />
+          <template v-else>
+            {{ $t("pilotBoard.mergeConfirmModal.okButton") }}
+          </template>
+        </n-button>
+      </n-space>
 
-    <p class="text-danger" v-if="error">{{error.message}}</p>
-  </b-modal>
+      <n-alert v-if="error" type="error">
+        {{ error.message }}
+      </n-alert>
+    </n-space>
+  </n-modal>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Prop } from 'vue-property-decorator'
-  import { Action } from 'vuex-class'
-  import { isNull } from 'lodash-es'
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { NModal, NSpace, NButton, NSpin, NAlert, NText } from "naive-ui";
+import { isNull } from "lodash-es";
+import { usePilotsStore } from "@/stores/pilots";
+import { usePassesStore } from "@/stores/passes";
 
-  @Component
-  export default class MergeModal extends Vue {
-    @Prop({ type: String }) readonly predator!: string | null
+interface Props {
+  predator: string | null;
+  prey: string;
+}
 
-    @Prop({ type: String, required: true }) readonly prey!: string
+const props = defineProps<Props>();
+const showModal = defineModel<boolean>("show", { default: false });
 
-    @Action mergePilots!: (args: { predator: string; prey: string }) => Promise<void>
+const router = useRouter();
+const route = useRoute();
+const pilotsStore = usePilotsStore();
+const passesStore = usePassesStore();
 
-    @Action loadPasses!: (args: { squadron: string; page?: number }) => Promise<void>
+const error = ref<Error | null>(null);
+const busy = ref(false);
 
-    error: Error | null = null
+async function doMerge(): Promise<void> {
+  if (isNull(props.predator)) return;
 
-    busy = false
+  error.value = null;
+  busy.value = true;
 
-    async doMerge(): Promise<void> {
-      if (isNull(this.predator)) return
-
-      this.busy = true
-      try {
-        await this.mergePilots({ predator: this.predator, prey: this.prey })
-        await this.loadPasses({ squadron: this.$route.params.squadron })
-        await this.$router.push({ name: 'SquadronBoard', params: { squadron: this.$route.params.squadron } })
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.error = error
-        } else {
-          throw error
-        }
-      } finally {
-        this.busy = false
-      }
+  try {
+    await pilotsStore.mergePilots({ predator: props.predator, prey: props.prey });
+    await passesStore.loadPasses({ squadron: route.params.squadron as string });
+    await router.push({
+      name: "SquadronBoard",
+      params: { squadron: route.params.squadron },
+    });
+    showModal.value = false;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      error.value = err;
+    } else {
+      throw err;
     }
+  } finally {
+    busy.value = false;
   }
+}
 </script>

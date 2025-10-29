@@ -1,20 +1,20 @@
 <template>
-  <b-modal id="upload-modal" hide-footer :title="$t('uploadModal.title')">
+  <n-modal
+    v-model:show="showModal"
+    preset="card"
+    :title="$t('uploadModal.title')"
+    :style="{ maxWidth: '600px' }"
+  >
     <upload-form />
-    <hr />
+    <n-divider />
     <upload-list />
-  </b-modal>
+  </n-modal>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import UploadForm from '@/views/board/squadronBoard/modals/uploadModal/UploadForm.vue'
-  import UploadList from '@/views/board/squadronBoard/modals/uploadModal/UploadList.vue'
+<script setup lang="ts">
+import { NModal, NDivider } from "naive-ui";
+import UploadForm from "@/views/board/squadronBoard/modals/uploadModal/UploadForm.vue";
+import UploadList from "@/views/board/squadronBoard/modals/uploadModal/UploadList.vue";
 
-  @Component({
-    components: { UploadList, UploadForm }
-  })
-  export default class UploadModal extends Vue {
-  }
+const showModal = defineModel<boolean>("show", { default: false });
 </script>

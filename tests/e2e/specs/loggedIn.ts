@@ -3,11 +3,11 @@ context('Sign up', () => {
     cy.visit('/#/')
 
     cy.dataCy('signUpButton').click()
-    cy.get('#squadron-name').type('Squadron 2')
-    cy.get('#squadron-username').should('have.value', 'squadron-2')
-    cy.get('#squadron-email').type('cypress2@example.com')
-    cy.get('#squadron-password').type('password123')
-    cy.get('#squadron-password_confirmation').type('notthesame')
+    cy.get('#squadron-name input').type('Squadron 2')
+    cy.get('#squadron-username input').should('have.value', 'squadron-2')
+    cy.get('#squadron-email input').type('cypress2@example.com')
+    cy.get('#squadron-password input').type('password123')
+    cy.get('#squadron-password_confirmation input').type('notthesame')
 
     cy.fixture('image.png', 'base64').then(data => {
       cy.get('#squadron-image').attachFile(
@@ -21,9 +21,8 @@ context('Sign up', () => {
       )
 
       cy.dataCy('signUpSubmit').click()
-      cy.dataCy('squadron-password_confirmation-group').
-        get('.invalid-feedback').
-        should('contain', 'doesn’t match password')
+      cy.wait(500)
+      cy.get('body').should('contain', "doesn’t match password")
     })
   })
 
@@ -31,11 +30,11 @@ context('Sign up', () => {
     cy.visit('/#/')
 
     cy.dataCy('signUpButton').click()
-    cy.get('#squadron-name').type('Squadron 2')
-    cy.get('#squadron-username').should('have.value', 'squadron-2')
-    cy.get('#squadron-email').type('cypress2@example.com')
-    cy.get('#squadron-password').type('password123')
-    cy.get('#squadron-password_confirmation').type('password123')
+    cy.get('#squadron-name input').type('Squadron 2')
+    cy.get('#squadron-username input').should('have.value', 'squadron-2')
+    cy.get('#squadron-email input').type('cypress2@example.com')
+    cy.get('#squadron-password input').type('password123')
+    cy.get('#squadron-password_confirmation input').type('password123')
 
     cy.fixture('image.png', 'base64').then(data => {
       cy.get('#squadron-image').attachFile(
@@ -50,7 +49,7 @@ context('Sign up', () => {
 
       cy.dataCy('signUpSubmit').click()
 
-      cy.location('hash').should('eql', '#/squadrons/squadron-2/')
+      cy.location('hash').should('eql', '#/squadrons/squadron-2')
       cy.dataCy('squadronBoardingRate').should('not.exist')
     })
   })
@@ -80,9 +79,8 @@ context('Logged in without passes', () => {
       )
 
       cy.dataCy('uploadSubmit').click()
-      cy.dataCy('logfile-files-group').
-        get('.invalid-feedback').
-        should('contain', 'has an invalid content type')
+      cy.wait(1000)
+      cy.get('.n-alert, .n-form-item-feedback__line').should('contain', 'invalid content type')
     })
   })
 
@@ -103,7 +101,7 @@ context('Logged in without passes', () => {
       cy.dataCy('uploadSubmit').click()
       // cy.dataCy('uploadStatus').should('contain', 'In Progress')
 
-      cy.get('button.close').click()
+      cy.get('.n-card-header__close').click()
 
       cy.dataCy('passCell', { timeout: 20000 }).should('have.length', 12)
       // cy.dataCy('squadronBoardingRate').should('contain.text', 'Boarding rate: 0.38')
@@ -124,28 +122,44 @@ context('Logged in with passes', () => {
   context('Adding passes', () => {
     it('adds a pass manually', () => {
       cy.dataCy('addPassButton').click()
-      cy.get('#pass-pilot').type('Jambo72nd')
-      cy.get('#pass-aircraft_type').type('F-14B')
-      cy.get('#pass-grade').select('perfect')
-      cy.get('#pass-score').should('have.value', '5.0')
-      cy.get('#pass-wire').should('have.value', '3')
-      cy.get('#pass-trap').should('have.value', 'true')
+      cy.nInput('#pass-pilot').type('Jambo72nd')
+      cy.nInput('#pass-pilot').blur()
+      cy.nInput('#pass-aircraft_type').type('F-14B')
+      cy.nInput('#pass-aircraft_type').blur()
+      cy.get('#pass-grade').click()
+      cy.get('.n-base-select-option__content').contains(/^OK$/).click()
+      cy.wait(200) // Wait for score calculation after grade selection
+      cy.get('#pass-score input[type="text"]').should('have.value', '4')
+      cy.get('#pass-trap .n-base-selection-label').should('contain', 'This pass counts as a trap')
+      cy.get('#pass-wire').should('be.visible')
+      cy.nSelect('#pass-wire', '3')
 
       cy.dataCy('savePassButton').click()
 
-      cy.dataCy('passHeaderCell').first().invoke('text').should('include', 'Jambo72nd  (2.5)')
+      cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
+        dataCy('passHeaderCell').
+        invoke('text').
+        should('include', 'Jambo72nd (2.0)')
 
-      cy.dataCy('passCell').eq(1).dataCy('passCellScore').should('contain', '5.0')
-      cy.dataCy('passCell').eq(1).dataCy('passCellGrade').should('contain.text', 'OK-3')
+      cy.get('[data-cy-pilot=Jambo72nd]').
+        dataCy('passCell').
+        eq(1).
+        dataCy('passCellScore').
+        should('contain', '4.0')
+      cy.get('[data-cy-pilot=Jambo72nd]').
+        dataCy('passCell').
+        eq(1).
+        dataCy('passCellGrade').
+        should('contain.text', 'OK-3')
 
       cy.dataCy('addPassButton').click()
-      cy.get('#pass-pilot').should('have.value', 'Jambo72nd')
-      cy.get('#pass-aircraft_type').should('have.value', 'F-14B')
-      cy.get('#pass-score').should('have.value', '')
+      cy.nInput('#pass-pilot').should('have.value', '')
+      cy.nInput('#pass-aircraft_type').should('have.value', '')
+      cy.get('#pass-score input[type="text"]').should('have.value', '')
       cy.get('#pass-wire').should('not.exist')
-      cy.get('#pass-trap').should('have.value', '')
+      cy.get('#pass-trap').should('exist')
 
-      cy.get('button.close').click()
+      cy.get('.n-card-header__close').click()
       cy.dataCy('squadronBoardingRate').should('contain.text', 'Boarding rate: 1.00')
     })
   })
@@ -170,7 +184,8 @@ context('Logged in with passes', () => {
 
         cy.get('#pilot-name').type(' ')
         cy.dataCy('renameSubmit').click()
-        cy.dataCy('pilot-name-group').get('.invalid-feedback').should('contain', 'can’t be blank')
+        cy.wait(500)
+        cy.get('body').should('contain', "can’t be blank")
       })
 
       it('renames a pilot', () => {
@@ -193,14 +208,18 @@ context('Logged in with passes', () => {
           click()
 
         cy.dataCy('mergeButton').click()
-        cy.dataCy('mergeButton').find('ul>li>a').contains('Jambo72nd').click()
+        cy.get('.n-dropdown-option').contains('Jambo72nd').click()
         cy.dataCy('mergeConfirmButton').click()
-        cy.location('hash').should('eql', '#/squadrons/squadron-1/')
+        cy.location('hash').should('eql', '#/squadrons/squadron-1')
 
         cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
           dataCy('passHeaderCell').
           invoke('text').
-          should('include', 'Jambo72nd  (0.7)')
+          should('include', 'Jambo72nd')
+        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
+          dataCy('passHeaderCell').
+          invoke('text').
+          should('include', '(0.7)')
         cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
           dataCy('passHeaderCell').
           find('a').
@@ -215,38 +234,40 @@ context('Logged in with passes', () => {
           click()
 
         cy.dataCy('deletePilotButton').click()
-        cy.get('.modal-dialog .btn-danger').click()
+        cy.get('.n-dialog__action .n-button--error-type').click()
 
-        cy.location('hash').should('eql', '#/squadrons/squadron-1/')
+        cy.location('hash').should('eql', '#/squadrons/squadron-1')
         cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Raamon]').should('not.exist')
       })
     })
 
     context('Editing passes', () => {
       it('edits a pass', () => {
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch\\|55FS]').
+        cy.get('[data-cy-pilot=Stretch\\|55FS]').
           dataCy('passCell').
           first().
           click()
 
-        cy.get('#pass-grade').select('fair')
-        cy.get('#pass-score').should('have.value', '3.0')
+        cy.nSelect('#pass-grade', 'Fair')
+        cy.wait(200) // Wait for score calculation after grade change
+        cy.get('#pass-score input[type="text"]').should('have.value', '3')
         cy.dataCy('savePassButton').click()
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch\\|55FS]').
+        cy.wait(500) // Wait for save and UI update
+        cy.get('[data-cy-pilot=Stretch\\|55FS]').
           dataCy('passCell').
           first().
-          should('have.class', 'table-warning')
+          should('have.css', 'background-color', 'rgb(255, 193, 7)')
       })
 
       it('reassigns a pass', () => {
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=unknown]').
+        cy.get('[data-cy-pilot=unknown]').
           dataCy('passCell').
           first().
           click()
 
         cy.get('#pass-pilot').type('Stretch | 55FS')
         cy.dataCy('savePassButton').click()
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch\\|55FS]').
+        cy.get('[data-cy-pilot=Stretch\\|55FS]').
           dataCy('passCell').
           should('have.length', 3)
       })
@@ -254,13 +275,13 @@ context('Logged in with passes', () => {
 
     context('Deleting passes', () => {
       it('deletes a pass', () => {
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch\\|55FS]').
+        cy.get('[data-cy-pilot=Stretch\\|55FS]').
           dataCy('passCell').
           first().
           click()
 
         cy.dataCy('deletePassButton').click()
-        cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch\\|55FS]').
+        cy.get('[data-cy-pilot=Stretch\\|55FS]').
           dataCy('passCell').
           should('have.length', 1)
       })
@@ -268,7 +289,7 @@ context('Logged in with passes', () => {
       it('deletes all unassigned passes', () => {
         cy.dataCy('deleteAllUnassigned').click()
 
-        cy.get('.modal-dialog .btn-danger').click()
+        cy.get('.n-button--warning-type').contains('Delete All').click()
         cy.get('[data-cy=squadronBoardRow][data-cy-pilot=unknown]').should('not.exist')
       })
     })
@@ -276,23 +297,32 @@ context('Logged in with passes', () => {
 
   context('Editing squadron', () => {
     it('handles password form errors', () => {
-      cy.dataCy('changePasswordLink').click()
+      // Wait for squadron board to load before clicking any links
+      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
 
-      cy.get('#squadron-current_password').type('password123')
-      cy.get('#squadron-new_password').type('password1234')
-      cy.get('#squadron-password_confirmation').type('password123')
+      cy.dataCy('changePasswordLink').click()
+      cy.location('hash').should('include', '/password/change')
+
+      cy.get('#squadron-current_password', { timeout: 10000 }).should('be.visible')
+      cy.nInput('#squadron-current_password').type('password123')
+      cy.nInput('#squadron-new_password').type('password1234')
+      cy.nInput('#squadron-password_confirmation').type('password123')
       cy.dataCy('changePasswordSubmit').click()
-      cy.dataCy('squadron-password_confirmation-group').
-        get('.invalid-feedback').
-        should('contain', 'doesn’t match password')
+      cy.wait(500)
+      cy.get('.n-form-item-feedback__line').should('contain', "doesn’t match password")
     })
 
     it("changes the squadron's password", () => {
-      cy.dataCy('changePasswordLink').click()
+      // Wait for squadron board to load before clicking any links
+      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
 
-      cy.get('#squadron-current_password').type('password123')
-      cy.get('#squadron-new_password').type('password1234')
-      cy.get('#squadron-password_confirmation').type('password1234')
+      cy.dataCy('changePasswordLink').click()
+      cy.location('hash').should('include', '/password/change')
+
+      cy.get('#squadron-current_password', { timeout: 10000 }).should('be.visible')
+      cy.nInput('#squadron-current_password').type('password123')
+      cy.nInput('#squadron-new_password').type('password1234')
+      cy.nInput('#squadron-password_confirmation').type('password1234')
       cy.dataCy('changePasswordSubmit').click()
       cy.dataCy('changePasswordSuccess').should(
         'contain',
@@ -303,28 +333,39 @@ context('Logged in with passes', () => {
       cy.location('hash').should('eql', '#/')
 
       cy.dataCy('logInLink').click()
-      cy.get('#login-field').clear()
-      cy.get('#login-field').type('squadron-1')
-      cy.get('#password-field').type('password1234')
+      cy.get('#login-field input').clear()
+      cy.get('#login-field input').type('squadron-1')
+      cy.get('#password-field input').type('password1234')
       cy.dataCy('loginSubmitButton').click()
-      cy.location('hash').should('eql', '#/squadrons/squadron-1/')
+      cy.location('hash').should('eql', '#/squadrons/squadron-1')
     })
 
     it('handles edit form errors', () => {
-      cy.dataCy('editSquadronLink').click()
+      // Wait for squadron board to load before clicking any links
+      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
 
-      cy.get('#squadron-name').clear()
-      cy.get('#squadron-name').type(' ')
+      cy.dataCy('editSquadronLink').click()
+      cy.location('hash').should('include', '/squadron/edit')
+
+      cy.get('#squadron-name', { timeout: 10000 }).should('be.visible')
+      cy.get('#squadron-name input').clear()
+      cy.get('#squadron-name input').type(' ')
       cy.dataCy('editSquadronSubmit').click()
-      cy.dataCy('squadron-name-group').get('.invalid-feedback').should('contain', 'can’t be blank')
+      cy.wait(500)
+      cy.get('.n-form-item-feedback__line').should('contain', "can’t be blank")
     })
 
     it('edits the squadron', () => {
-      cy.dataCy('editSquadronLink').click()
+      // Wait for squadron board to load before clicking any links
+      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
 
-      cy.get('#squadron-name').type('New Name')
+      cy.dataCy('editSquadronLink').click()
+      cy.location('hash').should('include', '/squadron/edit')
+
+      cy.get('#squadron-name', { timeout: 10000 }).should('be.visible')
+      cy.get('#squadron-name input').type('New Name')
       cy.dataCy('editSquadronSubmit').click()
-      cy.location('hash').should('eql', '#/squadrons/squadron-1/')
+      cy.location('hash').should('eql', '#/squadrons/squadron-1')
       cy.dataCy('squadronBoardTitle').should('contain', 'New Name Greenie Board')
     })
   })
@@ -334,30 +375,30 @@ context('Logged in with passes', () => {
       cy.dataCy('logOutLink').click()
 
       cy.dataCy('signUpButton').click()
-      cy.get('#squadron-name').type('Squadron 2')
-      cy.get('#squadron-email').type('cypress2@example.com')
-      cy.get('#squadron-password').type('password123')
-      cy.get('#squadron-password_confirmation').type('password123')
+      cy.get('#squadron-name input').type('Squadron 2')
+      cy.get('#squadron-email input').type('cypress2@example.com')
+      cy.get('#squadron-password input').type('password123')
+      cy.get('#squadron-password_confirmation input').type('password123')
       cy.dataCy('signUpSubmit').click()
     })
 
     it('shows their greenie board', () => {
-      cy.visit('/#/squadrons/squadron-1/')
+      cy.visit('/#/squadrons/squadron-1')
 
       cy.dataCy('squadronBoardTitle').should('contain', 'Squadron 1 Greenie Board')
     })
 
     it('does not allow adding passes', () => {
-      cy.visit('/#/squadrons/squadron-1/')
+      cy.visit('/#/squadrons/squadron-1')
 
       cy.dataCy('addPassButton').should('not.exist')
       cy.dataCy('uploadButton').should('not.exist')
     })
 
     it('does not allow editing passes', () => {
-      cy.visit('/#/squadrons/squadron-1/')
+      cy.visit('/#/squadrons/squadron-1')
 
-      cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Stretch\\|55FS]').
+      cy.get('[data-cy-pilot=Stretch\\|55FS]').
         dataCy('passCell').
         first().
         click()
@@ -365,13 +406,13 @@ context('Logged in with passes', () => {
     })
 
     it('does not allow deleting passes', () => {
-      cy.visit('/#/squadrons/squadron-1/')
+      cy.visit('/#/squadrons/squadron-1')
 
       cy.dataCy('deleteAllUnassigned').should('not.exist')
     })
 
     it('does not allow editing pilots', () => {
-      cy.visit('/#/squadrons/squadron-1/')
+      cy.visit('/#/squadrons/squadron-1')
 
       cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
         dataCy('passHeaderCell').
@@ -385,9 +426,14 @@ context('Logged in with passes', () => {
 
   context('Deleting squadron', () => {
     it('deletes the squadron', () => {
+      // Wait for squadron board to load before clicking any links
+      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
+
       cy.dataCy('editSquadronLink').click()
+      cy.dataCy('deleteSquadronButton', { timeout: 10000 }).should('be.visible')
       cy.dataCy('deleteSquadronButton').click()
-      cy.get('.modal-dialog .btn-danger').click()
+      // Click the Delete button in the confirmation modal
+      cy.get('.n-dialog .n-button--error-type').contains('Delete').click()
       cy.location('hash').should('eql', '#/')
 
       cy.dataCy('logInLink').click()

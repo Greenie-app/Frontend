@@ -1,6 +1,4 @@
-/* eslint-disable no-shadow */
-
-import { DateTime } from 'luxon'
+import { DateTime } from "luxon";
 
 interface Image {
   url: string;
@@ -20,16 +18,16 @@ export interface Squadron {
 }
 
 export enum Grade {
-  Cut = 'cut',
-  NoGrade = 'no_grade',
-  Bolter = 'bolter',
-  Fair = 'fair',
-  OK = 'ok',
-  Perfect = 'perfect',
-  TechniqueWaveoff = 'technique_waveoff',
-  FoulDeckWaveoff = 'foul_deck_waveoff',
-  PatternWaveoff = 'pattern_waveoff',
-  OwnWaveoff = 'own_waveoff',
+  Cut = "cut",
+  NoGrade = "no_grade",
+  Bolter = "bolter",
+  Fair = "fair",
+  OK = "ok",
+  Perfect = "perfect",
+  TechniqueWaveoff = "technique_waveoff",
+  FoulDeckWaveoff = "foul_deck_waveoff",
+  PatternWaveoff = "pattern_waveoff",
+  OwnWaveoff = "own_waveoff",
 }
 
 export interface Pass {
@@ -45,21 +43,21 @@ export interface Pass {
   notes: string | null;
 }
 
-export interface File {
+export interface AttachedFile {
   filename: string;
   byteSize: number;
 }
 
 export enum LogfileState {
-  Pending = 'pending',
-  InProgress = 'in_progress',
-  Complete = 'complete',
-  Failed = 'failed',
+  Pending = "pending",
+  InProgress = "in_progress",
+  Complete = "complete",
+  Failed = "failed",
 }
 
 export interface Logfile {
   ID: number;
-  files: File[];
+  files: AttachedFile[];
   state: LogfileState;
   progress: number;
   createdAt: DateTime;

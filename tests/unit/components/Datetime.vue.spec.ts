@@ -1,17 +1,24 @@
-import { shallowMount, Wrapper } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { DateTime } from 'luxon'
-import { expect } from 'chai'
-import { componentLocalVue } from '../utils'
+import {
+  describe, it, beforeEach, expect
+} from 'vitest'
 import Datetime from '@/components/Datetime.vue'
 
+// Type for exposed properties from defineExpose - refs are unwrapped
+type DatetimeExposed = {
+  dateValue: string | null;
+  timeValue: string | null;
+  datetimeValue: DateTime | null;
+}
+
 describe('Datetime.vue', () => {
-  let wrapper: Wrapper<Datetime>
+  let wrapper: ReturnType<typeof mount<typeof Datetime>>
 
   beforeEach(() => {
-    wrapper = shallowMount(Datetime, {
-      localVue: componentLocalVue(),
-      propsData: {
-        value: DateTime.fromSQL('2020-06-03 01:15:41.653000', { zone: 'UTC' }),
+    wrapper = mount(Datetime, {
+      props: {
+        modelValue: DateTime.fromSQL('2020-06-03 01:15:41.653000', { zone: 'UTC' }),
         name: 'squadron[time]',
         id: 'squadron-time'
       }
@@ -19,11 +26,13 @@ describe('Datetime.vue', () => {
   })
 
   it('sets dateValue and timeValue to the proper UTC representation', () => {
-    expect(wrapper.vm.dateValue).to.eql('2020-06-03')
-    expect(wrapper.vm.timeValue).to.eql('01:15:41')
+    const exposed = wrapper.vm as unknown as DatetimeExposed
+    expect(exposed.dateValue).toEqual('2020-06-03')
+    expect(exposed.timeValue).toEqual('01:15:41')
   })
 
   it('converts strings back to a DateTime', () => {
-    expect(wrapper.vm.datetimeValue?.toSQL()).to.eql('2020-06-03 01:15:41.000 Z')
+    const exposed = wrapper.vm as unknown as DatetimeExposed
+    expect(exposed.datetimeValue?.toSQL()).toEqual('2020-06-03 01:15:41.000 Z')
   })
 })

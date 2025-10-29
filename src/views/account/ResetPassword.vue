@@ -1,100 +1,113 @@
 <template>
   <must-be-unauthenticated>
     <narrow>
-      <h3 class="my-4">{{$t('resetPassword.title')}}</h3>
-      <b-form @submit.prevent="onSubmit">
-        <field-with-errors
-          :errors="formErrors"
-          autocomplete="new-password"
-          field="password"
-          klass="mb-2 mr-sm-2 mb-sm-0"
-          label="changePassword.newPasswordPlaceholder"
-          object="squadron"
-          required
-          sr-only
-          type="password"
-          v-model="password" />
+      <n-space vertical>
+        <h3>{{ $t("resetPassword.title") }}</h3>
+        <n-form @submit.prevent="onSubmit">
+          <n-space vertical>
+            <field-with-errors
+              :errors="formErrors"
+              autocomplete="new-password"
+              field="password"
+              label="changePassword.newPasswordPlaceholder"
+              object="squadron"
+              required
+              sr-only
+              type="password"
+              v-model="password"
+            />
 
-        <field-with-errors
-          :errors="formErrors"
-          autocomplete="new-password"
-          field="password_confirmation"
-          klass="mb-2 mr-sm-2 mb-sm-0"
-          label="changePassword.confirmationPlaceholder"
-          object="squadron"
-          required
-          sr-only
-          type="password"
-          v-model="passwordConfirmation" />
+            <field-with-errors
+              :errors="formErrors"
+              autocomplete="new-password"
+              field="password_confirmation"
+              label="changePassword.confirmationPlaceholder"
+              object="squadron"
+              required
+              sr-only
+              type="password"
+              v-model="passwordConfirmation"
+            />
 
-        <p class="text-danger" data-cy="resetPasswordError" v-if="formError">{{formError}}</p>
+            <n-alert v-if="formError" type="error" data-cy="resetPasswordError">
+              {{ formError }}
+            </n-alert>
 
-        <b-button
-          class="mb-2 mr-sm-2 mb-sm-0"
-          data-cy="resetPasswordSubmit"
-          type="submit"
-          variant="primary">
-          {{$t('changePassword.button')}}
-        </b-button>
-      </b-form>
+            <n-button data-cy="resetPasswordSubmit" attr-type="submit" type="primary">
+              {{ $t("changePassword.button") }}
+            </n-button>
+          </n-space>
+        </n-form>
+      </n-space>
     </narrow>
   </must-be-unauthenticated>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Action } from 'vuex-class'
-  import { Result } from 'ts-results'
-  import Bugsnag from '@bugsnag/js'
-  import { has, isString } from 'lodash-es'
-  import MustBeUnauthenticated from '@/components/MustBeUnauthenticated.vue'
-  import Narrow from '@/components/Narrow.vue'
-  import FormErrors from '@/mixins/FormErrors'
-  import { Errors } from '@/store/types'
-  import FieldWithErrors from '@/components/FieldWithErrors.vue'
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { NForm, NButton, NAlert, NSpace, useDialog } from "naive-ui";
+import { has, isString } from "lodash-es";
+import { useI18n } from "vue-i18n";
+import MustBeUnauthenticated from "@/components/MustBeUnauthenticated.vue";
+import Narrow from "@/components/Narrow.vue";
+import { useAccountStore } from "@/stores/account";
+import { useFormErrors } from "@/composables/useFormErrors";
+import FieldWithErrors from "@/components/FieldWithErrors.vue";
 
-  @Component({
-    components: { FieldWithErrors, Narrow, MustBeUnauthenticated }
-  })
-  export default class ResetPassword extends mixins(FormErrors) {
-    password = ''
+const route = useRoute();
+const router = useRouter();
+const dialog = useDialog();
+const { t } = useI18n();
+const accountStore = useAccountStore();
+const { formErrors, formError, resetErrors } = useFormErrors();
 
-    passwordConfirmation = ''
+const password = ref("");
+const passwordConfirmation = ref("");
 
-    @Action resetPassword!: (args: { password: string; confirmation: string; token: string }) =>
-      Promise<Result<void, Errors>>
+const token = computed(() => route.params.token as string);
 
-    private get token(): string {
-      return this.$route.params.token
+async function onSubmit(): Promise<void> {
+  resetErrors();
+
+  try {
+    const result = await accountStore.resetPassword({
+      password: password.value,
+      confirmation: passwordConfirmation.value,
+      token: token.value,
+    });
+    if (result.ok) {
+      dialog.success({
+        title: t("resetPassword.successMessage") as string,
+        positiveText: "OK",
+        onPositiveClick: () => {
+          router.push({ name: "Home" });
+        },
+      });
+    } else if (has(result.val, "reset_password_token")) {
+      dialog.error({
+        title: t("resetPassword.badToken") as string,
+        positiveText: "OK",
+        onPositiveClick: () => {
+          router.push({ name: "Home" });
+        },
+      });
+    } else {
+      formErrors.value = result.val;
     }
-
-    async onSubmit(): Promise<void> {
-      this.resetErrors()
-
-      try {
-        const result = await this.resetPassword({
-          password: this.password,
-          confirmation: this.passwordConfirmation,
-          token: this.token
-        })
-        if (result.ok) {
-          await this.$bvModal.msgBoxOk(<string> this.$t('resetPassword.successMessage'))
-          await this.$router.push({ name: 'Home' }).catch()
-        } else if (has(result.val, 'reset_password_token')) {
-          await this.$bvModal.msgBoxOk(<string> this.$t('resetPassword.badToken'))
-          await this.$router.push({ name: 'Home' })
-        } else this.formErrors = result.val
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.formError = error.message
-          Bugsnag.notify(error)
-        } else if (isString(error)) {
-          this.formError = error
-          Bugsnag.notify(error)
-        } else {
-          throw error
-        }
-      }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else if (isString(error)) {
+      formError.value = error;
+    } else {
+      throw error;
     }
   }
+}
+
+// Expose for testing
+defineExpose({
+  onSubmit,
+});
 </script>

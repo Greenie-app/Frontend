@@ -1,49 +1,54 @@
 <template>
-  <div class="d-flex flex-column h-100">
-    <header>
-      <navbar />
-    </header>
-    <main class="flex-shrink-0 py-5">
-      <b-container>
-        <router-view />
-      </b-container>
-    </main>
-    <footer-view />
-  </div>
+  <n-config-provider :theme-overrides="themeOverrides">
+    <n-dialog-provider>
+      <n-layout class="layout-container">
+        <navbar />
+        <n-layout-content class="main-content">
+          <router-view />
+        </n-layout-content>
+        <footer-view />
+      </n-layout>
+    </n-dialog-provider>
+  </n-config-provider>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Action, Getter } from 'vuex-class'
-  import { Watch } from 'vue-property-decorator'
-  import Footer from '@/components/Footer.vue'
-  import Navbar from '@/components/Navbar.vue'
-  import { Squadron } from '@/types'
+<script setup lang="ts">
+import { watch, onMounted } from "vue";
+import { NConfigProvider, NDialogProvider, NLayout, NLayoutContent } from "naive-ui";
+import { useAuthStore } from "@/stores/auth";
+import { useMySquadronStore } from "@/stores/mySquadron";
+import Navbar from "@/components/Navbar.vue";
+import FooterView from "@/components/Footer.vue";
 
-  @Component({
-    components: { Navbar, FooterView: Footer }
-  })
-  export default class Layout extends Vue {
-    @Getter mySquadron!: Squadron | null
+const authStore = useAuthStore();
+const mySquadronStore = useMySquadronStore();
 
-    @Action loadMySquadron!: () => Promise<void>
+const themeOverrides = {
+  common: {
+    primaryColor: "#007bff",
+  },
+};
 
-    @Getter currentUsername!: string | null
-
-    mounted(): void {
-      this.onSessionUsernameChanged()
-    }
-
-    @Watch('currentUsername')
-    onSessionUsernameChanged(): void {
-      if (this.mySquadron?.username !== this.currentUsername) this.loadMySquadron()
-    }
+function handleUsernameChanged(): void {
+  if (mySquadronStore.mySquadron?.username !== authStore.currentUsername) {
+    mySquadronStore.loadMySquadron();
   }
+}
+
+watch(() => authStore.currentUsername, handleUsernameChanged);
+
+onMounted(handleUsernameChanged);
 </script>
 
 <style lang="scss" scoped>
-  .container {
-    padding-top: 60px;
-  }
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 5rem 1rem 2rem;
+}
 </style>

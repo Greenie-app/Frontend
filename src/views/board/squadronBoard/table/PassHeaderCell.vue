@@ -1,84 +1,64 @@
 <template>
-  <b-th data-cy="passHeaderCell" sticky-column>
-    <i18n class="my-0" path="squadronBoard.pilotAndScore" tag="p" v-if="hasAverage">
+  <div class="pass-header-cell" data-cy="passHeaderCell">
+    <i18n-t v-if="hasAverage" keypath="squadronBoard.pilotAndScore" tag="p" class="pilot-info">
       <template #name>
-        <b-link
-          :to="{ name: 'PilotBoard', params: { squadron: $route.params.squadron, pilot } }"
-          data-cy="pilotBoardLink"
-        >
-          {{ pilot }}
-        </b-link>
+        <n-text tag="span" strong>
+          <router-link
+            :to="{ name: 'PilotBoard', params: { squadron: route.params.squadron, pilot } }"
+            data-cy="pilotBoardLink"
+          >
+            {{ pilot }}
+          </router-link>
+        </n-text>
       </template>
 
-      <template #score>{{ average | score }}</template>
-    </i18n>
+      <template #score>
+        <n-text tag="span" strong>{{ scoreFilter(average!) }}</n-text>
+      </template>
+    </i18n-t>
 
-    <p class="my-0" v-else-if="!isUnknownPilot">
-      <b-link :to="{ name: 'PilotBoard', params: { squadron: $route.params.squadron, pilot } }">
+    <n-text tag="p" strong class="pilot-info" v-else-if="!isUnknownPilot">
+      <router-link :to="{ name: 'PilotBoard', params: { squadron: route.params.squadron, pilot } }">
         {{ pilot }}
-      </b-link>
-    </p>
+      </router-link>
+    </n-text>
 
-    <p v-else>{{ $t("unknownPilot") }}</p>
-
-    <p class="my-0 small" v-if="isMySquadron && isUnknownPilot">
-      <b-link :disabled="busy" @click.prevent="deleteAll" data-cy="deleteAllUnassigned">
-        {{ $t("squadronBoard.deleteAll.link") }}
-      </b-link>
-      <b-spinner class="ml-2" small v-if="busy" />
-    </p>
-  </b-th>
+    <n-text tag="p" strong v-else>{{ $t("unknownPilot") }}</n-text>
+  </div>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Prop } from 'vue-property-decorator'
-  import { isNull } from 'lodash-es'
-  import { Action, Getter } from 'vuex-class'
-  import AuthCheck from '@/mixins/AuthCheck'
+<script setup lang="ts">
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import { isNull } from "lodash-es";
+import { NText } from "naive-ui";
+import { scoreFilter } from "@/config/filters";
 
-  @Component
-  export default class PassHeaderCell extends mixins(AuthCheck) {
-    @Prop({ type: String, required: false }) readonly pilot!: string | null
+interface Props {
+  pilot: string | null;
+  average: number | null;
+}
 
-    @Prop({ type: Number }) readonly average!: number | null
+const props = defineProps<Props>();
+const route = useRoute();
 
-    @Getter unknownPassCount!: number
-
-    @Action deleteAllUnknown!: () => Promise<void>
-
-    busy = false
-
-    get isUnknownPilot(): boolean {
-      return isNull(this.pilot)
-    }
-
-    get hasAverage(): boolean {
-      return !isNull(this.average)
-    }
-
-    async deleteAll(): Promise<void> {
-      const shouldContinue = await this.$bvModal.msgBoxConfirm(
-        <string> this.$t('squadronBoard.deleteAll.confirm.message', { count: this.unknownPassCount }),
-        {
-          title: <string> this.$t('squadronBoard.deleteAll.title'),
-          okTitle: <string> this.$t('squadronBoard.deleteAll.confirm.okButton'),
-          okVariant: 'danger'
-        }
-      )
-      if (!shouldContinue) return
-
-      this.busy = true
-      try {
-        await this.deleteAllUnknown()
-      } catch {
-        await this.$bvModal.msgBoxOk(<string> this.$t('squadronBoard.deleteAll.error.message'), {
-          title: <string> this.$t('squadronBoard.deleteAll.title'),
-          okTitle: <string> this.$t('squadronBoard.deleteAll.error.okButton')
-        })
-      } finally {
-        this.busy = false
-      }
-    }
-  }
+const isUnknownPilot = computed(() => isNull(props.pilot));
+const hasAverage = computed(() => !isNull(props.average));
 </script>
+
+<style scoped>
+.pass-header-cell {
+  position: sticky;
+  left: 0;
+  background: var(--n-color);
+  z-index: 1;
+  padding: 0.5rem;
+  white-space: nowrap;
+  min-width: min-content;
+}
+
+.pilot-info {
+  margin: 0;
+  white-space: nowrap;
+}
+</style>

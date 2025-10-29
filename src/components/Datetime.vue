@@ -1,102 +1,130 @@
 <template>
-  <b-input-group>
-    <b-form-datepicker
-      :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+  <n-space>
+    <n-date-picker
+      v-model:value="dateTimestamp"
       :id="dateID"
       :name="dateName"
+      type="date"
       v-bind="$attrs"
-      v-model="dateValue" />
-
-    <b-form-timepicker
-      :hour12="false"
-      :id="timeID"
-      :name="timeName"
-      v-bind="$attrs"
-      v-model="timeValue" />
-  </b-input-group>
+    />
+    <n-time-picker v-model:value="timeTimestamp" :id="timeID" :name="timeName" v-bind="$attrs" />
+  </n-space>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { DateTime } from 'luxon'
-  import { Prop, Watch } from 'vue-property-decorator'
-  import { isNull } from 'lodash-es'
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import { NSpace, NDatePicker, NTimePicker } from "naive-ui";
+import { DateTime } from "luxon";
+import { isNull } from "lodash-es";
 
-  const internalDateFormat = "yyyy'-'MM'-'dd"
-  const internalTimeFormat = "HH':'mm':'ss"
+const internalDateFormat = "yyyy'-'MM'-'dd";
+const internalTimeFormat = "HH':'mm':'ss";
 
-  /**
-   * Reusable component that combines a `b-form-datepicker` and `b-form-timepicker` to make a
-   * date+time control. Not sure why this isn't a part of Bootstrap-Vue in the first place??
-   *
-   * This component pairs a `value` binding and an `input` event, allowing it to be used with
-   * `v-model`.
-   */
+/**
+ * Reusable component that combines a date picker and time picker to make a
+ * date+time control.
+ *
+ * This component pairs a `modelValue` binding and an `update:modelValue` event,
+ * allowing it to be used with `v-model`.
+ */
 
-  @Component({
-    inheritAttrs: false
-  })
-  export default class Datetime extends Vue {
-    /** The value to pre-set the datetime to. */
-    @Prop({ type: Object, required: false }) readonly value!: DateTime | null
+interface Props {
+  /** The value to pre-set the datetime to. */
+  modelValue?: DateTime | null;
+  /** The form element name. */
+  name: string;
+  /** The element ID. */
+  id: string;
+}
 
-    /** The form element name. */
-    @Prop({ type: String, required: true }) readonly name!: string
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: null,
+});
 
-    /** The element ID. */
-    @Prop({ type: String, required: true }) readonly id!: string
+const emit = defineEmits<{
+  "update:modelValue": [value: DateTime | null];
+}>();
 
-    dateValue: string | null = null
+const dateValue = ref<string | null>(null);
+const timeValue = ref<string | null>(null);
 
-    timeValue: string | null = null
-
-    get datetimeTextValue(): string | null {
-      return isNull(this.value) ? null : `${this.dateValue} ${this.timeValue}`
+// Naive UI uses timestamps in milliseconds
+const dateTimestamp = computed({
+  get: () => {
+    if (!dateValue.value) return null;
+    return DateTime.fromFormat(dateValue.value, internalDateFormat, { zone: "utc" }).toMillis();
+  },
+  set: (value: number | null) => {
+    if (value === null) {
+      dateValue.value = null;
+    } else {
+      dateValue.value = DateTime.fromMillis(value, { zone: "utc" }).toFormat(internalDateFormat);
     }
+  },
+});
 
-    get datetimeValue(): DateTime | null {
-      if (isNull(this.value)) return null
-      return DateTime.fromFormat(this.datetimeTextValue!, `${internalDateFormat} ${internalTimeFormat}`, {
-        zone: 'utc'
-      })
+const timeTimestamp = computed({
+  get: () => {
+    if (!timeValue.value) return null;
+    return DateTime.fromFormat(timeValue.value, internalTimeFormat, { zone: "utc" }).toMillis();
+  },
+  set: (value: number | null) => {
+    if (value === null) {
+      timeValue.value = null;
+    } else {
+      timeValue.value = DateTime.fromMillis(value, { zone: "utc" }).toFormat(internalTimeFormat);
     }
+  },
+});
 
-    get dateName(): string {
-      return `${this.name}[date]`
-    }
+const datetimeTextValue = computed(() =>
+  isNull(props.modelValue) ? null : `${dateValue.value} ${timeValue.value}`,
+);
 
-    get dateID(): string {
-      return `${this.id}-date`
-    }
+const datetimeValue = computed(() => {
+  if (isNull(props.modelValue)) return null;
+  return DateTime.fromFormat(
+    datetimeTextValue.value!,
+    `${internalDateFormat} ${internalTimeFormat}`,
+    {
+      zone: "utc",
+    },
+  );
+});
 
-    get timeName(): string {
-      return `${this.name}[time]`
-    }
+const dateName = computed(() => `${props.name}[date]`);
+const dateID = computed(() => `${props.id}-date`);
+const timeName = computed(() => `${props.name}[time]`);
+const timeID = computed(() => `${props.id}-time`);
 
-    get timeID(): string {
-      return `${this.id}-time`
+watch(
+  () => props.modelValue,
+  () => {
+    if (isNull(props.modelValue)) {
+      dateValue.value = null;
+      timeValue.value = null;
+    } else {
+      dateValue.value = props.modelValue.setZone("utc").toFormat(internalDateFormat);
+      timeValue.value = props.modelValue.setZone("utc").toFormat(internalTimeFormat);
     }
+  },
+);
 
-    @Watch('value')
-    onExternalValueChanged(): void {
-      if (isNull(this.value)) {
-        this.dateValue = null
-        this.timeValue = null
-      } else {
-        this.dateValue = this.value.setZone('utc').toFormat(internalDateFormat)
-        this.timeValue = this.value.setZone('utc').toFormat(internalTimeFormat)
-      }
-    }
+watch([dateValue, timeValue], () => {
+  emit("update:modelValue", datetimeValue.value);
+});
 
-    @Watch('dateValue')
-    @Watch('timeValue')
-    onInternalValueChanged(): void {
-      this.$emit('input', this.datetimeValue)
-    }
-
-    mounted(): void {
-      this.onExternalValueChanged()
-    }
+onMounted(() => {
+  if (!isNull(props.modelValue)) {
+    dateValue.value = props.modelValue.setZone("utc").toFormat(internalDateFormat);
+    timeValue.value = props.modelValue.setZone("utc").toFormat(internalTimeFormat);
   }
+});
+
+// Expose for testing
+defineExpose({
+  dateValue,
+  timeValue,
+  datetimeValue,
+});
 </script>

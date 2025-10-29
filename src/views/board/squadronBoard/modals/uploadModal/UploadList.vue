@@ -1,55 +1,46 @@
 <template>
   <div id="upload-list">
-    <p class="text-danger" v-if="logfilesError">{{logfilesError.message}}</p>
-    <p class="text-center" v-else-if="logfilesLoading">
-      <b-spinner />
-    </p>
-    <upload :key="logfile.ID" :logfile="logfile" v-else v-for="logfile in logfiles" />
+    <n-alert v-if="logfilesStore.logfilesError" type="error">
+      {{ logfilesStore.logfilesError.message }}
+    </n-alert>
+    <n-space v-else-if="logfilesStore.logfilesLoading" justify="center" :size="16">
+      <n-spin />
+    </n-space>
+    <template v-else>
+      <upload v-for="logfile in logfilesStore.logfiles" :key="logfile.ID" :logfile="logfile" />
+    </template>
   </div>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Action, Getter } from 'vuex-class'
-  import { Watch } from 'vue-property-decorator'
-  import { isNull } from 'lodash-es'
-  import Upload from '@/views/board/squadronBoard/modals/uploadModal/Upload.vue'
-  import { Logfile, Squadron } from '@/types'
+<script setup lang="ts">
+import { watch, onMounted } from "vue";
+import { NAlert, NSpin, NSpace } from "naive-ui";
+import { isNull } from "lodash-es";
+import { useMySquadronStore } from "@/stores/mySquadron";
+import { useLogfilesStore } from "@/stores/logfiles";
+import Upload from "@/views/board/squadronBoard/modals/uploadModal/Upload.vue";
 
-  @Component({
-    components: { Upload }
-  })
-  export default class UploadList extends Vue {
-    @Getter logfilesLoading!: boolean
+const mySquadronStore = useMySquadronStore();
+const logfilesStore = useLogfilesStore();
 
-    @Getter logfiles!: Logfile[] | null
-
-    @Getter logfilesLoaded!: boolean
-
-    @Getter logfilesError!: Error | null
-
-    @Getter mySquadron!: Squadron
-
-    @Action loadLogfiles!: () => Promise<void>
-
-    @Action resetLogfiles!: () => void
-
-    @Watch('mySquadron')
-    onSquadronChanged(): void {
-      if (isNull(this.mySquadron)) this.resetLogfiles()
-      else this.loadLogfiles()
-    }
-
-    mounted(): void {
-      this.onSquadronChanged()
-    }
+function onSquadronChanged(): void {
+  if (isNull(mySquadronStore.mySquadron)) {
+    logfilesStore.resetLogfiles();
+  } else {
+    logfilesStore.loadLogfiles();
   }
+}
+
+watch(() => mySquadronStore.mySquadron, onSquadronChanged);
+
+onMounted(() => {
+  onSquadronChanged();
+});
 </script>
 
-<style lang="scss" scoped>
-  #upload-list {
-    max-height: 50vh;
-    overflow-y: scroll;
-  }
+<style scoped>
+#upload-list {
+  max-height: 50vh;
+  overflow-y: scroll;
+}
 </style>

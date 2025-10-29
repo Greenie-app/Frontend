@@ -1,177 +1,346 @@
+<!-- eslint-disable vue/no-deprecated-filter -->
 <template>
-  <b-form-group :class="formGroupClass" :data-cy="cypressGroupName">
-    <label :class="{ 'sr-only': srOnly }" :for="id">{{$t(label, interpolations)}}</label>
+  <n-space v-if="$slots.default" vertical class="field-with-errors-wrapper">
+    <n-form-item
+      :class="formGroupClass"
+      :data-cy="cypressGroupName"
+      :label="srOnly ? undefined : $t(label, interpolations)"
+      :validation-status="hasError ? 'error' : undefined"
+      :feedback="fieldErrors.join(', ')"
+      :show-feedback="hasError"
+    >
+      <!-- Use plain input in Cypress environment for file uploads -->
+      <input
+        v-if="type === 'file' && isCypress"
+        :id="id"
+        :name="name"
+        :class="klass"
+        type="file"
+        v-bind="$attrs"
+      />
 
-    <b-form-file
-      :class="[klass, { 'is-invalid': hasError }]"
+      <n-upload
+        v-else-if="type === 'file'"
+        :class="klass"
+        :name="name"
+        v-model:value="internalValue"
+        v-bind="$attrs"
+        :input-props="{ id }"
+        :default-upload="defaultUploadButton"
+      >
+        <slot />
+      </n-upload>
+
+      <datetime
+        v-else-if="type === 'datetime'"
+        :class="klass"
+        :id="id"
+        :name="name"
+        v-model="internalValue as DateTime"
+        v-bind="$attrs"
+      />
+
+      <n-input-number
+        v-else-if="type === 'spinbutton' || type === 'number'"
+        :class="klass"
+        :id="id"
+        :name="name"
+        :placeholder="$t(placeholderOrLabel, interpolations)"
+        v-model:value="internalValue as number"
+        v-bind="$attrs"
+      />
+
+      <n-select
+        v-else-if="type === 'select'"
+        :class="klass"
+        :id="id"
+        :name="name"
+        :options="optionList"
+        :placeholder="$t(placeholderOrLabel, interpolations)"
+        v-model:value="internalValue as string | number"
+        v-bind="$attrs"
+      />
+
+      <n-auto-complete
+        v-else-if="type === 'autocomplete'"
+        :class="klass"
+        :id="id"
+        :name="name"
+        :options="optionList"
+        :placeholder="$t(placeholderOrLabel, interpolations)"
+        :show-on-focus="true"
+        v-model:value="internalValue as string"
+        v-bind="$attrs"
+      />
+
+      <n-input
+        v-else
+        :class="klass"
+        :id="id"
+        :name="name"
+        :placeholder="$t(placeholderOrLabel, interpolations)"
+        :type="type as 'text' | 'password' | 'textarea'"
+        v-model:value="internalValue as string"
+        v-bind="$attrs"
+      />
+    </n-form-item>
+
+    <div class="field-help-text">
+      <slot />
+    </div>
+  </n-space>
+
+  <n-form-item
+    v-else
+    :class="formGroupClass"
+    :data-cy="cypressGroupName"
+    :label="srOnly ? undefined : $t(label, interpolations)"
+    :validation-status="hasError ? 'error' : undefined"
+    :feedback="fieldErrors.join(', ')"
+    :show-feedback="hasError"
+  >
+    <!-- Use plain input in Cypress environment for file uploads -->
+    <input
+      v-if="type === 'file' && isCypress"
       :id="id"
       :name="name"
-      :placeholder="$t(placeholderOrLabel, interpolations)"
-      :value="value"
-      @input="$emit('input', $event)"
+      :class="klass"
+      type="file"
       v-bind="$attrs"
-      v-if="type === 'file'" />
+    />
+
+    <n-upload
+      v-else-if="type === 'file'"
+      :class="klass"
+      :name="name"
+      v-model:value="internalValue"
+      v-bind="$attrs"
+      :input-props="{ id }"
+      :default-upload="defaultUploadButton"
+    >
+      <slot />
+    </n-upload>
 
     <datetime
-      :class="[klass, { 'is-invalid': hasError }]"
+      v-else-if="type === 'datetime'"
+      :class="klass"
       :id="id"
       :name="name"
-      :value="value"
-      @input="$emit('input', $event)"
+      v-model="internalValue as DateTime"
       v-bind="$attrs"
-      v-else-if="type === 'datetime'" />
+    />
 
-    <b-form-spinbutton
-      :class="[klass, { 'is-invalid': hasError }]"
+    <n-input-number
+      v-else-if="type === 'spinbutton' || type === 'number'"
+      :class="klass"
       :id="id"
       :name="name"
       :placeholder="$t(placeholderOrLabel, interpolations)"
-      :value="value"
-      @input="$emit('input', $event)"
+      v-model:value="internalValue as number"
       v-bind="$attrs"
-      v-else-if="type === 'spinbutton'" />
+    />
 
-    <b-select
-      :class="[klass, { 'is-invalid': hasError }]"
+    <n-select
+      v-else-if="type === 'select'"
+      :class="klass"
       :id="id"
       :name="name"
       :options="optionList"
       :placeholder="$t(placeholderOrLabel, interpolations)"
-      :value="value"
-      @input="$emit('input', $event)"
+      v-model:value="internalValue as string | number"
       v-bind="$attrs"
-      v-else-if="type === 'select'" />
+    />
 
-    <b-form-input
-      :class="[klass, { 'is-invalid': hasError }]"
+    <n-auto-complete
+      v-else-if="type === 'autocomplete'"
+      :class="klass"
+      :id="id"
+      :name="name"
+      :options="optionList"
+      :placeholder="$t(placeholderOrLabel, interpolations)"
+      v-model:value="internalValue as string"
+      v-bind="$attrs"
+    />
+
+    <n-input
+      v-else
+      :class="klass"
       :id="id"
       :name="name"
       :placeholder="$t(placeholderOrLabel, interpolations)"
-      :type="type"
-      :value="value"
-      @input="$emit('input', $event)"
+      :type="type as 'text' | 'password' | 'textarea'"
+      v-model:value="internalValue as string"
       v-bind="$attrs"
-      v-else />
-
-    <div :key="index" class="invalid-feedback" v-for="(error, index) in fieldErrors">
-      {{error}}
-    </div>
-
-    <slot />
-  </b-form-group>
+    />
+  </n-form-item>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Prop } from 'vue-property-decorator'
-  import {
-    has, isArray, isNull, isString
-  } from 'lodash-es'
-  import { Errors } from '@/store/types'
-  import Datetime from '@/components/Datetime.vue'
+<script setup lang="ts">
+import { computed } from "vue";
+import {
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NSelect,
+  NSpace,
+  NUpload,
+  NAutoComplete,
+  type SelectOption,
+} from "naive-ui";
+import { has, isArray, isNull, isString } from "lodash-es";
+import { useI18n } from "vue-i18n";
+import type { DateTime } from "luxon";
+import type { Errors } from "@/stores/types";
+import Datetime from "@/components/Datetime.vue";
 
-  type SelectOption<T> = { text: string, value: T | null }
+/**
+ * Reusable component that renders a form input and an associated errors (if any). Supported field
+ * types are a normal HTML `INPUT` or `SELECT`, Naive UI `n-input-number` and
+ * `n-upload` inputs, and {@link Datetime}.
+ */
 
+interface Props {
+  /** If true, renders the label for screen readers only. */
+  srOnly?: boolean;
   /**
-   * Reusable component that renders a form input and an associated errors (if any). Supported field
-   * types are a normal HTML `INPUT` or `SELECT`, the Bootstrap-Vue `b-form-spinbutton` and
-   * `b-form-file` inputs, and {@link Datetime}.
+   * The errors object binding. The containing component should use useFormErrors() to create this
+   * object.
    */
+  errors?: Errors | null;
+  /**
+   * The input type (any valid value for `<input type>` or `select`, `spinbutton`, `number`, or `datetime`.
+   */
+  type?: string;
+  /** The name of the property on the associated object model, for parameterization. */
+  field: string;
+  /** The name of the object, for parameterization. */
+  object: string;
+  /** A class attribute to apply to the form group. */
+  formGroupClass?: string | null;
+  /** The value for the form element. */
+  modelValue?: string | number | DateTime | null | File[] | unknown;
+  /** The label associated with a form element, as a Vue-I18n key. */
+  label: string;
+  /** The placeholder associated with a form element, as a Vue-I18n key. */
+  placeholder?: string | null;
+  /** A class attribute to apply to the input. */
+  klass?: string | null;
+  /** If true, the parameterized name of the input will have `[]` appended to it. */
+  multi?: boolean;
+  /** Options to use for the select if type is "select". */
+  options?: string | SelectOption[];
+  /** Interpolations to use when resolving the Vue-i18n key to a translated string. */
+  interpolations?: Record<string, unknown> | undefined;
+  /** If true, shows the default upload button for file inputs. */
+  defaultUploadButton?: boolean;
+}
 
-  @Component({
-    components: { Datetime },
-    inheritAttrs: false
-  })
-  export default class FieldWithErrors extends Vue {
-    /** If true, renders the label for screen readers only. */
-    @Prop({ type: Boolean, default: false }) readonly srOnly!: boolean
+const props = withDefaults(defineProps<Props>(), {
+  srOnly: false,
+  errors: null,
+  type: "text",
+  formGroupClass: null,
+  modelValue: undefined,
+  placeholder: null,
+  klass: null,
+  multi: false,
+  options: undefined,
+  interpolations: undefined,
+  defaultUploadButton: false,
+});
 
-    /**
-     * The errors object binding. The containing vue should mix in {FormErrors} to create this
-     * object.
-     */
-    @Prop({ type: Object }) readonly errors!: Errors | null
+const emit = defineEmits<{
+  "update:modelValue": [value: unknown];
+}>();
 
-    /**
-     * The input type (any valid value for `<input type>` or `select`, `spinbutton`, or `datetime`.
-     */
-    @Prop({ type: String, default: 'text' }) readonly type!: string
+const { t } = useI18n();
 
-    /** The name of the property on the associated object model, for parameterization. */
-    @Prop({ type: String, required: true }) readonly field!: string
+// Detect if running in Cypress - check multiple ways
+const isCypress = computed(() => {
+  // Check environment variable
+  const envCypress = import.meta.env?.CYPRESS === "true" || import.meta.env?.CYPRESS === true;
 
-    /** The name of the object, for parameterization. */
-    @Prop({ type: String, required: true }) readonly object!: string
+  // Check window object
+  const windowCypress =
+    typeof window !== "undefined" &&
+    (!!(window as any).Cypress || !!(window as any).parent?.Cypress);
 
-    /** A class attribute to apply to the form group. */
-    @Prop({ type: String }) readonly formGroupClass!: string | null
+  return envCypress || windowCypress;
+});
 
-    /** The value for the form element. */
-    @Prop({}) readonly value!: unknown
+const internalValue = computed({
+  get: () => props.modelValue,
+  set: (value) => emit("update:modelValue", value),
+});
 
-    /** The label associated with a form element, as a Vue-I18n key. */
-    @Prop({ type: String, required: true }) readonly label!: string
+const hasError = computed(() => !isNull(props.errors) && has(props.errors, props.field));
 
-    /** The placeholder associated with a form element, as a Vue-I18n key. */
-    @Prop({ type: String }) readonly placeholder!: string | null
+const fieldErrors = computed((): string[] => {
+  if (!hasError.value) return [];
+  return props.errors![props.field] || [];
+});
 
-    /** A class attribute to apply to the input. */
-    @Prop({ type: String }) readonly klass!: string | null
+const id = computed(() => `${props.object}-${props.field}`);
 
-    /** If true, the parameterized name of the input will have `[]` appended to it. */
-    @Prop({ type: Boolean, default: false }) readonly multi!: boolean
+const cypressGroupName = computed(() => `${id.value}-group`);
 
-    /** Options to use for the select if {@link input} is "select". */
-    @Prop({ required: false }) readonly options!: string | SelectOption<unknown>
+const name = computed(() => {
+  const n = `${props.object}[${props.field}]`;
+  return props.multi ? `${n}[]` : n;
+});
 
-    /** Interpolations to use when resolving the Vue-i18n key to a translated string. */
-    // eslint-disable-next-line vue/max-len
-    @Prop({ required: false }) readonly interpolations!: unknown[] | Record<string, unknown> | undefined
+const placeholderOrLabel = computed(() =>
+  isNull(props.placeholder) ? props.label : props.placeholder,
+);
 
-    get hasError(): boolean {
-      return !isNull(this.errors) && has(this.errors, this.field)
-    }
+const optionList = computed((): SelectOption[] | string[] => {
+  if (props.type !== "select" && props.type !== "autocomplete") return [];
+  if (isNull(props.options) || props.options === undefined) return [];
 
-    get fieldErrors(): string[] {
-      if (!this.hasError) return []
-      return this.errors![this.field]
-    }
-
-    get id(): string {
-      return `${this.object}-${this.field}`
-    }
-
-    get cypressGroupName(): string {
-      return `${this.id}-group`
-    }
-
-    get name(): string {
-      const name = `${this.object}[${this.field}]`
-      return this.multi ? `${name}[]` : name
-    }
-
-    get placeholderOrLabel(): string {
-      return isNull(this.placeholder) ? this.label : this.placeholder
-    }
-
-    get optionList(): SelectOption<unknown>[] {
-      if (this.type !== 'select') return []
-      if (isNull(this.options)) return []
-
-      if (isString(this.options)) return this.optionListFromI18n
-      if (isArray(this.options)) return this.options
-      throw new Error('Invalid value for :options')
-    }
-
-    private get optionListFromI18n(): SelectOption<string>[] {
-      const i18nKey = <string> this.options
-
-      const options = <Record<string, string>>(<unknown> this.$t(i18nKey))
-      return Object.entries(options).map(([key, value]) => ({
-        value: key === '' ? null : key,
-        text: value
-      }))
-    }
+  if (isString(props.options)) {
+    return optionListFromI18n.value;
   }
+  if (isArray(props.options)) {
+    // For autocomplete, if it's an array of strings, return as-is
+    if (props.type === "autocomplete" && props.options.every((opt) => typeof opt === "string")) {
+      console.log("FieldWithErrors: Returning string array for autocomplete:", props.options);
+      return props.options as string[];
+    }
+    // Convert from old format {text, value} to Naive UI format {label, value}
+    return props.options.map(
+      (opt: any): SelectOption => ({
+        label: opt.text || opt.label,
+        value: opt.value,
+      }),
+    );
+  }
+  throw new Error("Invalid value for :options");
+});
+
+const optionListFromI18n = computed((): SelectOption[] => {
+  const i18nKey = props.options as string;
+  const options = t(i18nKey);
+
+  if (typeof options !== "object" || options === null) {
+    throw new Error(`i18n key "${i18nKey}" did not resolve to an object`);
+  }
+
+  return Object.entries(options as Record<string, string>).map(
+    ([key, value]): SelectOption => ({
+      value: key || "",
+      label: value,
+    }),
+  );
+});
 </script>
+
+<style scoped>
+.field-help-text {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.field-help-text :deep(p) {
+  margin: 0;
+}
+</style>
