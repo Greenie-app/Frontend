@@ -1,40 +1,43 @@
-import { Store } from 'vuex'
-import { expect } from 'chai'
+import {
+  describe, it, beforeEach, expect
+} from 'vitest'
 import { http, HttpResponse } from 'msw'
-import { logIn, createTestStore } from '../utils'
+import { logIn, createTestPinia } from '../utils'
 import backend from '../backend'
-import { AuthState, RootState } from '@/store/types'
+import { useAuthStore } from '@/stores/auth'
 
-describe('Vuex: auth', () => {
-  let store: Store<RootState>
+describe('Pinia: auth', () => {
+  let authStore: ReturnType<typeof useAuthStore>
 
   beforeEach(() => {
-    store = createTestStore()
+    createTestPinia()
+    authStore = useAuthStore()
   })
 
-  context('getters', () => {
+  describe('getters', () => {
     describe('#currentUsername', () => {
       it('returns the current username', () => {
-        logIn(store)
-        expect(store.getters.currentUsername).to.eql('72nd')
+        logIn()
+        expect(authStore.currentUsername).toEqual('72nd')
       })
 
       it('returns null if logged out', () => {
-        expect(store.getters.currentUsername).to.be.null
+        expect(authStore.currentUsername).toBeNull()
       })
     })
   })
 
-  context('actions', () => {
+  describe('actions', () => {
     describe('#logIn', () => {
       it('logs a user in', async () => {
-        const result = await store.dispatch(
-          'logIn',
-          { username: 'test', password: 'user', rememberMe: 'false' }
-        )
+        const result = await authStore.logIn({
+          username: 'test',
+          password: 'user',
+          rememberMe: false
+        })
 
-        expect(result.ok).to.be.true
-        expect((<RootState & { auth: AuthState }>store.state).auth.JWT).to.eql('foobar')
+        expect(result.ok).toBe(true)
+        expect(authStore.JWT).toEqual('foobar')
       })
 
       it('handles a 401', async () => {
@@ -45,20 +48,21 @@ describe('Vuex: auth', () => {
           ))
         )
 
-        const result = await store.dispatch(
-          'logIn',
-          { username: 'test', password: 'wrong', rememberMe: 'false' }
-        )
+        const result = await authStore.logIn({
+          username: 'test',
+          password: 'wrong',
+          rememberMe: false
+        })
 
-        expect(result.ok).to.be.false
-        expect((<RootState & { auth: AuthState }>store.state).auth.JWT).to.be.null
+        expect(result.ok).toBe(false)
+        expect(authStore.JWT).toBeNull()
       })
     })
 
     describe('#logOut', () => {
       it('logs out and removes the JWT', async () => {
-        await store.dispatch('logOut')
-        expect((<RootState & { auth: AuthState }>store.state).auth.JWT).to.be.null
+        await authStore.logOut()
+        expect(authStore.JWT).toBeNull()
       })
     })
   })

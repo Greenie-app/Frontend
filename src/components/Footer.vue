@@ -1,25 +1,22 @@
 <template>
-  <footer class="footer mt-auto py-3">
-    <b-container>
-      <span class="text-muted">{{$t('footer.copyright')}} </span>
+  <n-layout-footer class="footer">
+    <n-space justify="center">
+      <span>{{ $t("footer.copyright") }} </span>
       <a href="https://github.com/Greenie-app" rel="noopener" target="_blank">
-        {{$t('footer.contributeLink')}}
+        {{ $t("footer.contributeLink") }}
       </a>
-    </b-container>
-  </footer>
+    </n-space>
+  </n-layout-footer>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-
-  @Component
-  export default class Footer extends Vue {
-  }
+<script setup lang="ts">
+import { NLayoutFooter, NSpace } from "naive-ui";
 </script>
 
 <style lang="scss" scoped>
-  footer {
-    background-color: #f5f5f5;
-  }
+.footer {
+  background-color: var(--n-color-modal);
+  padding: 1rem;
+  margin-top: auto;
+}
 </style>

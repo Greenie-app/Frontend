@@ -1,111 +1,166 @@
 <template>
-  <b-td
-    :class="[aircraftTypeClass, { unscored: isUnscored, 'cursor-pointer': isMySquadron }]"
-    :variant="cellVariant"
+  <n-flex
+    vertical
+    justify="center"
+    class="pass-cell"
+    :class="[
+      aircraftTypeClass,
+      cellVariant,
+      { unscored: isUnscored, 'cursor-pointer': isMySquadron },
+    ]"
     @click="onClick"
-    data-cy="passCell">
-    <p class="text-center my-0 small">{{pass.time | date}}</p>
-    <p class="text-center my-0">
-      <strong data-cy="passCellScore">{{pass.score | score}}</strong>
-      <small class="ml-2" data-cy="passCellGrade" v-if="pass.grade">
-        <span :class="{ underline: isPerfect }">{{grade}}</span>{{wireIfAny}}
-      </small>
-    </p>
+    data-cy="passCell"
+  >
+    <n-text :depth="3" tag="p" class="date">{{ formatDate(pass.time) }}</n-text>
+    <n-text tag="p" class="score-info">
+      <n-text strong tag="strong" data-cy="passCellScore">{{
+        scoreFilter(pass.score ?? 0)
+      }}</n-text>
+      <n-text :depth="3" tag="small" class="grade" data-cy="passCellGrade" v-if="pass.grade">
+        <span :class="{ underline: isPerfect }">{{ grade }}</span
+        >{{ wireIfAny }}
+      </n-text>
+    </n-text>
 
-    <edit-pass-modal :id="modalID" :pass="pass" />
-  </b-td>
+    <edit-pass-modal v-if="isMySquadron" v-model:show="showEditModal" :pass="pass" />
+  </n-flex>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Prop } from 'vue-property-decorator'
-  import { isNull } from 'lodash-es'
-  import { DateTime } from 'luxon'
-  import { Grade, Pass } from '@/types'
-  import EditPassModal from '@/views/board/squadronBoard/modals/EditPassModal.vue'
-  import { variant } from '@/config/utils'
-  import AuthCheck from '@/mixins/AuthCheck'
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { isNull } from "lodash-es";
+import { DateTime } from "luxon";
+import { NText, NFlex } from "naive-ui";
+import { Grade, Pass } from "@/types";
+import EditPassModal from "@/views/board/squadronBoard/modals/EditPassModal.vue";
+import { variant } from "@/config/utils";
+import { scoreFilter } from "@/config/filters";
+import { useAuthCheck } from "@/composables/useAuthCheck";
 
-  @Component({
-    components: { EditPassModal },
-    filters: {
-      date(date: DateTime): string {
-        return date.toLocaleString({ month: '2-digit', day: '2-digit' })
-      }
-    }
-  })
-  export default class PassCell extends mixins(AuthCheck) {
-    @Prop({ type: Object, required: true }) readonly pass!: Pass
+interface Props {
+  pass: Pass;
+}
 
-    get cellVariant(): string | null {
-      return variant(this.pass)
-    }
+const props = defineProps<Props>();
+const { t } = useI18n();
+const { isMySquadron } = useAuthCheck();
 
-    get isUnscored(): boolean {
-      return isNull(this.cellVariant)
-    }
+const showEditModal = ref(false);
 
-    get aircraftTypeClass(): string | null {
-      if (this.pass.aircraftType === 'FA-18C_hornet') return 'f18'
-      if (this.pass.aircraftType === 'F-14B') return 'f14'
-      if (this.pass.aircraftType === 'A-4E-C') return 'a4'
-      return null
-    }
+const cellVariant = computed(() => variant(props.pass));
+const isUnscored = computed(() => isNull(cellVariant.value));
 
-    get grade(): string {
-      if (isNull(this.pass.grade)) return ''
+const aircraftTypeClass = computed(() => {
+  const type = props.pass.aircraftType;
+  if (!type) return null;
 
-      const translated = <string> this.$t(`pass.grade.${this.pass.grade}`)
-      const matches = translated.match(/^_(.+)_$/)
-      if (matches) return matches[1]
-      return translated
-    }
+  // All F-14 variants
+  if (type.startsWith("F-14")) return "f14";
 
-    get isPerfect(): boolean {
-      return !isNull(this.pass.grade) && this.pass.grade === Grade.Perfect
-    }
+  // All F/A-18 variants
+  if (type.startsWith("FA-18")) return "f18";
 
-    get wireIfAny(): string {
-      return isNull(this.pass.wire) ? '' : `-${this.pass.wire}`
-    }
+  // Su-33 uses same silhouette as F-14 (single-seat carrier fighter)
+  if (type === "Su-33") return "f14";
 
-    get modalID(): string {
-      return `edit-pass-modal-${this.pass.ID}`
-    }
+  // Support aircraft don't have silhouettes
+  return null;
+});
 
-    onClick(): void {
-      if (this.isMySquadron) this.$bvModal.show(this.modalID)
-    }
+const grade = computed(() => {
+  if (isNull(props.pass.grade)) return "";
+
+  const translated = t(`pass.grade.${props.pass.grade}`);
+  const matches = translated.match(/^_(.+)_$/);
+  if (matches) return matches[1];
+  return translated;
+});
+
+const isPerfect = computed(() => !isNull(props.pass.grade) && props.pass.grade === Grade.Perfect);
+
+const wireIfAny = computed(() => (isNull(props.pass.wire) ? "" : `-${props.pass.wire}`));
+
+function formatDate(date: DateTime): string {
+  return date.toLocaleString({ month: "2-digit", day: "2-digit" });
+}
+
+function onClick(): void {
+  if (isMySquadron) {
+    showEditModal.value = true;
   }
+}
 </script>
 
-<style lang="scss" scoped>
-  td {
-    background-blend-mode: overlay;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    width: 100px;
-  }
+<style scoped>
+.pass-cell {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  padding: 0.5rem;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
 
-  .cursor-pointer {
-    cursor: pointer;
-  }
+.pass-cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 60%;
+  opacity: 0.25;
+  pointer-events: none;
+}
 
-  .f18 {
-    background-image: url("../../../../assets/images/f18.png");
-  }
+.f18::before {
+  background-image: url("../../../../assets/images/f18.png");
+}
 
-  .f14 {
-    background-image: url("../../../../assets/images/f14.png");
-  }
+.f14::before {
+  background-image: url("../../../../assets/images/f14.png");
+}
 
-  .unscored {
-    background-color: #454d55;
-    color: #fff;
-  }
+.date {
+  text-align: center;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
 
-  .underline {
-    text-decoration: underline;
-  }
+.score-info {
+  text-align: center;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.grade {
+  margin-left: 0.5rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.unscored {
+  background-color: #e9ecef;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.success {
+  background-color: #d4edda;
+}
+
+.warning {
+  background-color: #ffc107;
+}
+
+.danger {
+  background-color: #f8d7da;
+}
 </style>

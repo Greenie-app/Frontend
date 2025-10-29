@@ -1,31 +1,37 @@
-/* eslint-disable import/no-import-module-exports */
+/// <reference types="vite/client" />
 
-import Vue from 'vue'
-import VueI18n from 'vue-i18n'
-import messages from '@/i18n/messages'
-import numberFormats from '@/i18n/numberFormats'
+import { createI18n } from "vue-i18n";
+import messages from "@/i18n/messages";
+import numberFormats from "@/i18n/numberFormats";
 
-Vue.use(VueI18n)
-
-const debug = process.env.NODE_ENV !== 'production'
-
-const i18n = new VueI18n({
+const i18n = createI18n({
+  legacy: false, // Use Composition API mode
   locale: navigator.language,
-  fallbackLocale: 'en',
+  fallbackLocale: "en",
   messages,
   numberFormats,
-  silentFallbackWarn: true
-})
+  missingWarn: false,
+  fallbackWarn: false,
+});
 
-if (debug && module.hot) {
-  module.hot.accept(['./en/messages'], async () => {
-    const reloadedEn = await import('./en/messages')
-    i18n.setLocaleMessage('en', reloadedEn.default)
-  })
-  module.hot.accept(['./en/numberFormats'], async () => {
-    const reloadedEn = await import('./en/numberFormats')
-    i18n.setNumberFormat('en', reloadedEn.default)
-  })
+// Vite HMR for i18n messages
+if (import.meta.hot) {
+  import.meta.hot.accept(["./en/messages"], async (modules: unknown) => {
+    if (modules && Array.isArray(modules)) {
+      const newModule = modules[0];
+      if (newModule && "default" in newModule) {
+        i18n.global.setLocaleMessage("en", newModule.default);
+      }
+    }
+  });
+  import.meta.hot.accept(["./en/numberFormats"], async (modules: unknown) => {
+    if (modules && Array.isArray(modules)) {
+      const newModule = modules[0];
+      if (newModule && "default" in newModule) {
+        i18n.global.setNumberFormat("en", newModule.default);
+      }
+    }
+  });
 }
 
-export default i18n
+export default i18n;

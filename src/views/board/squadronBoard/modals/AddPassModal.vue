@@ -1,62 +1,59 @@
 <template>
-  <b-modal :title="$t('addPassModal.title')" hide-footer id="add-pass-modal">
+  <n-modal
+    v-model:show="showModal"
+    preset="card"
+    :title="$t('addPassModal.title')"
+    style="max-width: 600px"
+  >
     <pass-form
       :busy="busy"
       :form-error="formError"
       :form-errors="formErrors"
       @submit="onSubmit"
-      ref="form"
-      submit-string="addPassModal.submitButton" />
-  </b-modal>
+      ref="formRef"
+      submit-string="addPassModal.submitButton"
+    />
+  </n-modal>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Result } from 'ts-results'
-  import { Action } from 'vuex-class'
-  import Bugsnag from '@bugsnag/js'
-  import { isString } from 'lodash-es'
-  import FieldWithErrors from '@/components/FieldWithErrors.vue'
-  import FormErrors from '@/mixins/FormErrors'
-  import { Errors } from '@/store/types'
-  import PassForm from '@/views/board/squadronBoard/modals/Form.vue'
-  import { Pass } from '@/types'
+<script setup lang="ts">
+import { ref } from "vue";
+import { NModal } from "naive-ui";
+import { isString } from "lodash-es";
+import { useFormErrors } from "@/composables/useFormErrors";
+import { usePassesStore } from "@/stores/passes";
+import PassForm from "@/views/board/squadronBoard/modals/Form.vue";
+import { Pass } from "@/types";
 
-  @Component({
-    components: { PassForm, FieldWithErrors }
-  })
-  export default class AddPassModal extends mixins(FormErrors) {
-    readonly $refs!: {
-      form: PassForm
+const passesStore = usePassesStore();
+const { formError, formErrors, resetErrors } = useFormErrors();
+
+const showModal = defineModel<boolean>("show", { default: false });
+const formRef = ref<InstanceType<typeof PassForm> | null>(null);
+const busy = ref(false);
+
+async function onSubmit(pass: Omit<Pass, "ID">): Promise<void> {
+  resetErrors();
+  busy.value = true;
+
+  try {
+    const result = await passesStore.createPass({ pass: pass as Pass });
+    if (result.ok) {
+      showModal.value = false;
+      formRef.value?.reset();
+    } else {
+      formErrors.value = result.val;
     }
-
-    @Action createPass!: (args: { pass: Omit<Pass, 'ID'> }) => Promise<Result<Pass, Errors>>
-
-    busy = false
-
-    async onSubmit(pass: Omit<Pass, 'ID'>): Promise<void> {
-      this.resetErrors()
-      this.busy = true
-
-      try {
-        const result = await this.createPass({ pass: (<Pass>pass) })
-        if (result.ok) {
-          this.$bvModal.hide('add-pass-modal')
-          this.$refs.form.reset()
-        } else this.formErrors = result.val
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.formError = error.message
-          Bugsnag.notify(error)
-        } else if (isString(error)) {
-          this.formError = error
-          Bugsnag.notify(error)
-        } else {
-          throw error
-        }
-      } finally {
-        this.busy = false
-      }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else if (isString(error)) {
+      formError.value = error;
+    } else {
+      throw error;
     }
+  } finally {
+    busy.value = false;
   }
+}
 </script>

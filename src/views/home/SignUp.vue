@@ -1,129 +1,173 @@
 <template>
-  <b-form @submit.prevent="onSubmit" ref="form">
-    <field-with-errors
-      :errors="formErrors"
-      field="name"
-      label="home.signUp.fields.name"
-      maxlength="100"
-      object="squadron"
-      placeholder=""
-      required
-      v-model="squadron.name" />
+  <n-form @submit.prevent="onSubmit" ref="formRef">
+    <n-space vertical :size="24">
+      <field-with-errors
+        :errors="formErrors"
+        field="name"
+        label="home.signUp.fields.name"
+        maxlength="100"
+        object="squadron"
+        placeholder=""
+        required
+        v-model="squadron.name"
+      />
 
-    <field-with-errors
-      :errors="formErrors"
-      field="image"
-      label="home.signUp.fields.image"
-      object="squadron"
-      placeholder=""
-      type="file"
-      v-model="squadron.image" />
+      <n-form-item
+        :label="$t('home.signUp.fields.image')"
+        :validation-status="imageHasError ? 'error' : undefined"
+        :feedback="imageFieldErrors.join(', ')"
+        :show-feedback="imageHasError"
+      >
+        <n-upload
+          v-model:file-list="imageFiles"
+          :max="1"
+          accept="image/*"
+          :input-props="{ id: 'squadron-image' }"
+        >
+          <n-button>{{ $t("home.signUp.selectImage") }}</n-button>
+        </n-upload>
+      </n-form-item>
 
-    <field-with-errors
-      :errors="formErrors"
-      field="username"
-      label="home.signUp.fields.username"
-      maxlength="20"
-      object="squadron"
-      placeholder=""
-      required
-      v-model="squadron.username">
-      <p class="small">{{$t('home.signUp.help')}}</p>
-    </field-with-errors>
+      <field-with-errors
+        :errors="formErrors"
+        field="username"
+        label="home.signUp.fields.username"
+        maxlength="20"
+        object="squadron"
+        placeholder=""
+        required
+        v-model="squadron.username"
+      >
+        <n-text depth="3" tag="p">{{ $t("home.signUp.help") }}</n-text>
+      </field-with-errors>
 
-    <field-with-errors
-      :errors="formErrors"
-      field="email"
-      label="home.signUp.fields.email"
-      object="squadron"
-      placeholder=""
-      required
-      type="email"
-      v-model="squadron.email" />
+      <field-with-errors
+        :errors="formErrors"
+        field="email"
+        label="home.signUp.fields.email"
+        object="squadron"
+        placeholder=""
+        required
+        type="email"
+        v-model="squadron.email"
+      />
 
-    <field-with-errors
-      :errors="formErrors"
-      field="password"
-      label="home.signUp.fields.password"
-      object="squadron"
-      placeholder=""
-      required
-      type="password"
-      v-model="squadron.password" />
+      <field-with-errors
+        :errors="formErrors"
+        field="password"
+        label="home.signUp.fields.password"
+        object="squadron"
+        placeholder=""
+        required
+        type="password"
+        v-model="squadron.password"
+      />
 
-    <field-with-errors
-      :errors="formErrors"
-      field="password_confirmation"
-      label="home.signUp.fields.passwordConfirmation"
-      object="squadron"
-      placeholder=""
-      required
-      type="password"
-      v-model="squadron.password_confirmation" />
+      <field-with-errors
+        :errors="formErrors"
+        field="password_confirmation"
+        label="home.signUp.fields.passwordConfirmation"
+        object="squadron"
+        placeholder=""
+        required
+        type="password"
+        v-model="squadron.password_confirmation"
+      />
+    </n-space>
 
-    <p class="text-danger" v-if="formError">{{formError}}</p>
+    <n-space vertical style="margin-top: 1rem">
+      <n-alert v-if="formError" type="error">
+        {{ formError }}
+      </n-alert>
 
-    <b-button data-cy="signUpSubmit" type="submit" variant="primary">
-      {{$t('home.signUp.submitButton')}}
-    </b-button>
-  </b-form>
+      <n-button data-cy="signUpSubmit" type="primary" attr-type="submit">
+        {{ $t("home.signUp.submitButton") }}
+      </n-button>
+    </n-space>
+  </n-form>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Action } from 'vuex-class'
-  import { Result } from 'ts-results'
-  import { Watch } from 'vue-property-decorator'
-  import slugify from 'slugify'
-  import { isString, isUndefined } from 'lodash-es'
-  import Bugsnag from '@bugsnag/js'
-  import { SquadronJSONUp } from '@/store/coding'
-  import { Errors } from '@/store/types'
-  import FormErrors from '@/mixins/FormErrors'
-  import { Squadron } from '@/types'
-  import FieldWithErrors from '@/components/FieldWithErrors.vue'
+<script setup lang="ts">
+import { ref, watch, computed } from "vue";
+import {
+  NForm,
+  NFormItem,
+  NButton,
+  NAlert,
+  NSpace,
+  NText,
+  NUpload,
+  type FormInst,
+  type UploadFileInfo,
+} from "naive-ui";
+import slugify from "slugify";
+import { isString, isUndefined, isNull, has } from "lodash-es";
+import { useAccountStore } from "@/stores/account";
+import type { SquadronJSONUp } from "@/stores/coding";
+import { useFormErrors } from "@/composables/useFormErrors";
+import FieldWithErrors from "@/components/FieldWithErrors.vue";
 
-  @Component({
-    components: { FieldWithErrors }
-  })
-  export default class SignUp extends mixins(FormErrors) {
-    readonly $refs!: {
-      form: HTMLFormElement
+const formRef = ref<FormInst>();
+const squadron = ref<Partial<SquadronJSONUp>>({
+  name: "",
+  username: "",
+  email: "",
+  password: "",
+  password_confirmation: "",
+});
+const imageFiles = ref<UploadFileInfo[]>([]);
+const accountStore = useAccountStore();
+const { formErrors, formError, resetErrors } = useFormErrors();
+
+const imageHasError = computed(() => !isNull(formErrors.value) && has(formErrors.value, "image"));
+const imageFieldErrors = computed((): string[] => {
+  if (!imageHasError.value) return [];
+  return formErrors.value!["image"] || [];
+});
+
+async function onSubmit(): Promise<void> {
+  resetErrors();
+
+  try {
+    const formData = new FormData();
+    formData.append("squadron[name]", squadron.value.name || "");
+    formData.append("squadron[username]", squadron.value.username || "");
+    formData.append("squadron[email]", squadron.value.email || "");
+    formData.append("squadron[password]", squadron.value.password || "");
+    formData.append("squadron[password_confirmation]", squadron.value.password_confirmation || "");
+
+    // Get the uploaded file from imageFiles
+    const uploadedFile = imageFiles.value[0]?.file;
+    if (uploadedFile) {
+      formData.append("squadron[image]", uploadedFile);
     }
 
-    squadron: Partial<SquadronJSONUp> = {}
-
-    @Action signUp!: (args: { body: FormData }) => Promise<Result<Squadron, Errors>>
-
-    async onSubmit(): Promise<void> {
-      this.resetErrors()
-
-      try {
-        const result = await this.signUp({ body: new FormData(this.$refs.form) })
-        if (result.ok) {
-          // await this.$router.push({
-          //   name: 'SquadronBoard',
-          //   params: { squadron: result.val.username }
-          // })
-        } else this.formErrors = result.val
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.formError = error.message
-          Bugsnag.notify(error)
-        } else if (isString(error)) {
-          this.formError = error
-          Bugsnag.notify(error)
-        } else {
-          throw error
-        }
-      }
+    const result = await accountStore.signUp({ body: formData });
+    if (result.ok) {
+      // await router.push({
+      //   name: 'SquadronBoard',
+      //   params: { squadron: result.val.username }
+      // })
+    } else {
+      formErrors.value = result.val;
     }
-
-    @Watch('squadron.name')
-    onNameChanged(): void {
-      if (!isUndefined(this.squadron.name)) {
-        this.squadron.username = slugify(this.squadron.name).toLowerCase()
-      }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else if (isString(error)) {
+      formError.value = error;
+    } else {
+      throw error;
     }
   }
+}
+
+watch(
+  () => squadron.value.name,
+  (newName) => {
+    if (!isUndefined(newName) && newName !== "") {
+      squadron.value.username = slugify(newName).toLowerCase();
+    }
+  },
+);
 </script>

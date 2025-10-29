@@ -1,33 +1,38 @@
 <template>
-  <b-modal
-    :cancel-title="$t('editSquadron.confirmDelete.cancelButton')"
-    :ok-title="$t('editSquadron.confirmDelete.okButton')"
+  <n-modal
+    v-model:show="showModal"
+    preset="dialog"
+    type="error"
     :title="$t('editSquadron.confirmDelete.title')"
-    @ok="deleteClicked"
-    id="confirm-delete"
-    ok-variant="danger">
-    <p class="my-4">{{$t('editSquadron.confirmDelete.text', [mySquadron.name])}}</p>
-  </b-modal>
+    :positive-text="$t('editSquadron.confirmDelete.okButton')"
+    :negative-text="$t('editSquadron.confirmDelete.cancelButton')"
+    @positive-click="deleteClicked"
+  >
+    <n-space vertical :size="24">
+      <p>
+        {{ $t("editSquadron.confirmDelete.text", [mySquadronStore.mySquadron!.name]) }}
+      </p>
+    </n-space>
+  </n-modal>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Action, Getter } from 'vuex-class'
-  import { Squadron } from '@/types'
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+import { NModal, NSpace } from "naive-ui";
+import { useMySquadronStore } from "@/stores/mySquadron";
+import { useAccountStore } from "@/stores/account";
+import { useAuthStore } from "@/stores/auth";
 
-  @Component
-  export default class DeleteModal extends Vue {
-    @Getter mySquadron!: Squadron
+const router = useRouter();
+const mySquadronStore = useMySquadronStore();
+const accountStore = useAccountStore();
+const authStore = useAuthStore();
 
-    @Action deleteAccount!: () => Promise<void>
+const showModal = defineModel<boolean>("show", { default: false });
 
-    @Action logOut!: () => Promise<void>
-
-    async deleteClicked(): Promise<void> {
-      await this.deleteAccount()
-      await this.logOut()
-      await this.$router.push({ name: 'Home' })
-    }
-  }
+async function deleteClicked(): Promise<void> {
+  await accountStore.deleteAccount();
+  await authStore.logOut();
+  await router.push({ name: "Home" });
+}
 </script>

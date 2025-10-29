@@ -1,5 +1,4 @@
-import { NumberFormat } from 'vue-i18n'
+import type { IntlNumberFormat } from "vue-i18n";
 
-const en: NumberFormat = {
-}
-export default en
+const en: IntlNumberFormat = {};
+export default en;

@@ -1,104 +1,116 @@
 <template>
   <div>
-    <p v-if="hasBoardingRate">{{$t('squadronBoard.boardingRate', [boardingRate])}}</p>
-    <b-table
-      :fields="tableFields"
-      :items="passes"
-      :per-page="0"
-      :tbody-tr-class="rowClass"
+    <p v-if="hasBoardingRate">{{ $t("squadronBoard.boardingRate", [boardingRate]) }}</p>
+    <n-data-table
+      :columns="columns"
+      :data="passes"
+      :row-props="rowProps"
       data-cy="pilotBoardTable"
       id="pilot-table"
-      responsive
-      sticky-header>
-      <template #cell(time)="data">
-        <i18n path="pilotBoard.zuluTime">
-          <template #time>{{data.item.time | time}}</template>
-        </i18n>
-      </template>
-
-      <template #cell(grade)="data">
-        {{$t('pass.grade')[data.item.grade]}}
-      </template>
-
-      <template #cell(score)="data">
-        {{data.item.score | score}}
-      </template>
-    </b-table>
+      :max-height="600"
+      :scroll-x="1200"
+    />
   </div>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Getter } from 'vuex-class'
-  import { BvTableFieldArray } from 'bootstrap-vue/src/components/table'
-  import { isEmpty, isNull } from 'lodash-es'
-  import { Prop } from 'vue-property-decorator'
-  import { DateTime } from 'luxon'
-  import numeral from 'numeral'
-  import { variant } from '@/config/utils'
-  import { Pass, Squadron } from '@/types'
+<script setup lang="ts">
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { NDataTable } from "naive-ui";
+import { isEmpty, isNull } from "lodash-es";
+import { DateTime } from "luxon";
+import numeral from "numeral";
+import type { DataTableColumns } from "naive-ui";
+import { variant } from "@/config/utils";
+import { scoreFilter } from "@/config/filters";
+import { Pass, Squadron } from "@/types";
+import { usePassesStore } from "@/stores/passes";
 
-  @Component({
-    filters: {
-      time(time: DateTime): string {
-        return time.toLocaleString({
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: false,
-          timeZone: 'UTC'
-        })
-      }
-    }
-  })
-  export default class Table extends Vue {
-    @Getter passesForPilot!: (name: string) => Pass[]
+interface Props {
+  squadron: Squadron;
+  pilot: string;
+}
 
-    @Prop({ type: Object, required: true }) readonly squadron!: Squadron
+const props = defineProps<Props>();
+const { t } = useI18n();
+const passesStore = usePassesStore();
 
-    @Prop({ type: String, required: true }) readonly pilot!: string
+const passes = computed(() => passesStore.passesForPilot(props.pilot));
 
-    get passes(): Pass[] {
-      return this.passesForPilot(this.pilot)
-    }
+const hasBoardingRate = computed(() => !isEmpty(passes.value));
 
-    get hasBoardingRate(): boolean {
-      return !isEmpty(this.passes)
-    }
+const boardingRate = computed(() => {
+  const rate = passes.value.filter((p: Pass) => p.trap).length / passes.value.length;
+  return numeral(rate).format("0.00");
+});
 
-    get boardingRate(): string {
-      const rate = this.passes.filter(p => p.trap).length / this.passes.length
-      return numeral(rate).format('0.00')
-    }
+function formatTime(time: DateTime): string {
+  return time.toLocaleString({
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+    timeZone: "UTC",
+  });
+}
 
-    get tableFields(): BvTableFieldArray {
-      return [
-        { key: 'time', label: <string> this.$t('pilotBoard.tableHeaders.time') },
-        { key: 'shipName', label: <string> this.$t('pilotBoard.tableHeaders.shipName') },
-        { key: 'aircraftType', label: <string> this.$t('pilotBoard.tableHeaders.aircraftType') },
-        { key: 'grade', label: <string> this.$t('pilotBoard.tableHeaders.grade') },
-        { key: 'score', label: <string> this.$t('pilotBoard.tableHeaders.score') },
-        { key: 'wire', label: <string> this.$t('pilotBoard.tableHeaders.wire') },
-        { key: 'notes', label: <string> this.$t('pilotBoard.tableHeaders.notes') }
-      ]
-    }
+const columns = computed<DataTableColumns<Pass>>(() => [
+  {
+    key: "time",
+    title: t("pilotBoard.tableHeaders.time"),
+    render: (row) => t("pilotBoard.zuluTime", { time: formatTime(row.time) }),
+  },
+  {
+    key: "shipName",
+    title: t("pilotBoard.tableHeaders.shipName"),
+  },
+  {
+    key: "aircraftType",
+    title: t("pilotBoard.tableHeaders.aircraftType"),
+  },
+  {
+    key: "grade",
+    title: t("pilotBoard.tableHeaders.grade"),
+    render: (row) => (row.grade ? t(`pass.grade.${row.grade}`) : ""),
+  },
+  {
+    key: "score",
+    title: t("pilotBoard.tableHeaders.score"),
+    render: (row) => (row.score !== null ? scoreFilter(row.score) : ""),
+  },
+  {
+    key: "wire",
+    title: t("pilotBoard.tableHeaders.wire"),
+  },
+  {
+    key: "notes",
+    title: t("pilotBoard.tableHeaders.notes"),
+  },
+]);
 
-    rowClass(item: Pass): string | null {
-      const color = variant(item)
-      if (isNull(color)) return null
-      return `table-${color}`
-    }
-  }
+function rowProps(row: Pass) {
+  const color = variant(row);
+  if (isNull(color)) return {};
+
+  const colorMap: Record<string, string> = {
+    success: "#d4edda",
+    warning: "#fff3cd",
+    danger: "#f8d7da",
+  };
+
+  return {
+    style: {
+      backgroundColor: colorMap[color] || "transparent",
+    },
+  };
+}
 </script>
 
-<style lang="scss">
-  #pilot-table {
-    td,
-    td * {
-      white-space: nowrap;
-    }
-  }
+<style scoped>
+#pilot-table :deep(td),
+#pilot-table :deep(td *) {
+  white-space: nowrap;
+}
 </style>

@@ -1,47 +1,49 @@
 <template>
-  <div>
-    <div class="d-flex align-items-center mb-5">
-      <b-img
+  <n-space vertical>
+    <n-space align="center">
+      <img
+        v-if="squadron.image"
         :src="squadron.image.url"
-        class="flex-grow-0 mr-3"
-        fluid
         id="squadron-header-image"
-        v-if="squadron.image" />
-      <h1 class="flex-grow-1" data-cy="squadronBoardTitle">
-        {{$t('squadronBoard.title', [squadron.name])}}
+        alt="Squadron image"
+      />
+      <h1 data-cy="squadronBoardTitle" class="squadron-title">
+        {{ $t("squadronBoard.title", [squadron.name]) }}
       </h1>
-    </div>
-    <p data-cy="squadronBoardingRate" v-if="hasBoardingRate">
-      {{$t('squadronBoard.boardingRate', [boardingRate])}}
+    </n-space>
+    <p v-if="hasBoardingRate" data-cy="squadronBoardingRate">
+      {{ $t("squadronBoard.boardingRate", [boardingRate]) }}
     </p>
-  </div>
+  </n-space>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Prop } from 'vue-property-decorator'
-  import { isNull } from 'lodash-es'
-  import numeral from 'numeral'
-  import { Squadron } from '@/types'
+<script setup lang="ts">
+import { computed } from "vue";
+import { NSpace } from "naive-ui";
+import { isNull } from "lodash-es";
+import numeral from "numeral";
+import type { Squadron } from "@/types";
 
-  @Component
-  export default class Header extends Vue {
-    @Prop({ type: Object, required: true }) readonly squadron!: Squadron
+interface Props {
+  squadron: Squadron;
+}
 
-    get boardingRate(): string {
-      if (isNull(this.squadron.boardingRate)) return ''
-      return numeral(this.squadron.boardingRate).format('0.00')
-    }
+const props = defineProps<Props>();
 
-    get hasBoardingRate(): boolean {
-      return !isNull(this.squadron.boardingRate)
-    }
-  }
+const boardingRate = computed(() => {
+  if (isNull(props.squadron.boardingRate)) return "";
+  return numeral(props.squadron.boardingRate).format("0.00");
+});
+
+const hasBoardingRate = computed(() => !isNull(props.squadron.boardingRate));
 </script>
 
-<style lang="scss">
-  #squadron-header-image {
-    max-height: 57px;
-  }
+<style scoped>
+#squadron-header-image {
+  max-height: 57px;
+}
+
+.squadron-title {
+  flex-grow: 1;
+}
 </style>

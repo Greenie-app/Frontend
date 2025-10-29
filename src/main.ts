@@ -1,32 +1,26 @@
-import Vue from 'vue'
-import Bugsnag, { Plugin } from '@bugsnag/js'
-import BugsnagPluginVue from '@bugsnag/plugin-vue'
+import { createApp } from "vue";
 
-import VueRouter from 'vue-router'
-import router from './router'
-import store from './store'
-import secrets from '@/config/secrets'
-import '@/assets/styles/bootstrap.scss'
-import i18n from '@/i18n'
-import Layout from '@/views/Layout.vue'
-import '@/config/bootstrap'
-import '@/config/filters'
+import router from "./router";
+import pinia, { useRootStore } from "./stores";
+import i18n from "@/i18n";
+import Layout from "@/views/Layout.vue";
+import { scoreFilter } from "@/config/filters";
 
-if (secrets.bugsnagAPIKey !== 'disabled') {
-  Bugsnag.start({
-    apiKey: secrets.bugsnagAPIKey,
-    plugins: [<Plugin> new BugsnagPluginVue(Vue)]
-  })
+const app = createApp(Layout);
 
-  Vue.config.productionTip = false
-}
+// Install plugins
+app.use(pinia);
+app.use(router);
+app.use(i18n);
 
-Vue.use(VueRouter)
+// Make scoreFilter globally available
+app.config.globalProperties.$filters = {
+  score: scoreFilter,
+};
 
-new Vue({
-  router,
-  store,
-  i18n,
-  render: h => h(Layout),
-  beforeCreate() { this.$store.dispatch('initialize') }
-}).$mount('#app')
+// Initialize root store (for localStorage persistence)
+const rootStore = useRootStore();
+rootStore.initialize();
+
+// Mount app
+app.mount("#app");

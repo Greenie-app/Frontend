@@ -1,77 +1,80 @@
 <template>
   <must-be-unauthenticated>
     <narrow>
-      <h3 class="my-5">{{$t('forgotPassword.title')}}</h3>
-      <p>{{$t('forgotPassword.text')}}</p>
+      <n-space vertical>
+        <h3>{{ $t("forgotPassword.title") }}</h3>
+        <p>{{ $t("forgotPassword.text") }}</p>
 
-      <b-form @submit.prevent="onSubmit" class="d-flex">
-        <field-with-errors
-          :errors="formErrors"
-          field="email"
-          form-group-class="flex-grow-1"
-          label="forgotPassword.placeholder"
-          object="squadron"
-          required
-          sr-only
-          v-model="email" />
-        <div class="ml-3">
-          <b-button data-cy="forgotPasswordSubmit" type="submit" variant="primary">
-            {{$t('forgotPassword.submitButton')}}
-          </b-button>
-        </div>
-      </b-form>
+        <n-form @submit.prevent="onSubmit">
+          <n-space>
+            <field-with-errors
+              :errors="formErrors"
+              field="email"
+              label="forgotPassword.placeholder"
+              object="squadron"
+              required
+              sr-only
+              v-model="email"
+              class="email-field"
+            />
+            <n-button data-cy="forgotPasswordSubmit" attr-type="submit" type="primary">
+              {{ $t("forgotPassword.submitButton") }}
+            </n-button>
+          </n-space>
+        </n-form>
 
-      <p class="text-success" data-cy="forgotPasswordSuccess" v-if="success">
-        {{$t('forgotPassword.success')}}
-      </p>
-      <p class="text-danger" data-cy="forgotPasswordError" v-if="formError">{{formError}}</p>
+        <n-alert v-if="success" type="success" data-cy="forgotPasswordSuccess">
+          {{ $t("forgotPassword.success") }}
+        </n-alert>
+        <n-alert v-if="formError" type="error" data-cy="forgotPasswordError">
+          {{ formError }}
+        </n-alert>
+      </n-space>
     </narrow>
   </must-be-unauthenticated>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Action } from 'vuex-class'
-  import { Result } from 'ts-results'
-  import Bugsnag from '@bugsnag/js'
-  import { isString } from 'lodash-es'
-  import MustBeUnauthenticated from '@/components/MustBeUnauthenticated.vue'
-  import { Errors } from '@/store/types'
-  import FormErrors from '@/mixins/FormErrors'
-  import Narrow from '@/components/Narrow.vue'
-  import FieldWithErrors from '@/components/FieldWithErrors.vue'
+<script setup lang="ts">
+import { ref } from "vue";
+import { NForm, NButton, NSpace, NAlert } from "naive-ui";
+import { isString } from "lodash-es";
+import MustBeUnauthenticated from "@/components/MustBeUnauthenticated.vue";
+import { useAccountStore } from "@/stores/account";
+import { useFormErrors } from "@/composables/useFormErrors";
+import Narrow from "@/components/Narrow.vue";
+import FieldWithErrors from "@/components/FieldWithErrors.vue";
 
-  @Component({
-    components: { FieldWithErrors, Narrow, MustBeUnauthenticated }
-  })
-  export default class ForgotPassword extends mixins(FormErrors) {
-    @Action forgotPassword!: (args: { email: string }) => Promise<Result<void, Errors>>
+const accountStore = useAccountStore();
+const { formErrors, formError, resetErrors } = useFormErrors();
 
-    email = ''
+const email = ref("");
+const success = ref(false);
 
-    success = false
+async function onSubmit(): Promise<void> {
+  success.value = false;
+  resetErrors();
 
-    async onSubmit(): Promise<void> {
-      this.success = false
-      this.resetErrors()
-
-      try {
-        const result = await this.forgotPassword({ email: this.email })
-        if (result.ok) this.success = true
-        else {
-          this.formErrors = result.val
-        }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.formError = error.message
-          Bugsnag.notify(error)
-        } else if (isString(error)) {
-          this.formError = error
-          Bugsnag.notify(error)
-        } else {
-          throw error
-        }
-      }
+  try {
+    const result = await accountStore.forgotPassword({ email: email.value });
+    if (result.ok) {
+      success.value = true;
+    } else {
+      formErrors.value = result.val;
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else if (isString(error)) {
+      formError.value = error;
+    } else {
+      throw error;
     }
   }
+}
 </script>
+
+<style scoped>
+.email-field {
+  flex-grow: 1;
+}
+</style>

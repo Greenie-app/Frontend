@@ -1,7 +1,8 @@
-/* eslint-disable spaced-comment,@typescript-eslint/no-unused-vars */
+ 
 
 // load type definitions that come with Cypress module
 /// <reference types="cypress" />
+/// <reference types="cypress-file-upload" />
 
 /** TypeScript declarations for commands added in `commands.js`. */
 
@@ -27,5 +28,36 @@ declare namespace Cypress {
      */
 
     emailsFor(email: string): Chainable<string>
+
+    /**
+     * Select an option from a Naive UI n-select component.
+     *
+     * @param selector The selector for the n-select component (e.g., '#pass-grade').
+     * @param value The value to select.
+     * @returns The chainable for further commands.
+     */
+
+    nSelect(selector: string, value: string): Chainable<Element>
+
+    /**
+     * Type text into a Naive UI n-input component inside an n-select.
+     * Useful for autocomplete/searchable selects.
+     *
+     * @param selector The selector for the n-select component.
+     * @param text The text to type.
+     * @returns The chainable for further commands.
+     */
+
+    nSelectType(selector: string, text: string): Chainable<Element>
+
+    /**
+     * Get the input element inside a Naive UI component.
+     * Useful for password fields and other n-input components.
+     *
+     * @param selector The selector for the n-form-item or container.
+     * @returns The input element.
+     */
+
+    nInput(selector: string): Chainable<Element>
   }
 }

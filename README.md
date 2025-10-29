@@ -22,9 +22,10 @@ the frontend repository only.
 Greenie.app requires a modern version of Node.js and Yarn. Run `yarn install` to
 install all NPM dependencies.
 
-Run the local development server by running `yarn serve`, and build the
-production assets by running `yarn build`. See the backend repository to learn
-how to boot the entire stack and test the whole website.
+Run the local development server by running `yarn dev`, and build the
+production assets by running `yarn build`. You can preview the production build
+with `yarn preview`. See the backend repository to learn how to boot the entire
+stack and test the whole website.
 
 ### Documentation
 
@@ -33,9 +34,9 @@ HTML documentation is generated into the `doc/` directory.
 
 ### Testing
 
-Unit tests are written in Mocha using Chai, and can be run with
-`yarn test:unit`. Unit tests are not comprehensive; they are only written for
-methods and classes with notably complex logic.
+Unit tests are written using Vitest and can be run with `yarn test:unit`.
+Unit tests are not comprehensive; they are only written for methods and classes
+with notably complex logic.
 
 End-to-end testing is powered by Cypress. Run `yarn test:e2e` to launch the
 Cypress test framework. The backend and many other processes will have to also
@@ -51,21 +52,28 @@ workflow runs automatically after CI completes.
 
 ## Architecture
 
-The frontend website is built using TypeScript and Vue.js. The root view is
-{Layout}, which uses Vue-Router to render the appropriate subviews. Shared
-functionality is kept under `components/` and individual views under `views/`.
+The frontend website is built using TypeScript and Vue 3 with the Composition API.
+The application uses Vite as the build tool for fast development and optimized
+production builds. The root view is {Layout}, which uses Vue Router 4 to render
+the appropriate subviews. Shared functionality is kept under `components/` and
+individual views under `views/`.
+
 Components include {MustBeAuthenticated} and {MustBeUnauthenticated}, which act
 as guards; {Error} and {Spinner} which are full-page views for global error and
 loading states; {FieldWithErrors} and {Datetime} which are used to render forms;
-and other utility views.
+and other utility views. The UI is built using Naive UI components.
 
-String assets are managed by Vue-I18n and localized (to English only, 
+String assets are managed by Vue I18n 10 and localized (to English only,
 currently).
 
-State information is managed by Vuex. The main Vuex store is split into a number
-of different modules. The `squadron` module manages state for the squadron whose
-greenie board the logged-in user is viewing; the `mySquadron` module manages 
-state for the squadron the logged-in user is logged in as (if any). The other 
-modules are more or less self-explanatory. The `coding.ts` file contains bridges 
-between the JSON representation of these modules sent by the backend, and the 
-TypeScript classes used by the frontend. 
+State information is managed by Pinia stores located in `src/stores/`. The main
+stores include:
+- `root` - manages the currently viewed squadron's state
+- `mySquadron` - manages state for the logged-in squadron
+- `auth` - handles authentication state
+- `passes` - manages pass data with pagination
+- `pilots` - handles pilot CRUD operations
+- `logfiles` - manages logfile uploads and processing
+- `account` - handles account-related actions
+
+The stores use Pinia's persistence plugin to maintain state across page reloads. 

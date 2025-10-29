@@ -1,92 +1,84 @@
 <template>
-  <b-form @submit.prevent="onSubmit">
-    <b-form-group>
-      <label class="sr-only" for="login-field">{{$t('logIn.usernamePlaceholder')}}</label>
-      <b-input
-        :placeholder="$t('logIn.usernamePlaceholder')"
-        autocomplete="username"
-        id="login-field"
-        v-model="username" />
-    </b-form-group>
+  <n-form @submit.prevent="onSubmit">
+    <n-space vertical>
+      <n-form-item>
+        <n-input
+          v-model:value="username"
+          :placeholder="$t('logIn.usernamePlaceholder')"
+          autocomplete="username"
+          id="login-field"
+        />
+      </n-form-item>
 
-    <b-form-group><label class="sr-only" for="password-field">
-                    {{$t('logIn.passwordPlaceholder')}}
-                  </label>
-      <b-input
-        :placeholder="$t('logIn.passwordPlaceholder')"
-        autocomplete="current-password"
-        id="password-field"
-        type="password"
-        v-model="password" />
-    </b-form-group>
+      <n-form-item>
+        <n-input
+          v-model:value="password"
+          :placeholder="$t('logIn.passwordPlaceholder')"
+          autocomplete="current-password"
+          id="password-field"
+          type="password"
+        />
+      </n-form-item>
 
-    <b-form-group>
-      <div class="form-check custom-control custom-checkbox">
-        <input
-          class="form-check-input custom-control-input"
-          id="remember-me"
-          type="checkbox"
-          v-model="rememberMe">
-        <label class="form-check-label custom-control-label" for="remember-me">
-          {{$t('logIn.rememberMe')}}
-        </label>
-      </div>
-    </b-form-group>
+      <n-form-item>
+        <n-checkbox v-model:checked="rememberMe" id="remember-me">
+          {{ $t("logIn.rememberMe") }}
+        </n-checkbox>
+      </n-form-item>
 
-    <b-button-toolbar justify>
-      <b-button data-cy="loginSubmitButton" type="submit" variant="primary">
-        {{$t('logIn.logInButton')}}
-      </b-button>
-      <b-button :to="{ name: 'ForgotPassword' }" data-cy="forgotPasswordLink" variant="link">
-        {{$t('logIn.forgotPassword')}}
-      </b-button>
-    </b-button-toolbar>
+      <n-space justify="space-between">
+        <n-button data-cy="loginSubmitButton" attr-type="submit" type="primary">
+          {{ $t("logIn.logInButton") }}
+        </n-button>
+        <n-button
+          text
+          tag="a"
+          @click="() => $router.push({ name: 'ForgotPassword' })"
+          data-cy="forgotPasswordLink"
+        >
+          {{ $t("logIn.forgotPassword") }}
+        </n-button>
+      </n-space>
 
-    <p class="text-danger" data-cy="loginError" v-if="loginError">{{loginError}}</p>
-  </b-form>
+      <n-alert v-if="loginError" type="error" data-cy="loginError">
+        {{ loginError }}
+      </n-alert>
+    </n-space>
+  </n-form>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Action } from 'vuex-class'
-  import { Result } from 'ts-results'
-  import Bugsnag from '@bugsnag/js'
-  import { isString } from 'lodash-es'
+<script setup lang="ts">
+import { ref } from "vue";
+import { NForm, NFormItem, NInput, NCheckbox, NButton, NSpace, NAlert } from "naive-ui";
+import { isString } from "lodash-es";
+import { useAuthStore } from "@/stores/auth";
 
-  @Component
-  export default class Form extends Vue {
-    username = ''
+const username = ref("");
+const password = ref("");
+const rememberMe = ref(false);
+const loginError = ref<string | null>(null);
 
-    password = ''
+const authStore = useAuthStore();
 
-    rememberMe = false
-
-    loginError: string | null = null
-
-    @Action logIn!: (args: { username: string; password: string; rememberMe: boolean }) =>
-      Promise<Result<void, string>>
-
-    async onSubmit(): Promise<void> {
-      this.loginError = null
-      try {
-        const result = await this.logIn({
-          username: this.username,
-          password: this.password,
-          rememberMe: this.rememberMe
-        })
-        if (!result.ok) this.loginError = result.val
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.loginError = error.message
-          Bugsnag.notify(error)
-        } else if (isString(error)) {
-          this.loginError = error
-          Bugsnag.notify(error)
-        } else {
-          throw error
-        }
-      }
+async function onSubmit(): Promise<void> {
+  loginError.value = null;
+  try {
+    const result = await authStore.logIn({
+      username: username.value,
+      password: password.value,
+      rememberMe: rememberMe.value,
+    });
+    if (!result.ok) {
+      loginError.value = result.val;
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      loginError.value = error.message;
+    } else if (isString(error)) {
+      loginError.value = error;
+    } else {
+      throw error;
     }
   }
+}
 </script>

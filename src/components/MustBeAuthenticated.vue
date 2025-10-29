@@ -1,29 +1,24 @@
 <template>
-  <div>
+  <n-space vertical>
     <slot v-if="loggedAndLoaded" />
-    <spinner v-else-if="loggedIn" />
-    <p class="text-warning mt-5" v-else>{{$t('mustBeLoggedIn')}}</p>
-  </div>
+    <spinner v-else-if="authStore.loggedIn" />
+    <n-alert v-else type="warning">
+      {{ $t("mustBeLoggedIn") }}
+    </n-alert>
+  </n-space>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Getter } from 'vuex-class'
-  import Spinner from '@/components/Spinner.vue'
+<script setup lang="ts">
+import { computed } from "vue";
+import { NAlert, NSpace } from "naive-ui";
+import { useAuthStore } from "@/stores/auth";
+import { useRootStore } from "@/stores/root";
+import Spinner from "@/components/Spinner.vue";
 
-  /** Wrap your view in this component to require that a squadron be logged in before rendering. */
+/** Wrap your view in this component to require that a squadron be logged in before rendering. */
 
-  @Component({
-    components: { Spinner }
-  })
-  export default class MustBeAuthenticated extends Vue {
-    @Getter loggedIn!: boolean
+const authStore = useAuthStore();
+const rootStore = useRootStore();
 
-    @Getter mySquadronLoaded!: boolean
-
-    get loggedAndLoaded(): boolean {
-      return this.loggedIn && this.mySquadronLoaded
-    }
-  }
+const loggedAndLoaded = computed(() => authStore.loggedIn && rootStore.squadronLoaded);
 </script>

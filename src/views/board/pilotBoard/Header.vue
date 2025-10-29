@@ -1,107 +1,130 @@
 <template>
-  <div>
-    <b-breadcrumb data-cy="breadcrumbs" :items="breadcrumbs" />
+  <n-space vertical>
+    <n-breadcrumb data-cy="breadcrumbs">
+      <n-breadcrumb-item>
+        <router-link
+          :to="{
+            name: 'SquadronBoard',
+            params: { squadron: mySquadronStore.mySquadron?.username },
+          }"
+        >
+          {{ mySquadronStore.mySquadron?.name }}
+        </router-link>
+      </n-breadcrumb-item>
+      <n-breadcrumb-item>{{ pilot }}</n-breadcrumb-item>
+    </n-breadcrumb>
 
-    <div class="mb-5 d-flex flex-wrap align-items-center">
-      <h1 class="flex-grow-1" data-cy="pilotBoardTitle">{{pilot}}</h1>
+    <n-space align="center" justify="space-between">
+      <h1 data-cy="pilotBoardTitle" class="pilot-title">{{ pilot }}</h1>
 
-      <div class="flex-grow-0" v-if="isMySquadron">
-        <b-button-group>
-          <b-button @click="rename" data-cy="renameButton">
-            {{$t('pilotBoard.actions.rename')}}
-          </b-button>
+      <n-space v-if="isMySquadron">
+        <n-button @click="showRenameModal = true" data-cy="renameButton">
+          {{ $t("pilotBoard.actions.rename") }}
+        </n-button>
 
-          <b-dropdown :text="$t('pilotBoard.actions.merge')" data-cy="mergeButton" right>
-            <b-dropdown-item @click="confirmMerge(name)" v-for="name in otherPilots" :key="name">
-              {{name}}
-            </b-dropdown-item>
-          </b-dropdown>
+        <n-dropdown :options="mergeOptions" @select="confirmMerge" trigger="click">
+          <n-button data-cy="mergeButton">
+            {{ $t("pilotBoard.actions.merge") }}
+          </n-button>
+        </n-dropdown>
 
-          <b-button @click="confirmDelete" data-cy="deletePilotButton" variant="danger">
-            {{$t('pilotBoard.actions.delete')}}
-          </b-button>
-        </b-button-group>
-      </div>
-    </div>
+        <n-button @click="confirmDelete" data-cy="deletePilotButton" type="error">
+          {{ $t("pilotBoard.actions.delete") }}
+        </n-button>
+      </n-space>
+    </n-space>
 
-    <rename-modal :pilot="pilot" />
-    <merge-modal :predator="mergeTarget" :prey="pilot" />
-  </div>
+    <rename-modal v-model:show="showRenameModal" :pilot="pilot" />
+    <merge-modal v-model:show="showMergeModal" :predator="mergeTarget" :prey="pilot" />
+  </n-space>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Prop } from 'vue-property-decorator'
-  import { Action, Getter } from 'vuex-class'
-  import RenameModal from '@/views/board/pilotBoard/RenameModal.vue'
-  import MergeModal from '@/views/board/pilotBoard/MergeModal.vue'
-  import AuthCheckRequiredSquadron from '@/mixins/AuthCheckRequiredSquadron'
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { useDialog, NBreadcrumb, NBreadcrumbItem, NSpace, NButton, NDropdown } from "naive-ui";
+import RenameModal from "@/views/board/pilotBoard/RenameModal.vue";
+import MergeModal from "@/views/board/pilotBoard/MergeModal.vue";
+import { useAuthCheckRequiredSquadron } from "@/composables/useAuthCheckRequiredSquadron";
+import { useMySquadronStore } from "@/stores/mySquadron";
+import { usePassesStore } from "@/stores/passes";
+import { usePilotsStore } from "@/stores/pilots";
 
-  @Component({
-    components: { MergeModal, RenameModal }
-  })
-  export default class Header extends mixins(AuthCheckRequiredSquadron) {
-    @Prop({ type: String, required: true }) readonly pilot!: string
+interface Props {
+  pilot: string;
+}
 
-    @Getter pilotNames!: string[]
+const props = defineProps<Props>();
+const router = useRouter();
+const { t } = useI18n();
+const dialog = useDialog();
+const mySquadronStore = useMySquadronStore();
+const passesStore = usePassesStore();
+const pilotsStore = usePilotsStore();
+const { isMySquadron } = useAuthCheckRequiredSquadron();
 
-    @Action deletePilot!: (args: { pilot: string }) => Promise<void>
+const showRenameModal = ref(false);
+const showMergeModal = ref(false);
+const mergeTarget = ref<string | null>(null);
 
-    @Action loadPasses!: (args: { squadron: string; page?: number }) => Promise<void>
+const otherPilots = computed(() => passesStore.pilotNames.filter((name) => name !== props.pilot));
 
-    mergeTarget: string | null = null
+const mergeOptions = computed(() =>
+  otherPilots.value.map((name: string) => ({
+    label: name,
+    key: name,
+  })),
+);
 
-    get breadcrumbs(): Array<unknown> {
-      return [
-        {
-          text: this.squadron.name,
-          to: { name: 'SquadronBoard', squadron: this.squadron.username }
-        },
-        { text: this.pilot, active: true }
-      ]
-    }
+function confirmMerge(pilot: string): void {
+  mergeTarget.value = pilot;
+  showMergeModal.value = true;
+}
 
-    get otherPilots(): string[] {
-      return this.pilotNames.filter(name => name !== this.pilot)
-    }
-
-    rename(): void {
-      this.$bvModal.show('rename-modal')
-    }
-
-    confirmMerge(pilot: string): void {
-      this.mergeTarget = pilot
-      this.$bvModal.show('merge-pilot-modal')
-    }
-
-    async confirmDelete(): Promise<void> {
-      const shouldDelete: boolean = await this.$bvModal.msgBoxConfirm(
-        <string> this.$t('pilotBoard.deleteConfirmModal.message', [this.pilot]),
-        {
-          title: <string> this.$t('pilotBoard.deleteConfirmModal.title'),
-          okTitle: <string> this.$t('pilotBoard.deleteConfirmModal.okButton'),
-          okVariant: 'danger'
-        }
-      )
-
-      if (shouldDelete) {
+async function confirmDelete(): Promise<void> {
+  return new Promise((resolve) => {
+    dialog.error({
+      title: t("pilotBoard.deleteConfirmModal.title"),
+      content: t("pilotBoard.deleteConfirmModal.message", [props.pilot]),
+      positiveText: t("pilotBoard.deleteConfirmModal.okButton"),
+      negativeText: t("editSquadron.confirmDelete.cancelButton"),
+      onPositiveClick: async () => {
         try {
-          await this.deletePilot({ pilot: this.pilot })
-          await this.loadPasses({ squadron: this.squadron.username })
-          await this.$router.push({
-            name: 'SquadronBoard',
-            params: { squadron: this.squadron.username }
-          })
+          await pilotsStore.deletePilot({ pilot: props.pilot });
+          await passesStore.loadPasses({ squadron: mySquadronStore.mySquadron!.username });
+          await router.push({
+            name: "SquadronBoard",
+            params: { squadron: mySquadronStore.mySquadron!.username },
+          });
+          resolve();
         } catch (error: unknown) {
           if (error instanceof Error) {
-            await this.$bvModal.msgBoxOk(error.message, {
-              title: <string> this.$t('errorModal')
-            })
+            dialog.error({
+              title: t("errorModal"),
+              content: error.message,
+              positiveText: t("ok"),
+            });
           } else {
-            throw error
+            throw error;
           }
         }
-      }
-    }
-  }
+      },
+      onNegativeClick: () => {
+        resolve();
+      },
+    });
+  });
+}
+
+// Expose for testing
+defineExpose({
+  confirmDelete,
+});
 </script>
+
+<style scoped>
+.pilot-title {
+  margin: 0;
+}
+</style>

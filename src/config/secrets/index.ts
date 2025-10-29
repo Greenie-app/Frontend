@@ -1,19 +1,20 @@
-import { default as prodSecrets } from '@/config/secrets/secrets.production'
-import { default as devSecrets } from '@/config/secrets/secrets.development'
-import { default as testSecrets } from '@/config/secrets/secrets.test'
-import { Secrets } from '@/config/secrets/type'
+/// <reference types="vite/client" />
 
-// eslint-disable-next-line import/no-mutable-exports
-let secrets: Secrets
-switch (process.env.NODE_ENV) {
-  case 'production':
-    secrets = prodSecrets
-    break
-  case 'test':
-    secrets = testSecrets
-    break
+import { default as prodSecrets } from "@/config/secrets/secrets.production";
+import { default as devSecrets } from "@/config/secrets/secrets.development";
+import { default as testSecrets } from "@/config/secrets/secrets.test";
+import { Secrets } from "@/config/secrets/type";
+
+let secrets: Secrets;
+switch (import.meta.env.MODE) {
+  case "production":
+    secrets = prodSecrets;
+    break;
+  case "test":
+    secrets = testSecrets;
+    break;
   default:
-    secrets = devSecrets
-    break
+    secrets = devSecrets;
+    break;
 }
-export default secrets
+export default secrets;

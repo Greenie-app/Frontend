@@ -1,32 +1,34 @@
-import { Store } from 'vuex'
-import { expect } from 'chai'
+import {
+  describe, it, beforeEach, expect
+} from 'vitest'
 import { http, HttpResponse } from 'msw'
-import { createTestStore } from '../utils'
+import { createTestPinia } from '../utils'
 import backend from '../backend'
-import { RootState } from '@/store/types'
+import { useRootStore } from '@/stores/root'
 
-describe('Vuex', () => {
-  let store: Store<RootState>
+describe('Pinia: root', () => {
+  let rootStore: ReturnType<typeof useRootStore>
 
   beforeEach(() => {
-    store = createTestStore()
+    createTestPinia()
+    rootStore = useRootStore()
   })
 
   describe('#loadSquadron', () => {
     it('loads a squadron', async () => {
-      await store.dispatch('loadSquadron', { username: '72nd' })
+      await rootStore.loadSquadron({ username: '72nd' })
 
-      expect(store.state.squadron?.name).to.eql('72nd VFW')
-      expect(store.state.squadronLoading).to.be.false
-      expect(store.state.squadronError).to.be.null
+      expect(rootStore.squadron?.name).toEqual('72nd VFW')
+      expect(rootStore.squadronLoading).toBe(false)
+      expect(rootStore.squadronError).toBeNull()
     })
 
     it('resets the stored squadron', async () => {
-      await store.dispatch('loadSquadron', { username: null })
+      await rootStore.loadSquadron({ username: null })
 
-      expect(store.state.squadron).to.be.null
-      expect(store.state.squadronLoading).to.be.false
-      expect(store.state.squadronError).to.be.null
+      expect(rootStore.squadron).toBeNull()
+      expect(rootStore.squadronLoading).toBe(false)
+      expect(rootStore.squadronError).toBeNull()
     })
 
     it('handles errors', async () => {
@@ -37,11 +39,11 @@ describe('Vuex', () => {
         ))
       )
 
-      await store.dispatch('loadSquadron', { username: '72nd' })
+      await rootStore.loadSquadron({ username: '72nd' })
 
-      expect(store.state.squadron).to.be.null
-      expect(store.state.squadronLoading).to.be.false
-      expect(store.state.squadronError?.message).to.eql('Invalid HTTP response: 404')
+      expect(rootStore.squadron).toBeNull()
+      expect(rootStore.squadronLoading).toBe(false)
+      expect(rootStore.squadronError?.message).toEqual('Invalid HTTP response: 404')
     })
   })
 })

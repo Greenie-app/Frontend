@@ -1,49 +1,36 @@
 <template>
-  <error :error="passesError.message" v-if="passesError" />
+  <error v-if="passesStore.passesError" :error="passesStore.passesError.message" />
 
-  <div v-else-if="passesLoaded">
-    <board-header :squadron="squadron" />
+  <n-space vertical v-else-if="passesStore.passesLoaded">
+    <board-header :squadron="rootStore.squadron!" />
 
-    <p class="mb-5" v-if="noPasses">{{$t('squadronBoard.noPasses')}}</p>
+    <p v-if="passesStore.noPasses">
+      {{ $t("squadronBoard.noPasses") }}
+    </p>
     <passes-table v-else />
 
-    <b-button-toolbar justify>
+    <n-space justify="space-between" style="margin-top: 1.5rem">
       <actions v-if="isMySquadron" />
       <pagination />
-    </b-button-toolbar>
-  </div>
+    </n-space>
+  </n-space>
 
   <spinner v-else />
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Getter } from 'vuex-class'
-  import SquadronMustBeLoaded from '@/components/SquadronMustBeLoaded.vue'
-  import Error from '@/components/Error.vue'
-  import Spinner from '@/components/Spinner.vue'
-  import Table from '@/views/board/squadronBoard/Table.vue'
-  import Header from '@/views/board/squadronBoard/Header.vue'
-  import Actions from '@/views/board/squadronBoard/Actions.vue'
-  import Pagination from '@/views/board/squadronBoard/Pagination.vue'
-  import AuthCheck from '@/mixins/AuthCheck'
+<script setup lang="ts">
+import { NSpace } from "naive-ui";
+import { useRootStore } from "@/stores/root";
+import { usePassesStore } from "@/stores/passes";
+import { useAuthCheck } from "@/composables/useAuthCheck";
+import Error from "@/components/Error.vue";
+import Spinner from "@/components/Spinner.vue";
+import PassesTable from "@/views/board/squadronBoard/Table.vue";
+import BoardHeader from "@/views/board/squadronBoard/Header.vue";
+import Actions from "@/views/board/squadronBoard/Actions.vue";
+import Pagination from "@/views/board/squadronBoard/Pagination.vue";
 
-  @Component({
-    components: {
-      Pagination,
-      Actions,
-      BoardHeader: Header,
-      PassesTable: Table,
-      Spinner,
-      Error,
-      SquadronMustBeLoaded
-    }
-  })
-  export default class SquadronBoard extends mixins(AuthCheck) {
-    @Getter passesLoaded!: boolean
-
-    @Getter passesError!: Error | null
-
-    @Getter noPasses!: boolean
-  }
+const rootStore = useRootStore();
+const passesStore = usePassesStore();
+const { isMySquadron } = useAuthCheck();
 </script>

@@ -1,112 +1,109 @@
 <template>
-  <b-form @submit.prevent="onSubmit">
-    <field-with-errors
-      :errors="formErrors"
-      autocomplete="current-password"
-      field="current_password"
-      klass="mb-2 mr-sm-2 mb-sm-0"
-      label="changePassword.currentPasswordPlaceholder"
-      object="squadron"
-      required
-      sr-only
-      type="password"
-      v-model="currentPassword" />
+  <n-form @submit.prevent="onSubmit">
+    <n-space vertical>
+      <field-with-errors
+        :errors="formErrors"
+        autocomplete="current-password"
+        field="current_password"
+        label="changePassword.currentPasswordPlaceholder"
+        object="squadron"
+        required
+        sr-only
+        type="password"
+        v-model="currentPassword"
+      />
 
-    <field-with-errors
-      :errors="formErrors"
-      autocomplete="current-password"
-      field="new_password"
-      klass="mb-2 mr-sm-2 mb-sm-0"
-      label="changePassword.newPasswordPlaceholder"
-      object="squadron"
-      required
-      sr-only
-      type="password"
-      v-model="newPassword" />
+      <field-with-errors
+        :errors="formErrors"
+        autocomplete="new-password"
+        field="new_password"
+        label="changePassword.newPasswordPlaceholder"
+        object="squadron"
+        required
+        sr-only
+        type="password"
+        v-model="newPassword"
+      />
 
-    <field-with-errors
-      :errors="formErrors"
-      autocomplete="current-password"
-      field="password_confirmation"
-      klass="mb-2 mr-sm-2 mb-sm-0"
-      label="changePassword.confirmationPlaceholder"
-      object="squadron"
-      required
-      sr-only
-      type="password"
-      v-model="passwordConfirmation" />
+      <field-with-errors
+        :errors="formErrors"
+        autocomplete="new-password"
+        field="password_confirmation"
+        label="changePassword.confirmationPlaceholder"
+        object="squadron"
+        required
+        sr-only
+        type="password"
+        v-model="passwordConfirmation"
+      />
 
-    <p class="text-danger" v-if="formError">{{formError}}</p>
+      <n-alert v-if="formError" type="error">
+        {{ formError }}
+      </n-alert>
 
-    <b-button
-      class="mb-2 mr-sm-2 mb-sm-0"
-      data-cy="changePasswordSubmit"
-      type="submit"
-      variant="primary">
-      {{$t('changePassword.button')}}
-    </b-button>
+      <n-button
+        data-cy="changePasswordSubmit"
+        attr-type="submit"
+        type="primary"
+        style="margin-top: 0.5rem"
+      >
+        {{ $t("changePassword.button") }}
+      </n-button>
 
-    <p class="text-success" data-cy="changePasswordSuccess" v-if="success">
-      {{$t('changePassword.success')}}
-    </p>
-  </b-form>
+      <n-alert v-if="success" type="success" data-cy="changePasswordSuccess">
+        {{ $t("changePassword.success") }}
+      </n-alert>
+    </n-space>
+  </n-form>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Result } from 'ts-results'
-  import { Action } from 'vuex-class'
-  import Bugsnag from '@bugsnag/js'
-  import { isString } from 'lodash-es'
-  import FormErrors from '@/mixins/FormErrors'
-  import { Errors } from '@/store/types'
-  import FieldWithErrors from '@/components/FieldWithErrors.vue'
+<script setup lang="ts">
+import { ref } from "vue";
+import { NForm, NButton, NAlert, NSpace } from "naive-ui";
+import { isString } from "lodash-es";
+import { useAccountStore } from "@/stores/account";
+import { useFormErrors } from "@/composables/useFormErrors";
+import FieldWithErrors from "@/components/FieldWithErrors.vue";
 
-  @Component({
-    components: { FieldWithErrors }
-  })
-  export default class Form extends mixins(FormErrors) {
-    currentPassword = ''
+const accountStore = useAccountStore();
+const { formErrors, formError, resetErrors } = useFormErrors();
 
-    newPassword = ''
+const currentPassword = ref("");
+const newPassword = ref("");
+const passwordConfirmation = ref("");
+const success = ref(false);
 
-    passwordConfirmation = ''
+async function onSubmit(): Promise<void> {
+  success.value = false;
+  resetErrors();
 
-    success = false
-
-    @Action changePassword!: (args: {
-      oldPassword: string;
-      newPassword: string;
-      confirmation: string;
-    }) => Promise<Result<void, Errors>>
-
-    async onSubmit(): Promise<void> {
-      this.success = false
-      this.resetErrors()
-
-      try {
-        const result = await this.changePassword({
-          oldPassword: this.currentPassword,
-          newPassword: this.newPassword,
-          confirmation: this.passwordConfirmation
-        })
-        if (result.ok) {
-          this.currentPassword = ''
-          this.newPassword = ''
-          this.passwordConfirmation = ''
-          this.success = true
-        } else this.formErrors = result.val
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.formError = error.message
-          Bugsnag.notify(error)
-        } else if (isString(error)) {
-          this.formError = error
-          Bugsnag.notify(error)
-        } else {
-          throw error
-        }
-      }
+  try {
+    const result = await accountStore.changePassword({
+      oldPassword: currentPassword.value,
+      newPassword: newPassword.value,
+      confirmation: passwordConfirmation.value,
+    });
+    if (result.ok) {
+      currentPassword.value = "";
+      newPassword.value = "";
+      passwordConfirmation.value = "";
+      success.value = true;
+    } else {
+      formErrors.value = result.val;
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else if (isString(error)) {
+      formError.value = error;
+    } else {
+      throw error;
     }
   }
+}
+
+// Expose for testing
+defineExpose({
+  onSubmit,
+});
 </script>

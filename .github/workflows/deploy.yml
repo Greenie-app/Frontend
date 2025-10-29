@@ -25,14 +25,8 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: Check out repository
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
         - name: Set up flyctl
           uses: superfly/flyctl-actions/setup-flyctl@master
         - name: Deploy to Fly.io
           run: flyctl deploy --remote-only
-        - name: Notify Bugsnag
-          uses: psprings/bugsnag-release-action@v0.0.3
-          with:
-            apiKey: ${{ secrets.BUGSNAG_API_KEY }}
-            appVersion: ${{ github.sha }}
-            releaseStage: production

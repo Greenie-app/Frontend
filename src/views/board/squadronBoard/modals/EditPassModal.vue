@@ -1,5 +1,10 @@
 <template>
-  <b-modal :id="id" :title="$t('editPassModal.title')" hide-footer>
+  <n-modal
+    v-model:show="showModal"
+    preset="card"
+    :title="$t('editPassModal.title')"
+    style="max-width: 600px"
+  >
     <pass-form
       :busy="busy"
       :form-error="formError"
@@ -7,91 +12,86 @@
       :pass="draftPass"
       @delete="onDelete"
       @submit="onSubmit"
-      ref="form"
-      submit-string="editPassModal.submitButton" />
-  </b-modal>
+      ref="formRef"
+      submit-string="editPassModal.submitButton"
+    />
+  </n-modal>
 </template>
 
-<script lang="ts">
-  import Component, { mixins } from 'vue-class-component'
-  import { Prop, Watch } from 'vue-property-decorator'
-  import { Action } from 'vuex-class'
-  import { Result } from 'ts-results'
-  import { cloneDeep, isString } from 'lodash-es'
-  import Bugsnag from '@bugsnag/js'
-  import { Pass } from '@/types'
-  import FormErrors from '@/mixins/FormErrors'
-  import { Errors } from '@/store/types'
-  import PassForm from '@/views/board/squadronBoard/modals/Form.vue'
-  import FieldWithErrors from '@/components/FieldWithErrors.vue'
+<script setup lang="ts">
+import { ref, watch } from "vue";
+import { NModal } from "naive-ui";
+import { cloneDeep, isString } from "lodash-es";
+import { useFormErrors } from "@/composables/useFormErrors";
+import { usePassesStore } from "@/stores/passes";
+import { Pass } from "@/types";
+import PassForm from "@/views/board/squadronBoard/modals/Form.vue";
 
-  @Component({
-    components: { PassForm, FieldWithErrors }
-  })
-  export default class EditPassModal extends mixins(FormErrors) {
-    readonly $refs!: {
-      form: PassForm
+interface Props {
+  pass: Pass;
+}
+
+const props = defineProps<Props>();
+const showModal = defineModel<boolean>("show", { default: false });
+
+const passesStore = usePassesStore();
+const { formError, formErrors, resetErrors } = useFormErrors();
+
+const formRef = ref<InstanceType<typeof PassForm> | null>(null);
+const draftPass = ref<Pass>(cloneDeep(props.pass));
+const busy = ref(false);
+
+watch(
+  () => showModal.value,
+  (isOpen) => {
+    if (isOpen) {
+      draftPass.value = cloneDeep(props.pass);
+      resetErrors();
     }
+  },
+);
 
-    @Prop({ type: Object, required: true }) readonly pass!: Pass
+async function onSubmit(pass: Pass): Promise<void> {
+  resetErrors();
+  busy.value = true;
 
-    @Prop({ type: String, required: true }) readonly id!: string
-
-    draftPass: Partial<Pass> = {}
-
-    @Action updatePass!: (args: { pass: Pass }) => Promise<Result<Pass, Errors>>
-
-    @Action deletePass!: (args: { pass: Pass }) => Promise<Pass>
-
-    busy = false
-
-    mounted(): void {
-      this.passChanged()
+  try {
+    const result = await passesStore.updatePass({ pass });
+    if (result.ok) {
+      showModal.value = false;
+    } else {
+      formErrors.value = result.val;
     }
-
-    @Watch('pass.ID')
-    passChanged(): void {
-      this.draftPass = cloneDeep(this.pass)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else if (isString(error)) {
+      formError.value = error;
+    } else {
+      throw error;
     }
-
-    async onSubmit(pass: Pass): Promise<void> {
-      this.resetErrors()
-      this.busy = true
-
-      try {
-        const result = await this.updatePass({ pass })
-        if (result.ok) {
-          this.$bvModal.hide(this.id)
-        } else this.formErrors = result.val
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          this.formError = error.message
-          Bugsnag.notify(error)
-        } else if (isString(error)) {
-          this.formError = error
-          Bugsnag.notify(error)
-        } else {
-          throw error
-        }
-      } finally {
-        this.busy = false
-      }
-    }
-
-    async onDelete(): Promise<void> {
-      this.resetErrors()
-      this.busy = true
-
-      try {
-        await this.deletePass({ pass: this.pass })
-        this.$bvModal.hide(this.id)
-      } catch (error: unknown) {
-        if (error instanceof Error) this.formError = error.message
-        else if (isString(error)) this.formError = error
-        else throw error
-      } finally {
-        this.busy = false
-      }
-    }
+  } finally {
+    busy.value = false;
   }
+}
+
+async function onDelete(): Promise<void> {
+  resetErrors();
+  busy.value = true;
+
+  try {
+    await passesStore.deletePass({ pass: props.pass });
+    showModal.value = false;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else if (isString(error)) {
+      formError.value = error;
+    } else {
+      throw error;
+    }
+  } finally {
+    busy.value = false;
+  }
+}
 </script>

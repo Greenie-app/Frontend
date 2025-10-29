@@ -1,46 +1,34 @@
 <template>
-  <b-pagination
-    :per-page="perPage"
-    :total-rows="passCount"
+  <n-pagination
     v-if="showPagination"
-    v-model="page" />
+    v-model:page="page"
+    :page-count="pageCount"
+    :page-size="perPage"
+  />
   <div v-else />
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
-  import Component from 'vue-class-component'
-  import { Action, Getter } from 'vuex-class'
-  import { isNull } from 'lodash-es'
-  import { Squadron } from '@/types'
+<script setup lang="ts">
+import { computed } from "vue";
+import { NPagination } from "naive-ui";
+import { isNull } from "lodash-es";
+import { useRootStore } from "@/stores/root";
+import { usePassesStore } from "@/stores/passes";
 
-  const perPage = 10
+const perPage = 10;
 
-  @Component
-  export default class Pagination extends Vue {
-    @Getter passCurrentPage!: number
+const rootStore = useRootStore();
+const passesStore = usePassesStore();
 
-    @Getter passCount!: number
+const showPagination = computed(() => passesStore.passCount > perPage);
+const pageCount = computed(() => Math.ceil(passesStore.passCount / perPage));
 
-    @Getter squadron!: Squadron | null
-
-    @Action loadPasses!: (args: { squadron: string; page?: number }) => Promise<void>
-
-    get showPagination(): boolean {
-      return this.passCount > perPage
+const page = computed({
+  get: () => passesStore.passCurrentPage,
+  set: (newPage: number) => {
+    if (!isNull(rootStore.squadron)) {
+      passesStore.loadPasses({ squadron: rootStore.squadron.username, page: newPage });
     }
-
-    get perPage(): number {
-      return perPage
-    }
-
-    get page(): number {
-      return this.passCurrentPage
-    }
-
-    set page(page: number) {
-      if (isNull(this.squadron)) return
-      this.loadPasses({ squadron: this.squadron.username, page })
-    }
-  }
+  },
+});
 </script>

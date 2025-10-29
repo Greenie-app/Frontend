@@ -11,6 +11,7 @@
         "src/*"
       ]
     },
+    "sourceMap": true,
     "strict":    true,
     "target":    "es6",
     "typeRoots": [

@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
-
-import { Result } from 'ts-results'
-import { Logfile, Pass, Squadron } from '@/types'
+import { Result } from "ts-results";
+import { Logfile, Pass, Squadron } from "@/types";
 
 /**
  * The shape of validation errors received from the backend. A dictionary mapping field names to a
