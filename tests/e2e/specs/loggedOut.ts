@@ -20,6 +20,9 @@ context('Logged out', () => {
   it('does not allow editing passes', () => {
     cy.visit('/#/squadrons/squadron-1')
 
+    // Set date range to 2020 to show test data
+    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 2000 })
+
     cy.get('[data-cy-pilot=Raamon]').dataCy('passCell').first().
       click()
     cy.dataCy('passForm').should('not.exist')
@@ -33,6 +36,9 @@ context('Logged out', () => {
 
   it('does not allow editing pilots', () => {
     cy.visit('/#/squadrons/squadron-1')
+
+    // Set date range to 2020 to show test data
+    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 2000 })
 
     cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').dataCy('passHeaderCell').find('a').
       click()

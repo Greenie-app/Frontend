@@ -76,3 +76,79 @@ Cypress.Commands.add('nInput', { prevSubject: 'optional' }, (subject, selector) 
   }
   return cy.get(selector, { timeout: 5000 }).should('exist').find('input')
 })
+
+/**
+ * Fill a Naive UI date range picker with start and end dates
+ * @param {string} startDate - The start date in YYYY-MM-DD format
+ * @param {string} endDate - The end date in YYYY-MM-DD format
+ * @param {Object} options - Optional configuration
+ * @param {string} options.selector - Custom selector for the date picker (default: '.n-date-picker')
+ * @param {number} options.waitBefore - Wait time before interacting (default: 500)
+ * @param {number} options.waitAfter - Wait time after setting dates (default: 0)
+ * @param {boolean} options.closePanel - Whether to close the panel with Escape (default: false)
+ */
+Cypress.Commands.add('nDateRange', (startDate, endDate, options = {}) => {
+  const {
+    selector = '.n-date-picker',
+    waitBefore = 500,
+    waitAfter = 0,
+    closePanel = false
+  } = options
+
+  cy.get(selector).should('be.visible')
+  if (waitBefore > 0) cy.wait(waitBefore)
+
+  cy.get(`${selector} input`).first().click().type(`{selectall}${startDate}`)
+  cy.get(`${selector} input`).last().click().type(`{selectall}${endDate}`)
+
+  // Click the confirm button to trigger the @confirm event
+  // The button is in the date panel actions area - use contains to find it reliably
+  cy.get('.n-date-panel').contains('button', 'Confirm').click()
+
+  if (closePanel) {
+    cy.get('body').type('{esc}')
+  }
+
+  if (waitAfter > 0) cy.wait(waitAfter)
+})
+
+/**
+ * Click a button in a Naive UI dialog
+ * @param {string} buttonType - The button type: 'error', 'warning', 'primary', 'info', or 'default'
+ * @param {string} buttonText - Optional text to match on the button
+ */
+Cypress.Commands.add('nDialogConfirm', (buttonType = 'primary', buttonText) => {
+  const buttonSelector = `.n-dialog .n-button--${buttonType}-type`
+  if (buttonText) {
+    cy.get(buttonSelector).contains(buttonText).click()
+  } else {
+    cy.get(buttonSelector).click()
+  }
+})
+
+/**
+ * Dismiss/close a Naive UI dialog by clicking the first button (typically Cancel)
+ */
+Cypress.Commands.add('nDialogDismiss', () => {
+  cy.get('.n-dialog .n-button').first().click()
+})
+
+/**
+ * Select an option from a Naive UI dropdown menu
+ * @param {string} optionText - The text of the option to select
+ */
+Cypress.Commands.add('nDropdownOption', (optionText) => {
+  cy.get('.n-dropdown-option').contains(optionText).click()
+})
+
+/**
+ * Close a Naive UI card by clicking its close button
+ * @param {string} selector - Optional selector for the card (default: finds any card close button)
+ */
+Cypress.Commands.add('nCardClose', (selector) => {
+  if (selector) {
+    cy.get(selector).find('.n-card-header__close').click()
+  } else {
+    cy.get('.n-card-header__close').click()
+  }
+})

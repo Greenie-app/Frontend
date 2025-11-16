@@ -44,16 +44,7 @@ context('Date Range Filtering', () => {
       // We know test data is from 2020, so we'll use the date picker input directly
       // This is more reliable than navigating through the date panel UI
 
-      // Wait for date picker to be ready
-      cy.get('.n-date-picker').should('be.visible')
-      cy.wait(500)
-
-      // Set dates using {selectall} instead of clear() to avoid "Invalid time value" errors
-      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
-
-      // Wait for passes to load
-      cy.wait(3000)
+      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
 
       // Verify passes are loaded (we know test data has passes in 2020)
       cy.dataCy('passCell', { timeout: 10000 }).should('exist')
@@ -61,16 +52,8 @@ context('Date Range Filtering', () => {
     })
 
     it('shows no passes message for dates without data', () => {
-      // Wait for date picker to be ready
-      cy.get('.n-date-picker').should('be.visible')
-      cy.wait(500)
-
       // Select a date range with no data (2019)
-      cy.get('.n-date-picker input').first().click().type('{selectall}2019-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2019-12-31{enter}')
-
-      // Wait for response
-      cy.wait(3000)
+      cy.nDateRange('2019-01-01', '2019-12-31', { waitAfter: 3000 })
 
       // Should show no passes message
       cy.get('body').should('contain', 'No passes found in selected date range.')
@@ -94,17 +77,8 @@ context('Date Range Filtering', () => {
     })
 
     it('maintains selected date range when adding a new pass', () => {
-      // Wait for date picker to be ready
-      cy.get('.n-date-picker').should('be.visible')
-      cy.wait(500)
-
       // Select full 2020 date range to ensure we have passes
-      // Use {selectall} instead of clear() to avoid "Invalid time value" errors
-      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
-
-      // Wait for passes to load
-      cy.wait(3000)
+      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
 
       // Verify passes loaded
       cy.dataCy('passCell', { timeout: 10000 }).should('exist')
@@ -130,9 +104,7 @@ context('Date Range Filtering', () => {
       cy.dataCy('savePassButton').click()
 
       // The new pass has today's date, so update date range to include it
-      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2025-12-31{enter}')
-      cy.get('body').type('{esc}')
+      cy.nDateRange('2020-01-01', '2025-12-31', { closePanel: true })
 
       // Verify the specific pilot was added
       cy.get('[data-cy-pilot="TestPilot2020"]', { timeout: 10000 }).should('exist')
@@ -143,36 +115,20 @@ context('Date Range Filtering', () => {
     })
 
     it('handles date range filtering correctly after operations', () => {
-      // Wait for date picker to be ready
-      cy.get('.n-date-picker').should('be.visible')
-      cy.wait(500)
-
       // Set date range to 2020
-      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
-
-      // Wait for passes to load
-      cy.wait(3000)
+      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
 
       // Verify passes are shown
       cy.dataCy('passCell', { timeout: 10000 }).should('exist')
 
       // Now change to 2021 (no passes)
-      cy.get('.n-date-picker input').first().click().type('{selectall}2021-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2021-12-31{enter}')
-
-      // Wait for update
-      cy.wait(3000)
+      cy.nDateRange('2021-01-01', '2021-12-31', { waitAfter: 3000 })
 
       // Should show no passes message
       cy.get('body').should('contain', 'No passes found in selected date range.')
 
       // Go back to 2020
-      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
-
-      // Wait for update
-      cy.wait(3000)
+      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
 
       // Passes should be shown again
       cy.dataCy('passCell').should('exist')

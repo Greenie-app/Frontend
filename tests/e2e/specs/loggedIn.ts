@@ -102,14 +102,10 @@ context('Logged in without passes', () => {
       // Status should transition from Pending -> Processing -> Finished
       cy.dataCy('uploadStatus', { timeout: 30000 }).should('not.contain', 'Pending')
 
-      cy.get('.n-card-header__close').click()
+      cy.nCardClose()
 
       // Set date range to 2020 to show uploaded passes (log file has 2020 timestamps)
-      cy.get('.n-date-picker').should('be.visible')
-      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
-      cy.wait(2000)
-      cy.get('body').type('{esc}')
+      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 2000, closePanel: true })
 
       cy.dataCy('passCell', { timeout: 20000 }).should('have.length', 12)
       // Boarding rate is calculated from the 12 passes in the 2020 date range
@@ -130,16 +126,9 @@ context('Logged in with passes', () => {
 
     // Wait for page to load and set date range to 2020 (test data year)
     cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?$/)
-    cy.get('.n-date-picker').should('be.visible')
-    cy.wait(500)
 
     // Set date range to cover all 2020 test data
-    cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-    cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
-    cy.wait(2000)
-
-    // Close any open panels
-    cy.get('body').type('{esc}')
+    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 2000, closePanel: true })
     cy.wait(500)
 
     // Verify passes loaded
@@ -164,9 +153,7 @@ context('Logged in with passes', () => {
 
       // The new pass has today's date, so update date range to include it
       // Extend range from 2020-01-01 to 2025-12-31
-      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
-      cy.get('.n-date-picker input').last().click().type('{selectall}2025-12-31{enter}')
-      cy.get('body').type('{esc}')
+      cy.nDateRange('2020-01-01', '2025-12-31', { closePanel: true })
 
       cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
         dataCy('passHeaderCell').
@@ -191,7 +178,7 @@ context('Logged in with passes', () => {
       cy.get('#pass-wire').should('not.exist')
       cy.get('#pass-trap').should('exist')
 
-      cy.get('.n-card-header__close').click()
+      cy.nCardClose()
       // Boarding rate now includes all passes in the 2020-2025 range
       // Original test data (4 traps / 12 attempts) + new pass (1 trap / 1 attempt) = 5/13 ≈ 0.38
       cy.dataCy('squadronBoardingRate').should('contain.text', 'Boarding rate: 0.38')
@@ -242,7 +229,7 @@ context('Logged in with passes', () => {
           click()
 
         cy.dataCy('mergeButton').click()
-        cy.get('.n-dropdown-option').contains('Jambo72nd').click()
+        cy.nDropdownOption('Jambo72nd')
         cy.dataCy('mergeConfirmButton').click()
         cy.location('hash').should('eql', '#/squadrons/squadron-1')
 
@@ -268,7 +255,7 @@ context('Logged in with passes', () => {
           click()
 
         cy.dataCy('deletePilotButton').click()
-        cy.get('.n-dialog__action .n-button--error-type').click()
+        cy.nDialogConfirm('error')
 
         cy.location('hash').should('eql', '#/squadrons/squadron-1')
         cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Raamon]').should('not.exist')
@@ -323,7 +310,7 @@ context('Logged in with passes', () => {
       it('deletes all unassigned passes', () => {
         cy.dataCy('deleteAllUnassigned').click()
 
-        cy.get('.n-button--warning-type').contains('Delete All').click()
+        cy.nDialogConfirm('warning', 'Delete All')
         cy.get('[data-cy=squadronBoardRow][data-cy-pilot=unknown]').should('not.exist')
       })
     })
@@ -467,7 +454,7 @@ context('Logged in with passes', () => {
       cy.dataCy('deleteSquadronButton', { timeout: 10000 }).should('be.visible')
       cy.dataCy('deleteSquadronButton').click()
       // Click the Delete button in the confirmation modal
-      cy.get('.n-dialog .n-button--error-type').contains('Delete').click()
+      cy.nDialogConfirm('error', 'Delete')
       cy.location('hash').should('eql', '#/')
 
       cy.dataCy('logInLink').click()
