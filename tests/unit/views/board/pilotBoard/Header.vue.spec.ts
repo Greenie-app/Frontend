@@ -59,7 +59,6 @@ describe('pilotBoard/Header.vue', () => {
       updatedAt: DateTime.utc(),
       image: null,
       isEditable: true,
-      boardingRate: 0.85,
       unknownPassCount: 0
     }
 

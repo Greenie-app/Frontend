@@ -45,8 +45,8 @@ describe('Vuex: passes', () => {
         expect(passesStore.passes?.length).toEqual(12)
         expect(passesStore.passesLoading).toBe(false)
         expect(passesStore.passesError).toBeNull()
-        expect(passesStore.passCount).toEqual(12)
-        expect(passesStore.passCurrentPage).toEqual(1)
+        expect(passesStore.startDate).toBeDefined()
+        expect(passesStore.endDate).toBeDefined()
       })
 
       it('handles errors', async () => {
@@ -61,6 +61,12 @@ describe('Vuex: passes', () => {
 
         expect(passesStore.passesLoading).toBe(false)
         expect(passesStore.passesError?.message).toEqual('Invalid HTTP response: 500')
+      })
+
+      it('stores boarding rate from response', async () => {
+        await passesStore.loadPasses({ squadron: '72nd' })
+
+        expect(passesStore.boardingRate).toEqual(0.5)
       })
     })
 
@@ -158,7 +164,8 @@ describe('Vuex: passes', () => {
 
     describe('#deletePass', () => {
       it('deletes a pass', async () => {
-        passesStore.$patch({ passes: [pass, { ...pass, ID: 13 }], passesLoading: false, passesError: null })
+        // First load passes to populate the store
+        await passesStore.loadPasses({ squadron: '72nd' })
         const deletedPass: Pass = await passesStore.deletePass({ pass })
         expect(deletedPass.ID).toEqual(12)
       })

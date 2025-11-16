@@ -69,10 +69,10 @@ const handlers = [
 
   http.put('http://localhost:5100/squadron.json', () => HttpResponse.json(squadronJSON)),
 
-  http.get('http://localhost:5100/squadrons/72nd/passes.json', () => HttpResponse.json(
-    passesJSON,
-    { headers: { 'X-Page': '1', 'X-Count': '12' } }
-  )),
+  http.get('http://localhost:5100/squadrons/72nd/passes.json', () => HttpResponse.json({
+    passes: passesJSON,
+    boarding_rate: 0.5
+  })),
 
   http.post('http://localhost:5100/squadron/passes.json', () => HttpResponse.json(
     passJSON,

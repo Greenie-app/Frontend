@@ -49,7 +49,6 @@ describe('Pinia: mySquadron', () => {
           email: 'tim@example.com',
           createdAt: DateTime.utc(),
           updatedAt: DateTime.utc(),
-          boardingRate: 0.5,
           unknownPassCount: 7,
           image: null,
           isEditable: true

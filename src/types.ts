@@ -13,7 +13,6 @@ export interface Squadron {
   updatedAt: DateTime;
   image: Image | null;
   isEditable: boolean;
-  boardingRate: number | null;
   unknownPassCount: number;
 }
 

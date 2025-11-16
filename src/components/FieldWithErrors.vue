@@ -178,13 +178,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import {
+  NAutoComplete,
   NFormItem,
   NInput,
   NInputNumber,
   NSelect,
   NSpace,
   NUpload,
-  NAutoComplete,
   type SelectOption,
 } from "naive-ui";
 import { has, isArray, isNull, isString } from "lodash-es";
@@ -303,7 +303,6 @@ const optionList = computed((): SelectOption[] | string[] => {
   if (isArray(props.options)) {
     // For autocomplete, if it's an array of strings, return as-is
     if (props.type === "autocomplete" && props.options.every((opt) => typeof opt === "string")) {
-      console.log("FieldWithErrors: Returning string array for autocomplete:", props.options);
       return props.options as string[];
     }
     // Convert from old format {text, value} to Naive UI format {label, value}

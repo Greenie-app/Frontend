@@ -99,12 +99,22 @@ context('Logged in without passes', () => {
       )
 
       cy.dataCy('uploadSubmit').click()
-      // cy.dataCy('uploadStatus').should('contain', 'In Progress')
+      // Status should transition from Pending -> Processing -> Finished
+      cy.dataCy('uploadStatus', { timeout: 30000 }).should('not.contain', 'Pending')
 
       cy.get('.n-card-header__close').click()
 
+      // Set date range to 2020 to show uploaded passes (log file has 2020 timestamps)
+      cy.get('.n-date-picker').should('be.visible')
+      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
+      cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
+      cy.wait(2000)
+      cy.get('body').type('{esc}')
+
       cy.dataCy('passCell', { timeout: 20000 }).should('have.length', 12)
-      // cy.dataCy('squadronBoardingRate').should('contain.text', 'Boarding rate: 0.38')
+      // Boarding rate is calculated from the 12 passes in the 2020 date range
+      // 4 traps out of 12 passes with trap values = 0.33
+      cy.dataCy('squadronBoardingRate').should('contain.text', 'Boarding rate: 0.33')
     })
   })
 })
@@ -117,6 +127,23 @@ context('Logged in with passes', () => {
     cy.get('#login-field').type('squadron-1')
     cy.get('#password-field').type('password123')
     cy.dataCy('loginSubmitButton').click()
+
+    // Wait for page to load and set date range to 2020 (test data year)
+    cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?$/)
+    cy.get('.n-date-picker').should('be.visible')
+    cy.wait(500)
+
+    // Set date range to cover all 2020 test data
+    cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
+    cy.get('.n-date-picker input').last().click().type('{selectall}2020-12-31{enter}')
+    cy.wait(2000)
+
+    // Close any open panels
+    cy.get('body').type('{esc}')
+    cy.wait(500)
+
+    // Verify passes loaded
+    cy.dataCy('passCell').should('exist')
   })
 
   context('Adding passes', () => {
@@ -128,13 +155,18 @@ context('Logged in with passes', () => {
       cy.nInput('#pass-aircraft_type').blur()
       cy.get('#pass-grade').click()
       cy.get('.n-base-select-option__content').contains(/^OK$/).click()
-      cy.wait(200) // Wait for score calculation after grade selection
       cy.get('#pass-score input[type="text"]').should('have.value', '4')
       cy.get('#pass-trap .n-base-selection-label').should('contain', 'This pass counts as a trap')
       cy.get('#pass-wire').should('be.visible')
       cy.nSelect('#pass-wire', '3')
 
       cy.dataCy('savePassButton').click()
+
+      // The new pass has today's date, so update date range to include it
+      // Extend range from 2020-01-01 to 2025-12-31
+      cy.get('.n-date-picker input').first().click().type('{selectall}2020-01-01')
+      cy.get('.n-date-picker input').last().click().type('{selectall}2025-12-31{enter}')
+      cy.get('body').type('{esc}')
 
       cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
         dataCy('passHeaderCell').
@@ -160,7 +192,9 @@ context('Logged in with passes', () => {
       cy.get('#pass-trap').should('exist')
 
       cy.get('.n-card-header__close').click()
-      cy.dataCy('squadronBoardingRate').should('contain.text', 'Boarding rate: 1.00')
+      // Boarding rate now includes all passes in the 2020-2025 range
+      // Original test data (4 traps / 12 attempts) + new pass (1 trap / 1 attempt) = 5/13 ≈ 0.38
+      cy.dataCy('squadronBoardingRate').should('contain.text', 'Boarding rate: 0.38')
     })
   })
 

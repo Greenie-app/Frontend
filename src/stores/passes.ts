@@ -1,19 +1,8 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import {
-  concat,
-  get,
-  has,
-  isEmpty,
-  isNull,
-  isUndefined,
-  keys,
-  max,
-  some,
-  sortBy,
-  values,
-} from "lodash-es";
+import { computed, ref } from "vue";
+import { concat, get, has, isEmpty, isNull, keys, max, some, sortBy, values } from "lodash-es";
 import { Ok, Result } from "ts-results";
+import { DateTime } from "luxon";
 import type { Consumer, Subscription } from "@rails/actioncable";
 import { useRootStore } from "./root";
 import { useAuthStore } from "./auth";
@@ -33,8 +22,14 @@ export const usePassesStore = defineStore("passes", () => {
   const passes = ref<Pass[] | null>(null);
   const passesLoading = ref(false);
   const passesError = ref<Error | null>(null);
-  const passCurrentPage = ref(1);
-  const passCount = ref(0);
+  const boardingRate = ref<number | null>(null);
+  // Initialize with valid DateTime objects
+  const now = DateTime.now();
+  const initialStartDate = now.minus({ weeks: 4 }).startOf("day");
+  const initialEndDate = now.endOf("day");
+
+  const startDate = ref<DateTime>(initialStartDate);
+  const endDate = ref<DateTime>(initialEndDate);
 
   const passesLoaded = computed(
     () => !isNull(passes.value) && !passesLoading.value && isNull(passesError.value),
@@ -123,58 +118,85 @@ export const usePassesStore = defineStore("passes", () => {
   function updatePassesFromSubscription({ passJSON }: { passJSON: PassJSONDown }) {
     if (isNull(passes.value)) return;
 
+    const pass = passFromJSON(passJSON);
+
+    // Check if pass is within the current date range
+    const passInRange = pass.time >= startDate.value && pass.time <= endDate.value;
+
     if (passJSON["destroyed?"]) {
       passes.value = passes.value.filter((p) => p.ID !== passJSON.id);
     } else if (some(passes.value, (p) => p.ID === passJSON.id)) {
-      passes.value = [...passes.value.filter((p) => p.ID !== passJSON.id), passFromJSON(passJSON)];
-    } else {
-      if (passCurrentPage.value !== 1) return;
-      passes.value = concat(passes.value, passFromJSON(passJSON));
+      // Update existing pass
+      if (passInRange) {
+        passes.value = [...passes.value.filter((p) => p.ID !== passJSON.id), pass];
+      } else {
+        // Remove if now outside range
+        passes.value = passes.value.filter((p) => p.ID !== passJSON.id);
+      }
+    } else if (passInRange) {
+      // Add new pass if in range
+      passes.value = concat(passes.value, pass);
     }
   }
 
   /**
-   * Loads Passes for a squadron. Can be paginated.
+   * Loads Passes for a squadron within a date range.
    *
    * @param squadron The Squadron to load passes for.
-   * @param page The page number to load (1-based, default 1).
+   * @param dateRange Optional custom date range. If not provided, uses stored dates.
    */
   async function loadPasses({
     squadron,
-    page,
+    dateRange,
   }: {
     squadron: string;
-    page?: number;
+    dateRange?: { start: DateTime; end: DateTime };
   }): Promise<void> {
     if (passesLoading.value) return;
 
     const authStore = useAuthStore();
     const rootStore = useRootStore();
 
+    // Update stored dates if provided and valid
+    if (dateRange) {
+      // Ensure the dates are valid DateTime objects
+      if (dateRange.start && dateRange.start.isValid) {
+        startDate.value = dateRange.start;
+      }
+      if (dateRange.end && dateRange.end.isValid) {
+        endDate.value = dateRange.end;
+      }
+    }
+
     if (passesSubscription) passesSubscription.unsubscribe();
-    if ((isUndefined(page) || page === 1) && authStore.actionCableConsumer) {
+    if (authStore.actionCableConsumer) {
       createPassesSubscription(authStore.actionCableConsumer);
     }
 
     passes.value = null;
     passesError.value = null;
     passesLoading.value = true;
-    passCurrentPage.value = 1;
-    passCount.value = 0;
 
     try {
-      const result: APIResponse<PassJSONDown[]> = await rootStore.requestJSON({
-        path: `/squadrons/${squadron}/passes.json?page=${page || 1}`,
-      });
-      const passesData = loadResponseBodyOrThrowError(result).map((pass) => passFromJSON(pass));
-      passes.value = passesData;
-      passesLoading.value = false;
+      // Date parameters are always required
+      let path = `/squadrons/${squadron}/passes.json`;
 
-      const { headers } = result.val.response;
-      const currentPage = headers.has("X-Page") ? Number.parseInt(headers.get("X-Page")!, 10) : 1;
-      const count = headers.has("X-Count") ? Number.parseInt(headers.get("X-Count")!, 10) : 1;
-      passCurrentPage.value = currentPage;
-      passCount.value = count;
+      // Ensure dates are valid before converting to ISO
+      if (startDate.value && startDate.value.isValid && endDate.value && endDate.value.isValid) {
+        const startISO = startDate.value.toISO();
+        const endISO = endDate.value.toISO();
+        path += `?start_date=${startISO}&end_date=${endISO}`;
+      } else {
+        throw new Error("Invalid date range for loading passes");
+      }
+
+      const result: APIResponse<{ passes: PassJSONDown[]; boarding_rate: number | null }> =
+        await rootStore.requestJSON({ path });
+      const responseData = loadResponseBodyOrThrowError(result);
+      const passesData = responseData.passes.map((pass) => passFromJSON(pass));
+      passes.value = passesData;
+      boardingRate.value = responseData.boarding_rate;
+      passesLoading.value = false;
     } catch (error: unknown) {
       if (error instanceof Error) {
         passesError.value = error;
@@ -289,20 +311,70 @@ export const usePassesStore = defineStore("passes", () => {
     }));
   }
 
+  /**
+   * Sets the date range to the current month.
+   */
+  function setCurrentMonth() {
+    const now = DateTime.now();
+    startDate.value = now.startOf("month");
+    endDate.value = now.endOf("day");
+  }
+
+  /**
+   * Sets the date range to the previous month.
+   */
+  function setPastMonth() {
+    const now = DateTime.now();
+    const lastMonth = now.minus({ months: 1 });
+    startDate.value = lastMonth.startOf("month");
+    endDate.value = lastMonth.endOf("month");
+  }
+
+  /**
+   * Sets the date range to the current week.
+   */
+  function setCurrentWeek() {
+    const now = DateTime.now();
+    startDate.value = now.startOf("week");
+    endDate.value = now.endOf("day");
+  }
+
+  /**
+   * Sets the date range to the previous week.
+   */
+  function setPastWeek() {
+    const now = DateTime.now();
+    const lastWeek = now.minus({ weeks: 1 });
+    startDate.value = lastWeek.startOf("week");
+    endDate.value = lastWeek.endOf("week");
+  }
+
+  /**
+   * Sets the date range to the last 4 weeks (default).
+   */
+  function setLast4Weeks() {
+    const now = DateTime.now();
+    startDate.value = now.minus({ weeks: 4 }).startOf("day");
+    endDate.value = now.endOf("day");
+  }
+
   function resetPasses() {
     passes.value = null;
     passesError.value = null;
     passesLoading.value = false;
-    passCurrentPage.value = 1;
-    passCount.value = 0;
+    boardingRate.value = null;
+    const resetNow = DateTime.now();
+    startDate.value = resetNow.minus({ weeks: 4 }).startOf("day");
+    endDate.value = resetNow.endOf("day");
   }
 
   return {
-    passes: computed(() => passes.value),
-    passesLoading: computed(() => passesLoading.value),
-    passesError: computed(() => passesError.value),
-    passCurrentPage: computed(() => passCurrentPage.value),
-    passCount: computed(() => passCount.value),
+    passes,
+    passesLoading,
+    passesError,
+    boardingRate,
+    startDate,
+    endDate,
     passesLoaded,
     passesByPilot,
     passesForPilot,
@@ -315,6 +387,11 @@ export const usePassesStore = defineStore("passes", () => {
     deletePass,
     deleteAllUnknown,
     renamePilot,
+    setCurrentMonth,
+    setPastMonth,
+    setCurrentWeek,
+    setPastWeek,
+    setLast4Weeks,
     resetPasses,
   };
 });

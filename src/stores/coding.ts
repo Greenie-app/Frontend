@@ -5,13 +5,12 @@ import { AttachedFile, Logfile, Pass, Squadron } from "@/types";
 /** The shape of the squadron JSON data sent from the backend to the frontend. */
 export type SquadronJSONDown = Omit<
   Squadron,
-  "ID" | "createdAt" | "updatedAt" | "isEditable" | "boardingRate" | "unknownPassCount"
+  "ID" | "createdAt" | "updatedAt" | "isEditable" | "unknownPassCount"
 > & {
   id: number;
   created_at: string;
   updated_at: string;
   is_editable: boolean;
-  boarding_rate: number | null;
   unknown_pass_count: number;
 };
 
@@ -34,20 +33,11 @@ export type SquadronJSONUp = Omit<
 
 export function squadronFromJSON(JSON: SquadronJSONDown): Squadron {
   return {
-    ...omit(
-      JSON,
-      "id",
-      "created_at",
-      "updated_at",
-      "is_editable",
-      "boarding_rate",
-      "unknown_pass_count",
-    ),
+    ...omit(JSON, "id", "created_at", "updated_at", "is_editable", "unknown_pass_count"),
     ID: JSON.id,
     createdAt: DateTime.fromISO(JSON.created_at, { setZone: true }),
     updatedAt: DateTime.fromISO(JSON.updated_at, { setZone: true }),
     isEditable: JSON.is_editable,
-    boardingRate: JSON.boarding_rate,
     unknownPassCount: JSON.unknown_pass_count,
   };
 }

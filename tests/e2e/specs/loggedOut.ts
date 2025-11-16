@@ -1,5 +1,8 @@
 context('Logged out', () => {
-  beforeEach(() => cy.request('/cypress/reset'))
+  beforeEach(() => {
+    cy.clearLocalStorage()
+    cy.request('/cypress/reset')
+  })
 
   it('does not allow adding passes', () => {
     cy.visit('/#/squadrons/squadron-1')

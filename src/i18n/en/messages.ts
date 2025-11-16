@@ -92,6 +92,7 @@ const en: Record<string, any> = {
     addPassButton: "Add Pass",
     uploadButton: "Upload dcs.log",
     noPasses: "No passes yet.",
+    noPassesInRange: "No passes found in selected date range.",
     deleteAll: {
       link: "delete all passes with unknown pilots",
       title: "Delete Passes",
