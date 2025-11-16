@@ -29,7 +29,16 @@ const createStorage = (): Storage => {
 }
 
 // Ensure localStorage exists before MSW imports
-if (!globalThis.localStorage || typeof globalThis.localStorage.getItem !== 'function') {
+try {
+  if (!globalThis.localStorage || typeof globalThis.localStorage.getItem !== 'function') {
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: createStorage(),
+      writable: true,
+      configurable: true
+    })
+  }
+} catch {
+  // localStorage is not accessible, define it
   Object.defineProperty(globalThis, 'localStorage', {
     value: createStorage(),
     writable: true,
@@ -38,10 +47,21 @@ if (!globalThis.localStorage || typeof globalThis.localStorage.getItem !== 'func
 }
 
 // Also set it on global for Node environment
-if (typeof global !== 'undefined' && (!global.localStorage || typeof global.localStorage.getItem !== 'function')) {
-  Object.defineProperty(global, 'localStorage', {
-    value: createStorage(),
-    writable: true,
-    configurable: true
-  })
+try {
+  if (typeof global !== 'undefined' && (!global.localStorage || typeof global.localStorage.getItem !== 'function')) {
+    Object.defineProperty(global, 'localStorage', {
+      value: createStorage(),
+      writable: true,
+      configurable: true
+    })
+  }
+} catch {
+  // localStorage is not accessible, define it
+  if (typeof global !== 'undefined') {
+    Object.defineProperty(global, 'localStorage', {
+      value: createStorage(),
+      writable: true,
+      configurable: true
+    })
+  }
 }

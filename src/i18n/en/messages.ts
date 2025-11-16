@@ -215,6 +215,14 @@ const en: Record<string, any> = {
       message: "Are you sure you want to delete {0} and all their passes?",
       okButton: "Delete",
     },
+    errorStatistics: {
+      title: "Error Statistics",
+      code: "Code",
+      description: "Description",
+      count: "Count",
+      score: "Score",
+    },
+    noPassesInRange: "No passes found in the selected date range.",
   },
   errorModal: "Error",
 };

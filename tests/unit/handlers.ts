@@ -87,7 +87,27 @@ const handlers = [
     { ...passJSON, 'destroyed?': true }
   )),
 
-  http.put('http://localhost:5100/squadron/pilots/Stretch%20%7C%2055FS.json', () => HttpResponse.json({ ok: true }))
+  http.put('http://localhost:5100/squadron/pilots/Stretch%20%7C%2055FS.json', () => HttpResponse.json({ ok: true })),
+
+  http.get('http://localhost:5100/squadrons/72nd/pilots/Jambo72nd.json', () => HttpResponse.json({
+    pilot: { name: 'Jambo72nd' },
+    passes: passesJSON.filter((p) => p.pilot === 'Jambo72nd'),
+    boarding_rate: 0.75,
+    error_statistics: [
+      {
+        code: 'LUL',
+        description: 'Lined up left',
+        score: 4.0,
+        count: 2
+      },
+      {
+        code: 'F',
+        description: 'Fast',
+        score: 2.0,
+        count: 1
+      }
+    ]
+  }))
 ]
 
 export default handlers

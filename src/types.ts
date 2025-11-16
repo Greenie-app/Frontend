@@ -61,3 +61,19 @@ export interface Logfile {
   progress: number;
   createdAt: DateTime;
 }
+
+export interface ErrorStatistic {
+  code: string;
+  description: string | null;
+  score: number;
+  count: number;
+}
+
+export interface PilotData {
+  pilot: {
+    name: string;
+  };
+  passes: Pass[];
+  boardingRate: number;
+  errorStatistics: ErrorStatistic[];
+}

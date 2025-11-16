@@ -24,24 +24,24 @@ import type { DataTableColumns } from "naive-ui";
 import { variant } from "@/config/utils";
 import { scoreFilter } from "@/config/filters";
 import { Pass, Squadron } from "@/types";
-import { usePassesStore } from "@/stores/passes";
+import { usePilotDataStore } from "@/stores/pilotData";
 
 interface Props {
   squadron: Squadron;
   pilot: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const { t } = useI18n();
-const passesStore = usePassesStore();
+const pilotDataStore = usePilotDataStore();
 
-const passes = computed(() => passesStore.passesForPilot(props.pilot));
+const passes = computed(() => pilotDataStore.pilotData?.passes || []);
 
 const hasBoardingRate = computed(() => !isEmpty(passes.value));
 
 const boardingRate = computed(() => {
-  const rate = passes.value.filter((p: Pass) => p.trap).length / passes.value.length;
-  return numeral(rate).format("0.00");
+  if (!pilotDataStore.pilotData) return "0.00";
+  return numeral(pilotDataStore.pilotData.boardingRate).format("0.00");
 });
 
 function formatTime(time: DateTime): string {

@@ -66,6 +66,8 @@ context('Logged in without passes', () => {
   })
 
   it('does not upload invalid files', () => {
+    // Need to trigger passes loading since Cypress environment check prevents auto-load
+    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
     cy.dataCy('uploadButton').click()
     cy.fixture('image.png', 'base64').then(data => {
       cy.get('#logfile-files').attachFile(
@@ -85,6 +87,8 @@ context('Logged in without passes', () => {
   })
 
   it('uploads a dcs.log file', () => {
+    // Need to trigger passes loading since Cypress environment check prevents auto-load
+    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
     cy.dataCy('uploadButton').click()
 
     cy.fixture('dcs.log', 'base64').then(data => {
@@ -193,6 +197,44 @@ context('Logged in with passes', () => {
         click()
 
       cy.location('hash').should('eql', '#/squadrons/squadron-1/pilots/Jambo72nd')
+
+      // Wait for pilot board to load and set date range to 2020 (test data year)
+      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+
+      // Verify pilot board title
+      cy.dataCy('pilotBoardTitle').should('contain', 'Jambo72nd')
+
+      // Verify passes table is displayed with one pass
+      cy.dataCy('pilotBoardTable').should('be.visible')
+      cy.dataCy('pilotBoardTable').find('tbody tr').should('have.length', 1)
+
+      // Verify pass details - should be a C (cut) grade with wire 3
+      cy.dataCy('pilotBoardTable').should('contain', 'C')
+      cy.dataCy('pilotBoardTable').should('contain', '3')
+
+      // Verify error statistics table is displayed
+      cy.dataCy('errorStatisticsTable').should('be.visible')
+
+      // Verify error statistics contains expected error codes and descriptions
+      // The pass has errors: LUL (3x), LO (2x), F, P, PPP
+      cy.dataCy('errorStatisticsTable').should('contain', 'LUL')
+      cy.dataCy('errorStatisticsTable').should('contain', 'Lined up left')
+      cy.dataCy('errorStatisticsTable').should('contain', 'LO')
+      cy.dataCy('errorStatisticsTable').should('contain', 'Low')
+      cy.dataCy('errorStatisticsTable').should('contain', 'F')
+      cy.dataCy('errorStatisticsTable').should('contain', 'Fast')
+      cy.dataCy('errorStatisticsTable').should('contain', 'P')
+      cy.dataCy('errorStatisticsTable').should('contain', 'Power')
+      cy.dataCy('errorStatisticsTable').should('contain', 'PPP')
+      cy.dataCy('errorStatisticsTable').should('contain', 'Power, power, power')
+
+      // Verify counts are correct - LUL appears 3 times so count should be 3
+      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LUL').parent('tr').should('contain', '3')
+      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LO').parent('tr').should('contain', '2')
+
+      // Verify scores are displayed - LUL with count 3 should have score 6.0
+      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LUL').parent('tr').should('contain', '6.0')
+      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LO').parent('tr').should('contain', '4.0')
     })
 
     context('Editing pilots', () => {
@@ -201,6 +243,12 @@ context('Logged in with passes', () => {
           dataCy('passHeaderCell').
           find('a').
           click()
+
+        // Wait for pilot board to load and set date range to 2020 (test data year)
+        cy.location('hash').should('include', '/pilots/Jambo72nd')
+        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+
+        cy.dataCy('renameButton', { timeout: 10000 }).should('be.visible')
         cy.dataCy('renameButton').click()
 
         cy.get('#pilot-name').type(' ')
@@ -214,6 +262,12 @@ context('Logged in with passes', () => {
           dataCy('passHeaderCell').
           find('a').
           click()
+
+        // Wait for pilot board to load and set date range to 2020 (test data year)
+        cy.location('hash').should('include', '/pilots/Jambo72nd')
+        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+
+        cy.dataCy('renameButton', { timeout: 10000 }).should('be.visible')
         cy.dataCy('renameButton').click()
 
         cy.get('#pilot-name').type('Jambo')
@@ -228,6 +282,11 @@ context('Logged in with passes', () => {
           find('a').
           click()
 
+        // Wait for pilot board to load and set date range to 2020 (test data year)
+        cy.location('hash').should('include', '/pilots/Stretch')
+        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+
+        cy.dataCy('mergeButton', { timeout: 10000 }).should('be.visible')
         cy.dataCy('mergeButton').click()
         cy.nDropdownOption('Jambo72nd')
         cy.dataCy('mergeConfirmButton').click()
@@ -245,7 +304,12 @@ context('Logged in with passes', () => {
           dataCy('passHeaderCell').
           find('a').
           click()
-        cy.dataCy('pilotBoardTable').find('tr').should('have.length', 4)
+
+        // Wait for pilot board to load and set date range to 2020 (test data year)
+        cy.location('hash').should('include', '/pilots/Jambo72nd')
+        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+
+        cy.dataCy('pilotBoardTable', { timeout: 10000 }).find('tr').should('have.length', 4)
       })
 
       it('deletes a pilot', () => {
@@ -254,6 +318,11 @@ context('Logged in with passes', () => {
           find('a').
           click()
 
+        // Wait for pilot board to load and set date range to 2020 (test data year)
+        cy.location('hash').should('include', '/pilots/Raamon')
+        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+
+        cy.dataCy('deletePilotButton', { timeout: 10000 }).should('be.visible')
         cy.dataCy('deletePilotButton').click()
         cy.nDialogConfirm('error')
 
@@ -439,6 +508,11 @@ context('Logged in with passes', () => {
         dataCy('passHeaderCell').
         find('a').
         click()
+
+      // Wait for pilot board to load and set date range to 2020 (test data year)
+      cy.location('hash').should('include', '/pilots/Jambo72nd')
+      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+
       cy.dataCy('renameButton').should('not.exist')
       cy.dataCy('mergeButton').should('not.exist')
       cy.dataCy('deletePilotButton').should('not.exist')

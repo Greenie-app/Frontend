@@ -1,6 +1,6 @@
 import { isNull, omit } from "lodash-es";
 import { DateTime } from "luxon";
-import { AttachedFile, Logfile, Pass, Squadron } from "@/types";
+import { AttachedFile, ErrorStatistic, Logfile, Pass, PilotData, Squadron } from "@/types";
 
 /** The shape of the squadron JSON data sent from the backend to the frontend. */
 export type SquadronJSONDown = Omit<
@@ -161,5 +161,30 @@ export function logfileFromJSON(JSON: LogfileJSON): Logfile {
     ID: JSON.id,
     files: JSON.files.map((file) => fileFromJSON(file)),
     createdAt: DateTime.fromISO(JSON.created_at, { setZone: true }),
+  };
+}
+
+/** The shape of JSON data for a pilot show response from the backend. */
+export type PilotDataJSONDown = {
+  pilot: {
+    name: string;
+  };
+  passes: PassJSONDown[];
+  boarding_rate: number;
+  error_statistics: ErrorStatistic[];
+};
+
+/**
+ * Converts a JSON-serialized PilotData into a PilotData object.
+ *
+ * @param JSON The serialized data.
+ * @return The PilotData object.
+ */
+export function pilotDataFromJSON(JSON: PilotDataJSONDown): PilotData {
+  return {
+    pilot: JSON.pilot,
+    passes: JSON.passes.map((pass) => passFromJSON(pass)),
+    boardingRate: JSON.boarding_rate,
+    errorStatistics: JSON.error_statistics,
   };
 }
