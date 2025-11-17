@@ -43,10 +43,10 @@
     <n-space vertical style="margin-top: 1rem">
       <n-space justify="space-between">
         <n-button data-cy="editSquadronSubmit" attr-type="submit" type="primary">
-          {{ $t("editSquadron.submitButton") }}
+          {{ $t('editSquadron.submitButton') }}
         </n-button>
         <n-button text type="error" data-cy="deleteSquadronButton" @click="showDeleteModal = true">
-          {{ $t("editSquadron.deleteButton") }}
+          {{ $t('editSquadron.deleteButton') }}
         </n-button>
       </n-space>
 
@@ -60,8 +60,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   type FormInst,
   NAlert,
@@ -71,77 +71,77 @@ import {
   NSpace,
   NUpload,
   type UploadFileInfo,
-} from "naive-ui";
-import { has, isNull, isString } from "lodash-es";
-import { useRootStore } from "@/stores/root";
-import { useMySquadronStore } from "@/stores/mySquadron";
-import type { SquadronJSONUp } from "@/stores/coding";
-import { squadronToJSON } from "@/stores/coding";
-import { useFormErrors } from "@/composables/useFormErrors";
-import FieldWithErrors from "@/components/FieldWithErrors.vue";
-import DeleteModal from "@/views/squadron/editSquadron/DeleteModal.vue";
+} from 'naive-ui'
+import { has, isNull, isString } from 'lodash-es'
+import { useRootStore } from '@/stores/root'
+import { useMySquadronStore } from '@/stores/mySquadron'
+import type { SquadronJSONUp } from '@/stores/coding'
+import { squadronToJSON } from '@/stores/coding'
+import { useFormErrors } from '@/composables/useFormErrors'
+import FieldWithErrors from '@/components/FieldWithErrors.vue'
+import DeleteModal from '@/views/squadron/editSquadron/DeleteModal.vue'
 
-const router = useRouter();
-const route = useRoute();
-const rootStore = useRootStore();
-const mySquadronStore = useMySquadronStore();
-const { formErrors, formError, resetErrors } = useFormErrors();
+const router = useRouter()
+const route = useRoute()
+const rootStore = useRootStore()
+const mySquadronStore = useMySquadronStore()
+const { formErrors, formError, resetErrors } = useFormErrors()
 
-const formRef = ref<FormInst>();
-const squadron = ref<Partial<SquadronJSONUp>>({});
-const imageFiles = ref<UploadFileInfo[]>([]);
-const showDeleteModal = ref(false);
+const formRef = ref<FormInst>()
+const squadron = ref<Partial<SquadronJSONUp>>({})
+const imageFiles = ref<UploadFileInfo[]>([])
+const showDeleteModal = ref(false)
 
-const imageHasError = computed(() => !isNull(formErrors.value) && has(formErrors.value, "image"));
+const imageHasError = computed(() => !isNull(formErrors.value) && has(formErrors.value, 'image'))
 const imageFieldErrors = computed((): string[] => {
-  if (!imageHasError.value) return [];
-  return formErrors.value!["image"] || [];
-});
+  if (!imageHasError.value) return []
+  return formErrors.value!['image'] || []
+})
 
 async function onSubmit(): Promise<void> {
-  resetErrors();
+  resetErrors()
 
   try {
-    const formData = new FormData();
-    if (squadron.value.name) formData.append("squadron[name]", squadron.value.name);
-    if (squadron.value.email) formData.append("squadron[email]", squadron.value.email);
+    const formData = new FormData()
+    if (squadron.value.name) formData.append('squadron[name]', squadron.value.name)
+    if (squadron.value.email) formData.append('squadron[email]', squadron.value.email)
 
     // Get the uploaded file from imageFiles
-    const uploadedFile = imageFiles.value[0]?.file;
+    const uploadedFile = imageFiles.value[0]?.file
     if (uploadedFile) {
-      formData.append("squadron[image]", uploadedFile);
+      formData.append('squadron[image]', uploadedFile)
     }
 
-    const result = await mySquadronStore.updateMySquadron({ body: formData });
+    const result = await mySquadronStore.updateMySquadron({ body: formData })
     if (result.ok) {
       await router.push({
-        name: "SquadronBoard",
+        name: 'SquadronBoard',
         params: { squadron: result.val.username },
         query: route.query,
-      });
-      await rootStore.loadSquadron({ username: result.val.username });
+      })
+      await rootStore.loadSquadron({ username: result.val.username })
     } else {
-      formErrors.value = result.val;
+      formErrors.value = result.val
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      formError.value = error.message;
+      formError.value = error.message
     } else if (isString(error)) {
-      formError.value = error;
+      formError.value = error
     } else {
-      throw error;
+      throw error
     }
   }
 }
 
 function updateSquadronData(): void {
   if (mySquadronStore.mySquadron) {
-    const data = squadronToJSON(mySquadronStore.mySquadron);
-    squadron.value = JSON.parse(JSON.stringify(data));
+    const data = squadronToJSON(mySquadronStore.mySquadron)
+    squadron.value = JSON.parse(JSON.stringify(data))
   }
 }
 
-watch(() => mySquadronStore.mySquadron, updateSquadronData);
+watch(() => mySquadronStore.mySquadron, updateSquadronData)
 
-onMounted(updateSquadronData);
+onMounted(updateSquadronData)
 </script>

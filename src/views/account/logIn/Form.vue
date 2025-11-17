@@ -22,13 +22,13 @@
 
       <n-form-item>
         <n-checkbox v-model:checked="rememberMe" id="remember-me">
-          {{ $t("logIn.rememberMe") }}
+          {{ $t('logIn.rememberMe') }}
         </n-checkbox>
       </n-form-item>
 
       <n-space justify="space-between">
         <n-button data-cy="loginSubmitButton" attr-type="submit" type="primary">
-          {{ $t("logIn.logInButton") }}
+          {{ $t('logIn.logInButton') }}
         </n-button>
         <n-button
           text
@@ -36,7 +36,7 @@
           @click="() => $router.push({ name: 'ForgotPassword' })"
           data-cy="forgotPasswordLink"
         >
-          {{ $t("logIn.forgotPassword") }}
+          {{ $t('logIn.forgotPassword') }}
         </n-button>
       </n-space>
 
@@ -48,36 +48,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { NForm, NFormItem, NInput, NCheckbox, NButton, NSpace, NAlert } from "naive-ui";
-import { isString } from "lodash-es";
-import { useAuthStore } from "@/stores/auth";
+import { ref } from 'vue'
+import { NForm, NFormItem, NInput, NCheckbox, NButton, NSpace, NAlert } from 'naive-ui'
+import { isString } from 'lodash-es'
+import { useAuthStore } from '@/stores/auth'
 
-const username = ref("");
-const password = ref("");
-const rememberMe = ref(false);
-const loginError = ref<string | null>(null);
+const username = ref('')
+const password = ref('')
+const rememberMe = ref(false)
+const loginError = ref<string | null>(null)
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
 
 async function onSubmit(): Promise<void> {
-  loginError.value = null;
+  loginError.value = null
   try {
     const result = await authStore.logIn({
       username: username.value,
       password: password.value,
       rememberMe: rememberMe.value,
-    });
+    })
     if (!result.ok) {
-      loginError.value = result.val;
+      loginError.value = result.val
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      loginError.value = error.message;
+      loginError.value = error.message
     } else if (isString(error)) {
-      loginError.value = error;
+      loginError.value = error
     } else {
-      throw error;
+      throw error
     }
   }
 }

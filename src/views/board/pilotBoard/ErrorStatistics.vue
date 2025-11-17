@@ -1,10 +1,10 @@
 <template>
   <div v-if="hasErrors" class="error-statistics">
-    <h3>{{ $t("pilotBoard.errorStatistics.title") }}</h3>
+    <h3>{{ $t('pilotBoard.errorStatistics.title') }}</h3>
 
     <!-- Overall Top 3 Errors -->
     <div v-if="hasOverallErrors" class="error-section">
-      <h4>{{ $t("pilotBoard.errorStatistics.overall") }}</h4>
+      <h4>{{ $t('pilotBoard.errorStatistics.overall') }}</h4>
       <n-data-table
         :columns="columns"
         :data="errorStatistics.overall"
@@ -33,47 +33,47 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { NDataTable } from "naive-ui";
-import { isEmpty } from "lodash-es";
-import type { DataTableColumns } from "naive-ui";
-import type { ErrorStatistic, ErrorStatistics } from "@/types";
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { NDataTable } from 'naive-ui'
+import { isEmpty } from 'lodash-es'
+import type { DataTableColumns } from 'naive-ui'
+import type { ErrorStatistic, ErrorStatistics } from '@/types'
 
 interface Props {
-  errorStatistics: ErrorStatistics;
+  errorStatistics: ErrorStatistics
 }
 
-const props = defineProps<Props>();
-const { t } = useI18n();
+const props = defineProps<Props>()
+const { t } = useI18n()
 
-const hasOverallErrors = computed(() => !isEmpty(props.errorStatistics.overall));
-const hasPhaseErrors = computed(() => !isEmpty(props.errorStatistics.byPhase));
-const hasErrors = computed(() => hasOverallErrors.value || hasPhaseErrors.value);
+const hasOverallErrors = computed(() => !isEmpty(props.errorStatistics.overall))
+const hasPhaseErrors = computed(() => !isEmpty(props.errorStatistics.byPhase))
+const hasErrors = computed(() => hasOverallErrors.value || hasPhaseErrors.value)
 
 const columns = computed<DataTableColumns<ErrorStatistic>>(() => [
   {
-    key: "code",
-    title: t("pilotBoard.errorStatistics.code"),
+    key: 'code',
+    title: t('pilotBoard.errorStatistics.code'),
     width: 100,
   },
   {
-    key: "description",
-    title: t("pilotBoard.errorStatistics.description"),
-    render: (row) => row.description ?? "",
+    key: 'description',
+    title: t('pilotBoard.errorStatistics.description'),
+    render: (row) => row.description ?? '',
   },
   {
-    key: "count",
-    title: t("pilotBoard.errorStatistics.count"),
+    key: 'count',
+    title: t('pilotBoard.errorStatistics.count'),
     width: 80,
   },
   {
-    key: "score",
-    title: t("pilotBoard.errorStatistics.score"),
+    key: 'score',
+    title: t('pilotBoard.errorStatistics.score'),
     width: 80,
     render: (row) => row.score.toFixed(1),
   },
-]);
+])
 </script>
 
 <style scoped>

@@ -7,20 +7,20 @@
       alt="Squadron image"
     />
     <h1 data-cy="squadronBoardTitle" class="squadron-title">
-      {{ $t("squadronBoard.title", [squadron.name]) }}
+      {{ $t('squadronBoard.title', [squadron.name]) }}
     </h1>
   </n-space>
 </template>
 
 <script setup lang="ts">
-import { NSpace } from "naive-ui";
-import type { Squadron } from "@/types";
+import { NSpace } from 'naive-ui'
+import type { Squadron } from '@/types'
 
 interface Props {
-  squadron: Squadron;
+  squadron: Squadron
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <style scoped>

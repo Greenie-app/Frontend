@@ -20,17 +20,17 @@
 
       <n-space v-if="isMySquadron">
         <n-button @click="showRenameModal = true" data-cy="renameButton">
-          {{ $t("pilotBoard.actions.rename") }}
+          {{ $t('pilotBoard.actions.rename') }}
         </n-button>
 
         <n-dropdown :options="mergeOptions" @select="confirmMerge" trigger="click">
           <n-button data-cy="mergeButton">
-            {{ $t("pilotBoard.actions.merge") }}
+            {{ $t('pilotBoard.actions.merge') }}
           </n-button>
         </n-dropdown>
 
         <n-button @click="confirmDelete" data-cy="deletePilotButton" type="error">
-          {{ $t("pilotBoard.actions.delete") }}
+          {{ $t('pilotBoard.actions.delete') }}
         </n-button>
       </n-space>
     </n-space>
@@ -41,89 +41,89 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useI18n } from "vue-i18n";
-import { useDialog, NBreadcrumb, NBreadcrumbItem, NSpace, NButton, NDropdown } from "naive-ui";
-import RenameModal from "@/views/board/pilotBoard/RenameModal.vue";
-import MergeModal from "@/views/board/pilotBoard/MergeModal.vue";
-import { useAuthCheckRequiredSquadron } from "@/composables/useAuthCheckRequiredSquadron";
-import { useMySquadronStore } from "@/stores/mySquadron";
-import { usePassesStore } from "@/stores/passes";
-import { usePilotsStore } from "@/stores/pilots";
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useDialog, NBreadcrumb, NBreadcrumbItem, NSpace, NButton, NDropdown } from 'naive-ui'
+import RenameModal from '@/views/board/pilotBoard/RenameModal.vue'
+import MergeModal from '@/views/board/pilotBoard/MergeModal.vue'
+import { useAuthCheckRequiredSquadron } from '@/composables/useAuthCheckRequiredSquadron'
+import { useMySquadronStore } from '@/stores/mySquadron'
+import { usePassesStore } from '@/stores/passes'
+import { usePilotsStore } from '@/stores/pilots'
 
 interface Props {
-  pilot: string;
+  pilot: string
 }
 
-const props = defineProps<Props>();
-const router = useRouter();
-const route = useRoute();
-const { t } = useI18n();
-const dialog = useDialog();
-const mySquadronStore = useMySquadronStore();
-const passesStore = usePassesStore();
-const pilotsStore = usePilotsStore();
-const { isMySquadron } = useAuthCheckRequiredSquadron();
+const props = defineProps<Props>()
+const router = useRouter()
+const route = useRoute()
+const { t } = useI18n()
+const dialog = useDialog()
+const mySquadronStore = useMySquadronStore()
+const passesStore = usePassesStore()
+const pilotsStore = usePilotsStore()
+const { isMySquadron } = useAuthCheckRequiredSquadron()
 
-const showRenameModal = ref(false);
-const showMergeModal = ref(false);
-const mergeTarget = ref<string | null>(null);
+const showRenameModal = ref(false)
+const showMergeModal = ref(false)
+const mergeTarget = ref<string | null>(null)
 
-const otherPilots = computed(() => passesStore.pilotNames.filter((name) => name !== props.pilot));
+const otherPilots = computed(() => passesStore.pilotNames.filter((name) => name !== props.pilot))
 
 const mergeOptions = computed(() =>
   otherPilots.value.map((name: string) => ({
     label: name,
     key: name,
   })),
-);
+)
 
 function confirmMerge(pilot: string): void {
-  mergeTarget.value = pilot;
-  showMergeModal.value = true;
+  mergeTarget.value = pilot
+  showMergeModal.value = true
 }
 
 async function confirmDelete(): Promise<void> {
   return new Promise((resolve) => {
     dialog.error({
-      title: t("pilotBoard.deleteConfirmModal.title"),
-      content: t("pilotBoard.deleteConfirmModal.message", [props.pilot]),
-      positiveText: t("pilotBoard.deleteConfirmModal.okButton"),
-      negativeText: t("editSquadron.confirmDelete.cancelButton"),
+      title: t('pilotBoard.deleteConfirmModal.title'),
+      content: t('pilotBoard.deleteConfirmModal.message', [props.pilot]),
+      positiveText: t('pilotBoard.deleteConfirmModal.okButton'),
+      negativeText: t('editSquadron.confirmDelete.cancelButton'),
       onPositiveClick: async () => {
         try {
-          await pilotsStore.deletePilot({ pilot: props.pilot });
-          await passesStore.loadPasses({ squadron: mySquadronStore.mySquadron!.username });
+          await pilotsStore.deletePilot({ pilot: props.pilot })
+          await passesStore.loadPasses({ squadron: mySquadronStore.mySquadron!.username })
           await router.push({
-            name: "SquadronBoard",
+            name: 'SquadronBoard',
             params: { squadron: mySquadronStore.mySquadron!.username },
             query: { from: route.query.from, to: route.query.to },
-          });
-          resolve();
+          })
+          resolve()
         } catch (error: unknown) {
           if (error instanceof Error) {
             dialog.error({
-              title: t("errorModal"),
+              title: t('errorModal'),
               content: error.message,
-              positiveText: t("ok"),
-            });
+              positiveText: t('ok'),
+            })
           } else {
-            throw error;
+            throw error
           }
         }
       },
       onNegativeClick: () => {
-        resolve();
+        resolve()
       },
-    });
-  });
+    })
+  })
 }
 
 // Expose for testing
 defineExpose({
   confirmDelete,
-});
+})
 </script>
 
 <style scoped>

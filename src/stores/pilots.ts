@@ -1,11 +1,11 @@
-import { defineStore } from "pinia";
-import { Ok, Result } from "ts-results";
-import { useRootStore } from "./root";
-import type { APIResponse, Errors } from "@/stores/types";
-import { ignoreResponseBodyOrThrowError, loadResponseBodyOrReturnErrors } from "@/stores/utils";
+import { defineStore } from 'pinia'
+import { Ok, Result } from 'ts-results'
+import { useRootStore } from './root'
+import type { APIResponse, Errors } from '@/stores/types'
+import { ignoreResponseBodyOrThrowError, loadResponseBodyOrReturnErrors } from '@/stores/utils'
 
-export const usePilotsStore = defineStore("pilots", () => {
-  const rootStore = useRootStore();
+export const usePilotsStore = defineStore('pilots', () => {
+  const rootStore = useRootStore()
 
   /**
    * Merges two pilots, copying all Passes from the "prey" to the "predator" and then deleting the
@@ -18,14 +18,14 @@ export const usePilotsStore = defineStore("pilots", () => {
     predator,
     prey,
   }: {
-    predator: string;
-    prey: string;
+    predator: string
+    prey: string
   }): Promise<void> {
     const result: APIResponse<void> = await rootStore.requestJSON({
-      method: "post",
+      method: 'post',
       path: `/squadron/pilots/${predator}/merge.json?other=${prey}`,
-    });
-    return ignoreResponseBodyOrThrowError(result);
+    })
+    return ignoreResponseBodyOrThrowError(result)
   }
 
   /**
@@ -35,10 +35,10 @@ export const usePilotsStore = defineStore("pilots", () => {
    */
   async function deletePilot({ pilot }: { pilot: string }): Promise<void> {
     const result: APIResponse<void> = await rootStore.requestJSON({
-      method: "delete",
+      method: 'delete',
       path: `/squadron/pilots/${pilot}`,
-    });
-    return ignoreResponseBodyOrThrowError(result);
+    })
+    return ignoreResponseBodyOrThrowError(result)
   }
 
   /**
@@ -52,26 +52,26 @@ export const usePilotsStore = defineStore("pilots", () => {
     oldName,
     newName,
   }: {
-    oldName: string;
-    newName: string;
+    oldName: string
+    newName: string
   }): Promise<Result<void, Errors>> {
     const result: APIResponse<void> = await rootStore.requestJSON({
-      method: "put",
+      method: 'put',
       path: `/squadron/pilots/${encodeURIComponent(oldName)}.json`,
       body: { name: newName },
-    });
-    const bodyResult = await loadResponseBodyOrReturnErrors(result);
+    })
+    const bodyResult = await loadResponseBodyOrReturnErrors(result)
     if (bodyResult.ok) {
       // Note: Original had RENAME_PILOT mutation, but it's not clear what it did
       // May need to update squadron data after rename
-      return new Ok(undefined);
+      return new Ok(undefined)
     }
-    return bodyResult;
+    return bodyResult
   }
 
   return {
     mergePilots,
     deletePilot,
     renamePilot,
-  };
-});
+  }
+})

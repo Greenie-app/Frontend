@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { NSpin, NFlex } from "naive-ui";
+import { NSpin, NFlex } from 'naive-ui'
 
 /** Renders a more-or-less full-page spinner. */
 </script>

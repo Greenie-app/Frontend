@@ -19,79 +19,79 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { NModal } from "naive-ui";
-import { cloneDeep, isString } from "lodash-es";
-import { useFormErrors } from "@/composables/useFormErrors";
-import { usePassesStore } from "@/stores/passes";
-import { Pass } from "@/types";
-import PassForm from "@/views/board/squadronBoard/modals/Form.vue";
+import { ref, watch } from 'vue'
+import { NModal } from 'naive-ui'
+import { cloneDeep, isString } from 'lodash-es'
+import { useFormErrors } from '@/composables/useFormErrors'
+import { usePassesStore } from '@/stores/passes'
+import { Pass } from '@/types'
+import PassForm from '@/views/board/squadronBoard/modals/Form.vue'
 
 interface Props {
-  pass: Pass;
+  pass: Pass
 }
 
-const props = defineProps<Props>();
-const showModal = defineModel<boolean>("show", { default: false });
+const props = defineProps<Props>()
+const showModal = defineModel<boolean>('show', { default: false })
 
-const passesStore = usePassesStore();
-const { formError, formErrors, resetErrors } = useFormErrors();
+const passesStore = usePassesStore()
+const { formError, formErrors, resetErrors } = useFormErrors()
 
-const formRef = ref<InstanceType<typeof PassForm> | null>(null);
-const draftPass = ref<Pass>(cloneDeep(props.pass));
-const busy = ref(false);
+const formRef = ref<InstanceType<typeof PassForm> | null>(null)
+const draftPass = ref<Pass>(cloneDeep(props.pass))
+const busy = ref(false)
 
 watch(
   () => showModal.value,
   (isOpen) => {
     if (isOpen) {
-      draftPass.value = cloneDeep(props.pass);
-      resetErrors();
+      draftPass.value = cloneDeep(props.pass)
+      resetErrors()
     }
   },
-);
+)
 
 async function onSubmit(pass: Pass): Promise<void> {
-  resetErrors();
-  busy.value = true;
+  resetErrors()
+  busy.value = true
 
   try {
-    const result = await passesStore.updatePass({ pass });
+    const result = await passesStore.updatePass({ pass })
     if (result.ok) {
-      showModal.value = false;
+      showModal.value = false
     } else {
-      formErrors.value = result.val;
+      formErrors.value = result.val
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      formError.value = error.message;
+      formError.value = error.message
     } else if (isString(error)) {
-      formError.value = error;
+      formError.value = error
     } else {
-      throw error;
+      throw error
     }
   } finally {
-    busy.value = false;
+    busy.value = false
   }
 }
 
 async function onDelete(): Promise<void> {
-  resetErrors();
-  busy.value = true;
+  resetErrors()
+  busy.value = true
 
   try {
-    await passesStore.deletePass({ pass: props.pass });
-    showModal.value = false;
+    await passesStore.deletePass({ pass: props.pass })
+    showModal.value = false
   } catch (error: unknown) {
     if (error instanceof Error) {
-      formError.value = error.message;
+      formError.value = error.message
     } else if (isString(error)) {
-      formError.value = error;
+      formError.value = error
     } else {
-      throw error;
+      throw error
     }
   } finally {
-    busy.value = false;
+    busy.value = false
   }
 }
 </script>

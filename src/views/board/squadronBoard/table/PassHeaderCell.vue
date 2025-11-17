@@ -20,37 +20,37 @@
       </router-link>
     </n-text>
 
-    <n-text tag="p" strong v-else>{{ $t("unknownPilot") }}</n-text>
+    <n-text tag="p" strong v-else>{{ $t('unknownPilot') }}</n-text>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-import { isNull } from "lodash-es";
-import { NText } from "naive-ui";
-import { scoreFilter } from "@/config/filters";
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { isNull } from 'lodash-es'
+import { NText } from 'naive-ui'
+import { scoreFilter } from '@/config/filters'
 
 interface Props {
-  pilot: string | null;
-  average: number | null;
+  pilot: string | null
+  average: number | null
 }
 
-const props = defineProps<Props>();
-const route = useRoute();
+const props = defineProps<Props>()
+const route = useRoute()
 
-const isUnknownPilot = computed(() => isNull(props.pilot));
-const hasAverage = computed(() => !isNull(props.average));
+const isUnknownPilot = computed(() => isNull(props.pilot))
+const hasAverage = computed(() => !isNull(props.average))
 
 // Build route with date range query parameters preserved
 const pilotBoardRoute = computed(() => ({
-  name: "PilotBoard",
+  name: 'PilotBoard',
   params: { squadron: route.params.squadron, pilot: props.pilot },
   query: {
     from: route.query.from,
     to: route.query.to,
   },
-}));
+}))
 </script>
 
 <style scoped>

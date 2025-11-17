@@ -1,5 +1,5 @@
-import { isNull } from "lodash-es";
-import { Grade, Pass } from "@/types";
+import { isNull } from 'lodash-es'
+import { Grade, Pass } from '@/types'
 
 /**
  * Returns the Bootstrap variant to use for elements to associate them with a score.
@@ -8,8 +8,8 @@ import { Grade, Pass } from "@/types";
  * @return A value for the Bootstrap-Vue "variant" attribute.
  */
 export function variant(pass: Pass): string | null {
-  if (isNull(pass.score) || pass.grade === Grade.Bolter) return null;
-  if (pass.score >= 4) return "success";
-  if (pass.score >= 2) return "warning";
-  return "danger";
+  if (isNull(pass.score) || pass.grade === Grade.Bolter) return null
+  if (pass.score >= 4) return 'success'
+  if (pass.score >= 2) return 'warning'
+  return 'danger'
 }

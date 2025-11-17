@@ -1,89 +1,89 @@
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon'
 
 interface Image {
-  url: string;
+  url: string
 }
 
 export interface Squadron {
-  ID: number;
-  name: string;
-  username: string;
-  email: string;
-  createdAt: DateTime;
-  updatedAt: DateTime;
-  image: Image | null;
-  isEditable: boolean;
-  unknownPassCount: number;
+  ID: number
+  name: string
+  username: string
+  email: string
+  createdAt: DateTime
+  updatedAt: DateTime
+  image: Image | null
+  isEditable: boolean
+  unknownPassCount: number
 }
 
 export enum Grade {
-  Cut = "cut",
-  NoGrade = "no_grade",
-  Bolter = "bolter",
-  Fair = "fair",
-  OK = "ok",
-  Perfect = "perfect",
-  TechniqueWaveoff = "technique_waveoff",
-  FoulDeckWaveoff = "foul_deck_waveoff",
-  PatternWaveoff = "pattern_waveoff",
-  OwnWaveoff = "own_waveoff",
+  Cut = 'cut',
+  NoGrade = 'no_grade',
+  Bolter = 'bolter',
+  Fair = 'fair',
+  OK = 'ok',
+  Perfect = 'perfect',
+  TechniqueWaveoff = 'technique_waveoff',
+  FoulDeckWaveoff = 'foul_deck_waveoff',
+  PatternWaveoff = 'pattern_waveoff',
+  OwnWaveoff = 'own_waveoff',
 }
 
 export interface Pass {
-  ID: number;
-  pilot: string | null;
-  time: DateTime;
-  shipName: string | null;
-  aircraftType: string | null;
-  grade: Grade | null;
-  score: number | null;
-  trap: boolean | null;
-  wire: number | null;
-  notes: string | null;
+  ID: number
+  pilot: string | null
+  time: DateTime
+  shipName: string | null
+  aircraftType: string | null
+  grade: Grade | null
+  score: number | null
+  trap: boolean | null
+  wire: number | null
+  notes: string | null
 }
 
 export interface AttachedFile {
-  filename: string;
-  byteSize: number;
+  filename: string
+  byteSize: number
 }
 
 export enum LogfileState {
-  Pending = "pending",
-  InProgress = "in_progress",
-  Complete = "complete",
-  Failed = "failed",
+  Pending = 'pending',
+  InProgress = 'in_progress',
+  Complete = 'complete',
+  Failed = 'failed',
 }
 
 export interface Logfile {
-  ID: number;
-  files: AttachedFile[];
-  state: LogfileState;
-  progress: number;
-  createdAt: DateTime;
+  ID: number
+  files: AttachedFile[]
+  state: LogfileState
+  progress: number
+  createdAt: DateTime
 }
 
 export interface ErrorStatistic {
-  code: string;
-  description: string | null;
-  score: number;
-  count: number;
+  code: string
+  description: string | null
+  score: number
+  count: number
 }
 
 export interface PhaseErrorStatistics {
-  phaseDescription: string;
-  errors: ErrorStatistic[];
+  phaseDescription: string
+  errors: ErrorStatistic[]
 }
 
 export interface ErrorStatistics {
-  overall: ErrorStatistic[];
-  byPhase: Record<string, PhaseErrorStatistics>;
+  overall: ErrorStatistic[]
+  byPhase: Record<string, PhaseErrorStatistics>
 }
 
 export interface PilotData {
   pilot: {
-    name: string;
-  };
-  passes: Pass[];
-  boardingRate: number;
-  errorStatistics: ErrorStatistics;
+    name: string
+  }
+  passes: Pass[]
+  boardingRate: number
+  errorStatistics: ErrorStatistics
 }

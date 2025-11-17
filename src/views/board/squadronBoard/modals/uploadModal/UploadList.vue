@@ -13,29 +13,29 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted } from "vue";
-import { NAlert, NSpin, NSpace } from "naive-ui";
-import { isNull } from "lodash-es";
-import { useMySquadronStore } from "@/stores/mySquadron";
-import { useLogfilesStore } from "@/stores/logfiles";
-import Upload from "@/views/board/squadronBoard/modals/uploadModal/Upload.vue";
+import { watch, onMounted } from 'vue'
+import { NAlert, NSpin, NSpace } from 'naive-ui'
+import { isNull } from 'lodash-es'
+import { useMySquadronStore } from '@/stores/mySquadron'
+import { useLogfilesStore } from '@/stores/logfiles'
+import Upload from '@/views/board/squadronBoard/modals/uploadModal/Upload.vue'
 
-const mySquadronStore = useMySquadronStore();
-const logfilesStore = useLogfilesStore();
+const mySquadronStore = useMySquadronStore()
+const logfilesStore = useLogfilesStore()
 
 function onSquadronChanged(): void {
   if (isNull(mySquadronStore.mySquadron)) {
-    logfilesStore.resetLogfiles();
+    logfilesStore.resetLogfiles()
   } else {
-    logfilesStore.loadLogfiles();
+    logfilesStore.loadLogfiles()
   }
 }
 
-watch(() => mySquadronStore.mySquadron, onSquadronChanged);
+watch(() => mySquadronStore.mySquadron, onSquadronChanged)
 
 onMounted(() => {
-  onSquadronChanged();
-});
+  onSquadronChanged()
+})
 </script>
 
 <style scoped>

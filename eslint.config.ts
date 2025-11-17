@@ -1,19 +1,22 @@
+import { globalIgnores } from 'eslint/config'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
 import pluginVitest from '@vitest/eslint-plugin'
 import pluginCypress from 'eslint-plugin-cypress'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 
+// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
+// import { configureVueProject } from '@vue/eslint-config-typescript'
+// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
+// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
+
 export default defineConfigWithVueTs(
   {
     name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue,js,cjs}'],
+    files: ['**/*.{ts,mts,tsx,vue}'],
   },
 
-  {
-    name: 'app/files-to-ignore',
-    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', '**/.yarn/**', '**/docs/**'],
-  },
+  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
 
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
@@ -21,8 +24,6 @@ export default defineConfigWithVueTs(
   {
     name: 'app/custom-rules',
     rules: {
-      'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -31,23 +32,18 @@ export default defineConfigWithVueTs(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-      '@typescript-eslint/no-explicit-any': 'off',
-      'no-useless-catch': 'off',
       'vue/multi-word-component-names': 'off',
-      'vue/script-indent': ['error', 2, { baseIndent: 1 }],
-      indent: 'off',
     },
   },
 
   {
-    name: 'app/vitest-tests',
     ...pluginVitest.configs.recommended,
-    files: ['tests/unit/**/*'],
+    files: ['src/**/__tests__/*'],
   },
 
   {
     name: 'app/cypress-tests',
-    files: ['tests/e2e/**/*.js', 'cypress/**/*.js'],
+    files: ['tests/e2e/**/*.{js,ts}', 'cypress/**/*.{js,ts}'],
     plugins: {
       cypress: pluginCypress,
     },

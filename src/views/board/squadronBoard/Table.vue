@@ -19,28 +19,28 @@
 </template>
 
 <script setup lang="ts">
-import { isEmpty, isNull, sumBy } from "lodash-es";
-import { usePassesStore } from "@/stores/passes";
-import { Pass } from "@/types";
-import PassHeaderCell from "@/views/board/squadronBoard/table/PassHeaderCell.vue";
-import PassCell from "@/views/board/squadronBoard/table/PassCell.vue";
+import { isEmpty, isNull, sumBy } from 'lodash-es'
+import { usePassesStore } from '@/stores/passes'
+import { Pass } from '@/types'
+import PassHeaderCell from '@/views/board/squadronBoard/table/PassHeaderCell.vue'
+import PassCell from '@/views/board/squadronBoard/table/PassCell.vue'
 
-const passesStore = usePassesStore();
+const passesStore = usePassesStore()
 
 function average(pilot: string | null, passes: Pass[]): number | null {
-  if (isNull(pilot)) return null;
-  const scoredPasses = passes.filter((p) => !isNull(p.score));
-  if (isEmpty(scoredPasses)) return null;
-  return sumBy(scoredPasses, (p) => p.score!) / scoredPasses.length;
+  if (isNull(pilot)) return null
+  const scoredPasses = passes.filter((p) => !isNull(p.score))
+  if (isEmpty(scoredPasses)) return null
+  return sumBy(scoredPasses, (p) => p.score!) / scoredPasses.length
 }
 
 function dataCy(pilot: string | null): string {
-  return isNull(pilot) ? "unknown" : pilot.replace(/\s+/g, "");
+  return isNull(pilot) ? 'unknown' : pilot.replace(/\s+/g, '')
 }
 
 defineExpose({
   average,
-});
+})
 </script>
 
 <style scoped>

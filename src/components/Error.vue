@@ -5,11 +5,11 @@
 </template>
 
 <script setup lang="ts">
-import { NAlert } from "naive-ui";
+import { NAlert } from 'naive-ui'
 
 interface Props {
-  error: string;
+  error: string
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>

@@ -21,7 +21,7 @@
                 </svg>
               </n-icon>
               <n-text :depth="1">
-                {{ $t("uploadModal.placeholder") }}
+                {{ $t('uploadModal.placeholder') }}
               </n-text>
             </n-space>
           </n-upload-dragger>
@@ -32,7 +32,7 @@
         <n-button :disabled="busy" attr-type="submit" type="primary" data-cy="uploadSubmit">
           <n-spin v-if="busy" size="small" />
           <template v-else>
-            {{ $t("uploadModal.uploadButton") }}
+            {{ $t('uploadModal.uploadButton') }}
           </template>
         </n-button>
       </n-space>
@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed } from 'vue'
 import {
   NForm,
   NFormItem,
@@ -59,59 +59,59 @@ import {
   NText,
   type FormInst,
   type UploadFileInfo,
-} from "naive-ui";
-import { isString, isNull, has } from "lodash-es";
-import { useFormErrors } from "@/composables/useFormErrors";
-import { useLogfilesStore } from "@/stores/logfiles";
+} from 'naive-ui'
+import { isString, isNull, has } from 'lodash-es'
+import { useFormErrors } from '@/composables/useFormErrors'
+import { useLogfilesStore } from '@/stores/logfiles'
 
-const logfilesStore = useLogfilesStore();
-const { formError, formErrors, resetErrors } = useFormErrors();
+const logfilesStore = useLogfilesStore()
+const { formError, formErrors, resetErrors } = useFormErrors()
 
-const formRef = ref<FormInst>();
-const files = ref<UploadFileInfo[]>([]);
-const busy = ref(false);
+const formRef = ref<FormInst>()
+const files = ref<UploadFileInfo[]>([])
+const busy = ref(false)
 
-const hasError = computed(() => !isNull(formErrors.value) && has(formErrors.value, "files"));
+const hasError = computed(() => !isNull(formErrors.value) && has(formErrors.value, 'files'))
 const fieldErrors = computed((): string[] => {
-  if (!hasError.value) return [];
-  return formErrors.value!["files"] || [];
-});
+  if (!hasError.value) return []
+  return formErrors.value!['files'] || []
+})
 
 async function onSubmit(): Promise<void> {
-  if (!formRef.value) return;
+  if (!formRef.value) return
 
-  resetErrors();
-  busy.value = true;
+  resetErrors()
+  busy.value = true
 
   try {
-    const formData = new FormData();
+    const formData = new FormData()
 
     if (!files.value || files.value.length === 0) {
-      formError.value = "Please select at least one file";
-      return;
+      formError.value = 'Please select at least one file'
+      return
     }
 
     // Append all files from the n-upload component
     files.value.forEach((fileInfo) => {
       if (fileInfo.file) {
-        formData.append("logfile[files][]", fileInfo.file);
+        formData.append('logfile[files][]', fileInfo.file)
       }
-    });
+    })
 
-    const result = await logfilesStore.uploadLogfiles({ body: formData });
+    const result = await logfilesStore.uploadLogfiles({ body: formData })
     if (!result.ok) {
-      formErrors.value = result.val;
+      formErrors.value = result.val
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      formError.value = error.message;
+      formError.value = error.message
     } else if (isString(error)) {
-      formError.value = error;
+      formError.value = error
     } else {
-      throw error;
+      throw error
     }
   } finally {
-    busy.value = false;
+    busy.value = false
   }
 }
 </script>

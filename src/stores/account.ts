@@ -1,19 +1,19 @@
-import { defineStore } from "pinia";
-import { Ok, Result } from "ts-results";
-import { useRootStore } from "./root";
-import { useAuthStore } from "./auth";
-import type { Errors } from "@/stores/types";
-import { squadronFromJSON, type SquadronJSONDown } from "@/stores/coding";
+import { defineStore } from 'pinia'
+import { Ok, Result } from 'ts-results'
+import { useRootStore } from './root'
+import { useAuthStore } from './auth'
+import type { Errors } from '@/stores/types'
+import { squadronFromJSON, type SquadronJSONDown } from '@/stores/coding'
 import {
   ignoreResponseBodyOrReturnErrors,
   ignoreResponseBodyOrThrowError,
   loadResponseBodyOrReturnErrors,
-} from "@/stores/utils";
-import type { Squadron } from "@/types";
+} from '@/stores/utils'
+import type { Squadron } from '@/types'
 
-export const useAccountStore = defineStore("account", () => {
-  const rootStore = useRootStore();
-  const authStore = useAuthStore();
+export const useAccountStore = defineStore('account', () => {
+  const rootStore = useRootStore()
+  const authStore = useAuthStore()
 
   /**
    * Creates a new squadron.
@@ -22,22 +22,22 @@ export const useAccountStore = defineStore("account", () => {
    */
   async function signUp({ body }: { body: FormData }): Promise<Result<Squadron, Errors>> {
     const result = await rootStore.requestJSON<SquadronJSONDown>({
-      method: "post",
-      path: "/squadrons.json",
+      method: 'post',
+      path: '/squadrons.json',
       body,
-    });
-    const signupBodyResult = await loadResponseBodyOrReturnErrors(result);
-    if (!signupBodyResult.ok) return signupBodyResult;
+    })
+    const signupBodyResult = await loadResponseBodyOrReturnErrors(result)
+    if (!signupBodyResult.ok) return signupBodyResult
 
     // Set JWT from response
     if (result.ok) {
-      const authorization = result.val.response.headers.get("Authorization");
+      const authorization = result.val.response.headers.get('Authorization')
       if (authorization && authorization.match(/^Bearer /)) {
-        authStore.setJWT(authorization.slice(7));
+        authStore.setJWT(authorization.slice(7))
       }
     }
 
-    return new Ok(squadronFromJSON(signupBodyResult.val));
+    return new Ok(squadronFromJSON(signupBodyResult.val))
   }
 
   /**
@@ -48,11 +48,11 @@ export const useAccountStore = defineStore("account", () => {
    */
   async function forgotPassword({ email }: { email: string }): Promise<Result<void, Errors>> {
     const response = await rootStore.request({
-      method: "post",
-      path: "/forgot_password.json",
+      method: 'post',
+      path: '/forgot_password.json',
       body: { squadron: { email } },
-    });
-    return ignoreResponseBodyOrReturnErrors(response);
+    })
+    return ignoreResponseBodyOrReturnErrors(response)
   }
 
   /**
@@ -68,13 +68,13 @@ export const useAccountStore = defineStore("account", () => {
     confirmation,
     token,
   }: {
-    password: string;
-    confirmation: string;
-    token: string;
+    password: string
+    confirmation: string
+    token: string
   }): Promise<Result<void, Errors>> {
     const response = await rootStore.request({
-      method: "PATCH",
-      path: "/forgot_password.json",
+      method: 'PATCH',
+      path: '/forgot_password.json',
       body: {
         squadron: {
           password,
@@ -82,8 +82,8 @@ export const useAccountStore = defineStore("account", () => {
           reset_password_token: token,
         },
       },
-    });
-    return ignoreResponseBodyOrReturnErrors(response);
+    })
+    return ignoreResponseBodyOrReturnErrors(response)
   }
 
   /**
@@ -99,13 +99,13 @@ export const useAccountStore = defineStore("account", () => {
     newPassword,
     confirmation,
   }: {
-    oldPassword: string;
-    newPassword: string;
-    confirmation: string;
+    oldPassword: string
+    newPassword: string
+    confirmation: string
   }): Promise<Result<void, Errors>> {
     const response = await rootStore.request({
-      method: "PATCH",
-      path: "/squadron/password.json",
+      method: 'PATCH',
+      path: '/squadron/password.json',
       body: {
         squadron: {
           current_password: oldPassword,
@@ -113,8 +113,8 @@ export const useAccountStore = defineStore("account", () => {
           password_confirmation: confirmation,
         },
       },
-    });
-    return ignoreResponseBodyOrReturnErrors(response);
+    })
+    return ignoreResponseBodyOrReturnErrors(response)
   }
 
   /**
@@ -122,12 +122,12 @@ export const useAccountStore = defineStore("account", () => {
    */
   async function deleteAccount(): Promise<void> {
     const result = await rootStore.requestJSON<void>({
-      method: "delete",
-      path: "/squadron.json",
-    });
-    await ignoreResponseBodyOrThrowError(result);
-    rootStore.resetSquadron();
-    authStore.resetAuth();
+      method: 'delete',
+      path: '/squadron.json',
+    })
+    await ignoreResponseBodyOrThrowError(result)
+    rootStore.resetSquadron()
+    authStore.resetAuth()
   }
 
   return {
@@ -136,5 +136,5 @@ export const useAccountStore = defineStore("account", () => {
     resetPassword,
     changePassword,
     deleteAccount,
-  };
-});
+  }
+})

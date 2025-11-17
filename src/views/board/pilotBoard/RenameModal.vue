@@ -22,7 +22,7 @@
           <n-button data-cy="renameSubmit" :disabled="busy" attr-type="submit" type="primary">
             <n-spin v-if="busy" size="small" />
             <template v-else>
-              {{ $t("pilotBoard.renameModal.submit") }}
+              {{ $t('pilotBoard.renameModal.submit') }}
             </template>
           </n-button>
         </n-space>
@@ -36,56 +36,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { NModal, NForm, NSpace, NButton, NSpin, NAlert } from "naive-ui";
-import { isString } from "lodash-es";
-import FieldWithErrors from "@/components/FieldWithErrors.vue";
-import { useFormErrors } from "@/composables/useFormErrors";
-import { usePilotsStore } from "@/stores/pilots";
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { NModal, NForm, NSpace, NButton, NSpin, NAlert } from 'naive-ui'
+import { isString } from 'lodash-es'
+import FieldWithErrors from '@/components/FieldWithErrors.vue'
+import { useFormErrors } from '@/composables/useFormErrors'
+import { usePilotsStore } from '@/stores/pilots'
 
 interface Props {
-  pilot: string;
+  pilot: string
 }
 
-const props = defineProps<Props>();
-const showModal = defineModel<boolean>("show", { default: false });
+const props = defineProps<Props>()
+const showModal = defineModel<boolean>('show', { default: false })
 
-const router = useRouter();
-const route = useRoute();
-const pilotsStore = usePilotsStore();
-const { formError, formErrors, resetErrors } = useFormErrors();
+const router = useRouter()
+const route = useRoute()
+const pilotsStore = usePilotsStore()
+const { formError, formErrors, resetErrors } = useFormErrors()
 
-const newName = ref("");
-const busy = ref(false);
+const newName = ref('')
+const busy = ref(false)
 
 async function onSubmit(): Promise<void> {
-  resetErrors();
-  busy.value = true;
+  resetErrors()
+  busy.value = true
 
   try {
-    const result = await pilotsStore.renamePilot({ oldName: props.pilot, newName: newName.value });
+    const result = await pilotsStore.renamePilot({ oldName: props.pilot, newName: newName.value })
     if (result.ok) {
       await router.push({
-        name: "PilotBoard",
+        name: 'PilotBoard',
         params: { squadron: route.params.squadron, pilot: newName.value },
         query: route.query,
-      });
-      showModal.value = false;
-      newName.value = "";
+      })
+      showModal.value = false
+      newName.value = ''
     } else {
-      formErrors.value = result.val;
+      formErrors.value = result.val
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      formError.value = error.message;
+      formError.value = error.message
     } else if (isString(error)) {
-      formError.value = error;
+      formError.value = error
     } else {
-      throw error;
+      throw error
     }
   } finally {
-    busy.value = false;
+    busy.value = false
   }
 }
 </script>

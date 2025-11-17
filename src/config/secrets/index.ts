@@ -1,20 +1,20 @@
 /// <reference types="vite/client" />
 
-import { default as prodSecrets } from "@/config/secrets/secrets.production";
-import { default as devSecrets } from "@/config/secrets/secrets.development";
-import { default as testSecrets } from "@/config/secrets/secrets.test";
-import { Secrets } from "@/config/secrets/type";
+import { default as prodSecrets } from '@/config/secrets/secrets.production'
+import { default as devSecrets } from '@/config/secrets/secrets.development'
+import { default as testSecrets } from '@/config/secrets/secrets.test'
+import { Secrets } from '@/config/secrets/type'
 
-let secrets: Secrets;
+let secrets: Secrets
 switch (import.meta.env.MODE) {
-  case "production":
-    secrets = prodSecrets;
-    break;
-  case "test":
-    secrets = testSecrets;
-    break;
+  case 'production':
+    secrets = prodSecrets
+    break
+  case 'test':
+    secrets = testSecrets
+    break
   default:
-    secrets = devSecrets;
-    break;
+    secrets = devSecrets
+    break
 }
-export default secrets;
+export default secrets

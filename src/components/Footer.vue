@@ -1,16 +1,16 @@
 <template>
   <n-layout-footer class="footer">
     <n-space justify="center">
-      <span>{{ $t("footer.copyright") }} </span>
+      <span>{{ $t('footer.copyright') }} </span>
       <a href="https://github.com/Greenie-app" rel="noopener" target="_blank">
-        {{ $t("footer.contributeLink") }}
+        {{ $t('footer.contributeLink') }}
       </a>
     </n-space>
   </n-layout-footer>
 </template>
 
 <script setup lang="ts">
-import { NLayoutFooter, NSpace } from "naive-ui";
+import { NLayoutFooter, NSpace } from 'naive-ui'
 </script>
 
 <style lang="scss" scoped>

@@ -13,31 +13,31 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted } from "vue";
-import { NConfigProvider, NDialogProvider, NLayout, NLayoutContent } from "naive-ui";
-import { useAuthStore } from "@/stores/auth";
-import { useMySquadronStore } from "@/stores/mySquadron";
-import Navbar from "@/components/Navbar.vue";
-import FooterView from "@/components/Footer.vue";
+import { watch, onMounted } from 'vue'
+import { NConfigProvider, NDialogProvider, NLayout, NLayoutContent } from 'naive-ui'
+import { useAuthStore } from '@/stores/auth'
+import { useMySquadronStore } from '@/stores/mySquadron'
+import Navbar from '@/components/Navbar.vue'
+import FooterView from '@/components/Footer.vue'
 
-const authStore = useAuthStore();
-const mySquadronStore = useMySquadronStore();
+const authStore = useAuthStore()
+const mySquadronStore = useMySquadronStore()
 
 const themeOverrides = {
   common: {
-    primaryColor: "#007bff",
+    primaryColor: '#007bff',
   },
-};
+}
 
 function handleUsernameChanged(): void {
   if (mySquadronStore.mySquadron?.username !== authStore.currentUsername) {
-    mySquadronStore.loadMySquadron();
+    mySquadronStore.loadMySquadron()
   }
 }
 
-watch(() => authStore.currentUsername, handleUsernameChanged);
+watch(() => authStore.currentUsername, handleUsernameChanged)
 
-onMounted(handleUsernameChanged);
+onMounted(handleUsernameChanged)
 </script>
 
 <style lang="scss" scoped>

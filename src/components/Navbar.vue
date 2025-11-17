@@ -24,82 +24,82 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { NSpace, NMenu, type MenuOption } from "naive-ui";
-import { useI18n } from "vue-i18n";
-import { useAuthStore } from "@/stores/auth";
-import { useMySquadronStore } from "@/stores/mySquadron";
+import { computed, h } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { NSpace, NMenu, type MenuOption } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/stores/auth'
+import { useMySquadronStore } from '@/stores/mySquadron'
 
-const router = useRouter();
-const route = useRoute();
-const { t } = useI18n();
-const authStore = useAuthStore();
-const mySquadronStore = useMySquadronStore();
+const router = useRouter()
+const route = useRoute()
+const { t } = useI18n()
+const authStore = useAuthStore()
+const mySquadronStore = useMySquadronStore()
 
-const mySquadron = computed(() => mySquadronStore.mySquadron);
-const loggedIn = computed(() => authStore.loggedIn);
+const mySquadron = computed(() => mySquadronStore.mySquadron)
+const loggedIn = computed(() => authStore.loggedIn)
 
 const menuOptions = computed((): MenuOption[] => {
-  const options: MenuOption[] = [];
+  const options: MenuOption[] = []
 
   if (!loggedIn.value) {
     options.push({
-      label: () => h("span", { "data-cy": "logInLink" }, t("navbar.logIn")),
-      key: "login",
-    });
+      label: () => h('span', { 'data-cy': 'logInLink' }, t('navbar.logIn')),
+      key: 'login',
+    })
   } else {
     options.push({
-      label: () => h("span", { "data-cy": "editSquadronLink" }, t("navbar.editSquadron")),
-      key: "editSquadron",
-    });
+      label: () => h('span', { 'data-cy': 'editSquadronLink' }, t('navbar.editSquadron')),
+      key: 'editSquadron',
+    })
     options.push({
-      label: () => h("span", { "data-cy": "changePasswordLink" }, t("navbar.changePassword")),
-      key: "changePassword",
-    });
+      label: () => h('span', { 'data-cy': 'changePasswordLink' }, t('navbar.changePassword')),
+      key: 'changePassword',
+    })
     options.push({
-      label: () => h("span", { "data-cy": "logOutLink" }, t("navbar.logOut")),
-      key: "logout",
-    });
+      label: () => h('span', { 'data-cy': 'logOutLink' }, t('navbar.logOut')),
+      key: 'logout',
+    })
   }
 
-  return options;
-});
+  return options
+})
 
 function goHome(): void {
-  if (route.name !== "Home") {
-    router.push({ name: "Home" });
+  if (route.name !== 'Home') {
+    router.push({ name: 'Home' })
   }
 }
 
 function goToSquadronBoard(): void {
   if (mySquadron.value?.username) {
     router.push({
-      name: "SquadronBoard",
+      name: 'SquadronBoard',
       params: { squadron: mySquadron.value.username },
-    });
+    })
   }
 }
 
 async function logOutClicked(): Promise<void> {
-  await authStore.logOut();
-  goHome();
+  await authStore.logOut()
+  goHome()
 }
 
 function handleMenuSelect(key: string): void {
   switch (key) {
-    case "login":
-      router.push({ name: "LogIn" });
-      break;
-    case "editSquadron":
-      router.push({ name: "EditSquadron", query: route.query });
-      break;
-    case "changePassword":
-      router.push({ name: "ChangePassword", query: route.query });
-      break;
-    case "logout":
-      logOutClicked();
-      break;
+    case 'login':
+      router.push({ name: 'LogIn' })
+      break
+    case 'editSquadron':
+      router.push({ name: 'EditSquadron', query: route.query })
+      break
+    case 'changePassword':
+      router.push({ name: 'ChangePassword', query: route.query })
+      break
+    case 'logout':
+      logOutClicked()
+      break
   }
 }
 </script>

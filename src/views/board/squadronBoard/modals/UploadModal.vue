@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { NModal, NDivider } from "naive-ui";
-import UploadForm from "@/views/board/squadronBoard/modals/uploadModal/UploadForm.vue";
-import UploadList from "@/views/board/squadronBoard/modals/uploadModal/UploadList.vue";
+import { NModal, NDivider } from 'naive-ui'
+import UploadForm from '@/views/board/squadronBoard/modals/uploadModal/UploadForm.vue'
+import UploadList from '@/views/board/squadronBoard/modals/uploadModal/UploadList.vue'
 
-const showModal = defineModel<boolean>("show", { default: false });
+const showModal = defineModel<boolean>('show', { default: false })
 </script>

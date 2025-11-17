@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p v-if="hasBoardingRate">{{ $t("squadronBoard.boardingRate", [boardingRate]) }}</p>
+    <p v-if="hasBoardingRate">{{ $t('squadronBoard.boardingRate', [boardingRate]) }}</p>
     <n-data-table
       :columns="columns"
       :data="passes"
@@ -23,117 +23,117 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, h } from "vue";
-import { useI18n } from "vue-i18n";
-import { NDataTable, NButton, NModal } from "naive-ui";
-import { isEmpty, isNull } from "lodash-es";
-import { DateTime } from "luxon";
-import numeral from "numeral";
-import type { DataTableColumns } from "naive-ui";
-import { variant } from "@/config/utils";
-import { scoreFilter } from "@/config/filters";
-import { Pass, Squadron } from "@/types";
-import { usePilotDataStore } from "@/stores/pilotData";
+import { computed, ref, h } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { NDataTable, NButton, NModal } from 'naive-ui'
+import { isEmpty, isNull } from 'lodash-es'
+import { DateTime } from 'luxon'
+import numeral from 'numeral'
+import type { DataTableColumns } from 'naive-ui'
+import { variant } from '@/config/utils'
+import { scoreFilter } from '@/config/filters'
+import { Pass, Squadron } from '@/types'
+import { usePilotDataStore } from '@/stores/pilotData'
 
 interface Props {
-  squadron: Squadron;
-  pilot: string;
+  squadron: Squadron
+  pilot: string
 }
 
-defineProps<Props>();
-const { t } = useI18n();
-const pilotDataStore = usePilotDataStore();
+defineProps<Props>()
+const { t } = useI18n()
+const pilotDataStore = usePilotDataStore()
 
-const passes = computed(() => pilotDataStore.pilotData?.passes || []);
+const passes = computed(() => pilotDataStore.pilotData?.passes || [])
 
-const hasBoardingRate = computed(() => !isEmpty(passes.value));
+const hasBoardingRate = computed(() => !isEmpty(passes.value))
 
 const boardingRate = computed(() => {
-  if (!pilotDataStore.pilotData) return "0.00";
-  return numeral(pilotDataStore.pilotData.boardingRate).format("0.00");
-});
+  if (!pilotDataStore.pilotData) return '0.00'
+  return numeral(pilotDataStore.pilotData.boardingRate).format('0.00')
+})
 
-const showNotesModal = ref(false);
-const selectedNotes = ref("");
+const showNotesModal = ref(false)
+const selectedNotes = ref('')
 
 function openNotesModal(notes: string | null) {
-  selectedNotes.value = notes || "";
-  showNotesModal.value = true;
+  selectedNotes.value = notes || ''
+  showNotesModal.value = true
 }
 
 function formatTime(time: DateTime): string {
   return time.toLocaleString({
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
     hour12: false,
-    timeZone: "UTC",
-  });
+    timeZone: 'UTC',
+  })
 }
 
 const columns = computed<DataTableColumns<Pass>>(() => [
   {
-    key: "time",
-    title: t("pilotBoard.tableHeaders.time"),
-    render: (row) => t("pilotBoard.zuluTime", { time: formatTime(row.time) }),
+    key: 'time',
+    title: t('pilotBoard.tableHeaders.time'),
+    render: (row) => t('pilotBoard.zuluTime', { time: formatTime(row.time) }),
   },
   {
-    key: "shipName",
-    title: t("pilotBoard.tableHeaders.shipName"),
+    key: 'shipName',
+    title: t('pilotBoard.tableHeaders.shipName'),
   },
   {
-    key: "aircraftType",
-    title: t("pilotBoard.tableHeaders.aircraftType"),
+    key: 'aircraftType',
+    title: t('pilotBoard.tableHeaders.aircraftType'),
   },
   {
-    key: "grade",
-    title: t("pilotBoard.tableHeaders.grade"),
-    render: (row) => (row.grade ? t(`pass.grade.${row.grade}`) : ""),
+    key: 'grade',
+    title: t('pilotBoard.tableHeaders.grade'),
+    render: (row) => (row.grade ? t(`pass.grade.${row.grade}`) : ''),
   },
   {
-    key: "score",
-    title: t("pilotBoard.tableHeaders.score"),
-    render: (row) => (row.score !== null ? scoreFilter(row.score) : ""),
+    key: 'score',
+    title: t('pilotBoard.tableHeaders.score'),
+    render: (row) => (row.score !== null ? scoreFilter(row.score) : ''),
   },
   {
-    key: "wire",
-    title: t("pilotBoard.tableHeaders.wire"),
+    key: 'wire',
+    title: t('pilotBoard.tableHeaders.wire'),
   },
   {
-    key: "notes",
-    title: t("pilotBoard.tableHeaders.notes"),
+    key: 'notes',
+    title: t('pilotBoard.tableHeaders.notes'),
     render: (row) =>
       row.notes
         ? h(
             NButton,
             {
               text: true,
-              type: "primary",
+              type: 'primary',
               onClick: () => openNotesModal(row.notes),
             },
-            { default: () => t("pilotBoard.showNotes") },
+            { default: () => t('pilotBoard.showNotes') },
           )
-        : "",
+        : '',
   },
-]);
+])
 
 function rowProps(row: Pass) {
-  const color = variant(row);
-  if (isNull(color)) return {};
+  const color = variant(row)
+  if (isNull(color)) return {}
 
   const colorMap: Record<string, string> = {
-    success: "#d4edda",
-    warning: "#fff3cd",
-    danger: "#f8d7da",
-  };
+    success: '#d4edda',
+    warning: '#fff3cd',
+    danger: '#f8d7da',
+  }
 
   return {
     style: {
-      backgroundColor: colorMap[color] || "transparent",
+      backgroundColor: colorMap[color] || 'transparent',
     },
-  };
+  }
 }
 </script>
 

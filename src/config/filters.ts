@@ -1,4 +1,4 @@
-import numeral from "numeral";
+import numeral from 'numeral'
 
 /**
  * Formats a number as a pass score.
@@ -7,5 +7,5 @@ import numeral from "numeral";
  * @return The rendered number.
  */
 export function scoreFilter(score: number): string {
-  return numeral(score).format("0.0");
+  return numeral(score).format('0.0')
 }

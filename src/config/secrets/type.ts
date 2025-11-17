@@ -1,4 +1,4 @@
 export interface Secrets {
-  APIURL: string;
-  actionCableURL: string;
+  APIURL: string
+  actionCableURL: string
 }

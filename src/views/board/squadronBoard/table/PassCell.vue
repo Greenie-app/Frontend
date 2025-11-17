@@ -27,67 +27,67 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { isNull } from "lodash-es";
-import { DateTime } from "luxon";
-import { NText, NFlex } from "naive-ui";
-import { Grade, Pass } from "@/types";
-import EditPassModal from "@/views/board/squadronBoard/modals/EditPassModal.vue";
-import { variant } from "@/config/utils";
-import { scoreFilter } from "@/config/filters";
-import { useAuthCheck } from "@/composables/useAuthCheck";
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { isNull } from 'lodash-es'
+import { DateTime } from 'luxon'
+import { NText, NFlex } from 'naive-ui'
+import { Grade, Pass } from '@/types'
+import EditPassModal from '@/views/board/squadronBoard/modals/EditPassModal.vue'
+import { variant } from '@/config/utils'
+import { scoreFilter } from '@/config/filters'
+import { useAuthCheck } from '@/composables/useAuthCheck'
 
 interface Props {
-  pass: Pass;
+  pass: Pass
 }
 
-const props = defineProps<Props>();
-const { t } = useI18n();
-const { isMySquadron } = useAuthCheck();
+const props = defineProps<Props>()
+const { t } = useI18n()
+const { isMySquadron } = useAuthCheck()
 
-const showEditModal = ref(false);
+const showEditModal = ref(false)
 
-const cellVariant = computed(() => variant(props.pass));
-const isUnscored = computed(() => isNull(cellVariant.value));
+const cellVariant = computed(() => variant(props.pass))
+const isUnscored = computed(() => isNull(cellVariant.value))
 
 const aircraftTypeClass = computed(() => {
-  const type = props.pass.aircraftType;
-  if (!type) return null;
+  const type = props.pass.aircraftType
+  if (!type) return null
 
   // All F-14 variants
-  if (type.startsWith("F-14")) return "f14";
+  if (type.startsWith('F-14')) return 'f14'
 
   // All F/A-18 variants
-  if (type.startsWith("FA-18")) return "f18";
+  if (type.startsWith('FA-18')) return 'f18'
 
   // Su-33 uses same silhouette as F-14 (single-seat carrier fighter)
-  if (type === "Su-33") return "f14";
+  if (type === 'Su-33') return 'f14'
 
   // Support aircraft don't have silhouettes
-  return null;
-});
+  return null
+})
 
 const grade = computed(() => {
-  if (isNull(props.pass.grade)) return "";
+  if (isNull(props.pass.grade)) return ''
 
-  const translated = t(`pass.grade.${props.pass.grade}`);
-  const matches = translated.match(/^_(.+)_$/);
-  if (matches) return matches[1];
-  return translated;
-});
+  const translated = t(`pass.grade.${props.pass.grade}`)
+  const matches = translated.match(/^_(.+)_$/)
+  if (matches) return matches[1]
+  return translated
+})
 
-const isPerfect = computed(() => !isNull(props.pass.grade) && props.pass.grade === Grade.Perfect);
+const isPerfect = computed(() => !isNull(props.pass.grade) && props.pass.grade === Grade.Perfect)
 
-const wireIfAny = computed(() => (isNull(props.pass.wire) ? "" : `-${props.pass.wire}`));
+const wireIfAny = computed(() => (isNull(props.pass.wire) ? '' : `-${props.pass.wire}`))
 
 function formatDate(date: DateTime): string {
-  return date.toLocaleString({ month: "2-digit", day: "2-digit" });
+  return date.toLocaleString({ month: '2-digit', day: '2-digit' })
 }
 
 function onClick(): void {
   if (isMySquadron) {
-    showEditModal.value = true;
+    showEditModal.value = true
   }
 }
 </script>
@@ -104,7 +104,7 @@ function onClick(): void {
 }
 
 .pass-cell::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background-position: center center;
@@ -115,11 +115,11 @@ function onClick(): void {
 }
 
 .f18::before {
-  background-image: url("../../../../assets/images/f18.png");
+  background-image: url('../../../../assets/images/f18.png');
 }
 
 .f14::before {
-  background-image: url("../../../../assets/images/f14.png");
+  background-image: url('../../../../assets/images/f14.png');
 }
 
 .date {

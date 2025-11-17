@@ -24,7 +24,7 @@
           accept="image/*"
           :input-props="{ id: 'squadron-image' }"
         >
-          <n-button>{{ $t("home.signUp.selectImage") }}</n-button>
+          <n-button>{{ $t('home.signUp.selectImage') }}</n-button>
         </n-upload>
       </n-form-item>
 
@@ -39,7 +39,7 @@
         autocomplete="username"
         v-model="squadron.username"
       >
-        <n-text depth="3" tag="p">{{ $t("home.signUp.help") }}</n-text>
+        <n-text depth="3" tag="p">{{ $t('home.signUp.help') }}</n-text>
       </field-with-errors>
 
       <field-with-errors
@@ -85,14 +85,14 @@
       </n-alert>
 
       <n-button data-cy="signUpSubmit" type="primary" attr-type="submit">
-        {{ $t("home.signUp.submitButton") }}
+        {{ $t('home.signUp.submitButton') }}
       </n-button>
     </n-space>
   </n-form>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch } from 'vue'
 import {
   type FormInst,
   NAlert,
@@ -103,65 +103,65 @@ import {
   NText,
   NUpload,
   type UploadFileInfo,
-} from "naive-ui";
-import slugify from "slugify";
-import { has, isNull, isString, isUndefined } from "lodash-es";
-import { useAccountStore } from "@/stores/account";
-import type { SquadronJSONUp } from "@/stores/coding";
-import { useFormErrors } from "@/composables/useFormErrors";
-import FieldWithErrors from "@/components/FieldWithErrors.vue";
+} from 'naive-ui'
+import slugify from 'slugify'
+import { has, isNull, isString, isUndefined } from 'lodash-es'
+import { useAccountStore } from '@/stores/account'
+import type { SquadronJSONUp } from '@/stores/coding'
+import { useFormErrors } from '@/composables/useFormErrors'
+import FieldWithErrors from '@/components/FieldWithErrors.vue'
 
-const formRef = ref<FormInst>();
+const formRef = ref<FormInst>()
 const squadron = ref<Partial<SquadronJSONUp>>({
-  name: "",
-  username: "",
-  email: "",
-  password: "",
-  password_confirmation: "",
-});
-const imageFiles = ref<UploadFileInfo[]>([]);
-const accountStore = useAccountStore();
-const { formErrors, formError, resetErrors } = useFormErrors();
+  name: '',
+  username: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+})
+const imageFiles = ref<UploadFileInfo[]>([])
+const accountStore = useAccountStore()
+const { formErrors, formError, resetErrors } = useFormErrors()
 
-const imageHasError = computed(() => !isNull(formErrors.value) && has(formErrors.value, "image"));
+const imageHasError = computed(() => !isNull(formErrors.value) && has(formErrors.value, 'image'))
 const imageFieldErrors = computed((): string[] => {
-  if (!imageHasError.value) return [];
-  return formErrors.value!["image"] || [];
-});
+  if (!imageHasError.value) return []
+  return formErrors.value!['image'] || []
+})
 
 async function onSubmit(): Promise<void> {
-  resetErrors();
+  resetErrors()
 
   try {
-    const formData = new FormData();
-    formData.append("squadron[name]", squadron.value.name || "");
-    formData.append("squadron[username]", squadron.value.username || "");
-    formData.append("squadron[email]", squadron.value.email || "");
-    formData.append("squadron[password]", squadron.value.password || "");
-    formData.append("squadron[password_confirmation]", squadron.value.password_confirmation || "");
+    const formData = new FormData()
+    formData.append('squadron[name]', squadron.value.name || '')
+    formData.append('squadron[username]', squadron.value.username || '')
+    formData.append('squadron[email]', squadron.value.email || '')
+    formData.append('squadron[password]', squadron.value.password || '')
+    formData.append('squadron[password_confirmation]', squadron.value.password_confirmation || '')
 
     // Get the uploaded file from imageFiles
-    const uploadedFile = imageFiles.value[0]?.file;
+    const uploadedFile = imageFiles.value[0]?.file
     if (uploadedFile) {
-      formData.append("squadron[image]", uploadedFile);
+      formData.append('squadron[image]', uploadedFile)
     }
 
-    const result = await accountStore.signUp({ body: formData });
+    const result = await accountStore.signUp({ body: formData })
     if (result.ok) {
       // await router.push({
       //   name: 'SquadronBoard',
       //   params: { squadron: result.val.username }
       // })
     } else {
-      formErrors.value = result.val;
+      formErrors.value = result.val
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      formError.value = error.message;
+      formError.value = error.message
     } else if (isString(error)) {
-      formError.value = error;
+      formError.value = error
     } else {
-      throw error;
+      throw error
     }
   }
 }
@@ -169,9 +169,9 @@ async function onSubmit(): Promise<void> {
 watch(
   () => squadron.value.name,
   (newName) => {
-    if (!isUndefined(newName) && newName !== "") {
-      squadron.value.username = slugify(newName).toLowerCase();
+    if (!isUndefined(newName) && newName !== '') {
+      squadron.value.username = slugify(newName).toLowerCase()
     }
   },
-);
+)
 </script>
