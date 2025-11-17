@@ -54,12 +54,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
 import { NSpace, NButton, NIcon, useDialog } from "naive-ui";
 import { AddOutline, CloudUploadOutline } from "@vicons/ionicons5";
 import { isNull } from "lodash-es";
 import numeral from "numeral";
+import { DateTime } from "luxon";
 import { useRootStore } from "@/stores/root";
 import { usePassesStore } from "@/stores/passes";
 import { useAuthCheck } from "@/composables/useAuthCheck";
@@ -73,9 +75,108 @@ import UploadModal from "@/views/board/squadronBoard/modals/UploadModal.vue";
 
 const { t } = useI18n();
 const dialog = useDialog();
+const route = useRoute();
+const router = useRouter();
 const rootStore = useRootStore();
 const passesStore = usePassesStore();
 const { isMySquadron } = useAuthCheck();
+
+// Parse date range from URL parameters
+function getDateRangeFromUrl(): { start: DateTime; end: DateTime } | null {
+  const fromParam = route.query.from as string | undefined;
+  const toParam = route.query.to as string | undefined;
+
+  if (fromParam && toParam) {
+    const start = DateTime.fromISO(fromParam);
+    const end = DateTime.fromISO(toParam);
+
+    if (start.isValid && end.isValid) {
+      return { start: start.startOf("day"), end: end.endOf("day") };
+    }
+  }
+  return null;
+}
+
+// Update URL with current date range
+function updateUrlWithDateRange(start: DateTime, end: DateTime) {
+  const fromDate = start.toISODate();
+  const toDate = end.toISODate();
+
+  if (fromDate && toDate) {
+    router.replace({
+      query: {
+        ...route.query,
+        from: fromDate,
+        to: toDate,
+      },
+    });
+  }
+}
+
+// Load passes when component mounts
+onMounted(() => {
+  // Check for URL parameters first
+  const urlDateRange = getDateRangeFromUrl();
+
+  // Update URL with current date range if no parameters were present
+  if (!urlDateRange) {
+    updateUrlWithDateRange(passesStore.startDate, passesStore.endDate);
+  }
+
+  // Skip auto-load in Cypress environment unless URL has explicit date parameters
+  // This allows tests to control data loading via nDateRange, but respects URL params on reload
+  if ((window as any).Cypress && !urlDateRange) {
+    return;
+  }
+
+  if (rootStore.squadron && !passesStore.passesLoaded && !passesStore.passesLoading) {
+    const dateRange = urlDateRange || {
+      start: passesStore.startDate,
+      end: passesStore.endDate,
+    };
+
+    passesStore.loadPasses({
+      squadron: rootStore.squadron.username,
+      dateRange,
+    });
+  }
+});
+
+// Watch for squadron changes to reload with current date range
+watch(
+  () => rootStore.squadron,
+  (squadron, oldSquadron) => {
+    // Skip auto-load in Cypress environment to allow tests to control data loading
+    if ((window as any).Cypress) {
+      return;
+    }
+
+    if (squadron && squadron !== oldSquadron && !passesStore.passesLoading) {
+      passesStore.loadPasses({
+        squadron: squadron.username,
+        dateRange: {
+          start: passesStore.startDate,
+          end: passesStore.endDate,
+        },
+      });
+    }
+  },
+);
+
+// Watch for store date changes to update URL
+watch(
+  () => [passesStore.startDate, passesStore.endDate],
+  ([newStart, newEnd]) => {
+    if (
+      newStart instanceof DateTime &&
+      newEnd instanceof DateTime &&
+      newStart.isValid &&
+      newEnd.isValid
+    ) {
+      updateUrlWithDateRange(newStart, newEnd);
+    }
+  },
+);
 
 const showAddPassModal = ref(false);
 const showUploadModal = ref(false);

@@ -3,10 +3,7 @@
     <i18n-t v-if="hasAverage" keypath="squadronBoard.pilotAndScore" tag="p" class="pilot-info">
       <template #name>
         <n-text tag="span" strong>
-          <router-link
-            :to="{ name: 'PilotBoard', params: { squadron: route.params.squadron, pilot } }"
-            data-cy="pilotBoardLink"
-          >
+          <router-link :to="pilotBoardRoute" data-cy="pilotBoardLink">
             {{ pilot }}
           </router-link>
         </n-text>
@@ -18,7 +15,7 @@
     </i18n-t>
 
     <n-text tag="p" strong class="pilot-info" v-else-if="!isUnknownPilot">
-      <router-link :to="{ name: 'PilotBoard', params: { squadron: route.params.squadron, pilot } }">
+      <router-link :to="pilotBoardRoute">
         {{ pilot }}
       </router-link>
     </n-text>
@@ -44,6 +41,16 @@ const route = useRoute();
 
 const isUnknownPilot = computed(() => isNull(props.pilot));
 const hasAverage = computed(() => !isNull(props.average));
+
+// Build route with date range query parameters preserved
+const pilotBoardRoute = computed(() => ({
+  name: "PilotBoard",
+  params: { squadron: route.params.squadron, pilot: props.pilot },
+  query: {
+    from: route.query.from,
+    to: route.query.to,
+  },
+}));
 </script>
 
 <style scoped>

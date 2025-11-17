@@ -69,6 +69,7 @@ async function onSubmit(): Promise<void> {
       await router.push({
         name: "PilotBoard",
         params: { squadron: route.params.squadron, pilot: newName.value },
+        query: route.query,
       });
       showModal.value = false;
       newName.value = "";

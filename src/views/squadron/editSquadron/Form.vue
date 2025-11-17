@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import {
   NForm,
   NFormItem,
@@ -81,6 +81,7 @@ import FieldWithErrors from "@/components/FieldWithErrors.vue";
 import DeleteModal from "@/views/squadron/editSquadron/DeleteModal.vue";
 
 const router = useRouter();
+const route = useRoute();
 const rootStore = useRootStore();
 const mySquadronStore = useMySquadronStore();
 const { formErrors, formError, resetErrors } = useFormErrors();
@@ -115,6 +116,7 @@ async function onSubmit(): Promise<void> {
       await router.push({
         name: "SquadronBoard",
         params: { squadron: result.val.username },
+        query: route.query,
       });
       await rootStore.loadSquadron({ username: result.val.username });
     } else {

@@ -6,6 +6,7 @@
           :to="{
             name: 'SquadronBoard',
             params: { squadron: mySquadronStore.mySquadron?.username },
+            query: { from: route.query.from, to: route.query.to },
           }"
         >
           {{ mySquadronStore.mySquadron?.name }}
@@ -41,7 +42,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDialog, NBreadcrumb, NBreadcrumbItem, NSpace, NButton, NDropdown } from "naive-ui";
 import RenameModal from "@/views/board/pilotBoard/RenameModal.vue";
@@ -57,6 +58,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 const dialog = useDialog();
 const mySquadronStore = useMySquadronStore();
@@ -96,6 +98,7 @@ async function confirmDelete(): Promise<void> {
           await router.push({
             name: "SquadronBoard",
             params: { squadron: mySquadronStore.mySquadron!.username },
+            query: { from: route.query.from, to: route.query.to },
           });
           resolve();
         } catch (error: unknown) {

@@ -5,14 +5,14 @@
       type="daterange"
       :shortcuts="shortcuts"
       :disabled="passesStore.passesLoading"
-      @update:value="handleDateRangeChange"
+      @confirm="handleDateRangeConfirm"
     />
     <slot name="actions" />
   </n-space>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
+import { ref, watch } from "vue";
 import { NDatePicker, NSpace } from "naive-ui";
 import { DateTime } from "luxon";
 import { usePassesStore } from "@/stores/passes";
@@ -22,51 +22,27 @@ import { isNull } from "lodash-es";
 const passesStore = usePassesStore();
 const rootStore = useRootStore();
 
-// Convert DateTime to timestamp for Naive UI
-const dateRange = computed({
-  get: () => {
-    // Check if dates exist and are DateTime instances
-    const start = passesStore.startDate;
-    const end = passesStore.endDate;
+// Local state for the date picker - separate from the store
+// This allows users to edit dates without triggering loads until they confirm
+const dateRange = ref<[number, number]>([
+  passesStore.startDate.toMillis(),
+  passesStore.endDate.toMillis(),
+]);
 
-    if (!start || !end) {
-      const now = DateTime.now();
-      return [now.minus({ weeks: 4 }).startOf("day").toMillis(), now.endOf("day").toMillis()] as [
-        number,
-        number,
-      ];
-    }
-
-    // Check if they are actually DateTime instances
-    if (!(start instanceof DateTime) || !(end instanceof DateTime)) {
-      const now = DateTime.now();
-      return [now.minus({ weeks: 4 }).startOf("day").toMillis(), now.endOf("day").toMillis()] as [
-        number,
-        number,
-      ];
-    }
-
-    // Check if they are valid
-    if (!start.isValid || !end.isValid) {
-      const now = DateTime.now();
-      return [now.minus({ weeks: 4 }).startOf("day").toMillis(), now.endOf("day").toMillis()] as [
-        number,
-        number,
-      ];
-    }
-
-    const range = [start.toMillis(), end.toMillis()] as [number, number];
-
-    return range;
-  },
-  set: (value: [number, number] | null) => {
-    if (value) {
-      const [start, end] = value;
-      passesStore.startDate = DateTime.fromMillis(start).startOf("day");
-      passesStore.endDate = DateTime.fromMillis(end).endOf("day");
+// Sync local state when store changes (e.g., after a load completes)
+watch(
+  () => [passesStore.startDate, passesStore.endDate],
+  ([newStart, newEnd]) => {
+    if (
+      newStart instanceof DateTime &&
+      newEnd instanceof DateTime &&
+      newStart.isValid &&
+      newEnd.isValid
+    ) {
+      dateRange.value = [newStart.toMillis(), newEnd.toMillis()];
     }
   },
-});
+);
 
 // Define shortcuts for quick date selections
 const shortcuts = {
@@ -93,56 +69,25 @@ const shortcuts = {
   },
 };
 
-const handleDateRangeChange = (value: [number, number] | null) => {
+const handleDateRangeConfirm = (value: [number, number] | null) => {
   if (value && !isNull(rootStore.squadron)) {
     const [start, end] = value;
-    passesStore.loadPasses({
-      squadron: rootStore.squadron.username,
-      dateRange: {
-        start: DateTime.fromMillis(start).startOf("day"),
-        end: DateTime.fromMillis(end).endOf("day"),
-      },
-    });
-  }
-};
+    const newStart = DateTime.fromMillis(start).startOf("day");
+    const newEnd = DateTime.fromMillis(end).endOf("day");
 
-// On component mount, reload passes with date filter if we have a squadron
-// Don't do this in Cypress tests as the test data is from 2020
-onMounted(() => {
-  // Skip auto-load in Cypress environment to allow tests to control data loading
-  if ((window as any).Cypress) {
-    return;
-  }
+    // Only reload if the dates have actually changed
+    const startChanged = !passesStore.startDate.equals(newStart);
+    const endChanged = !passesStore.endDate.equals(newEnd);
 
-  if (rootStore.squadron) {
-    passesStore.loadPasses({
-      squadron: rootStore.squadron.username,
-      dateRange: {
-        start: passesStore.startDate,
-        end: passesStore.endDate,
-      },
-    });
-  }
-});
-
-// Watch for squadron changes to reload with current date range
-watch(
-  () => rootStore.squadron,
-  (squadron, oldSquadron) => {
-    // Skip auto-load in Cypress environment to allow tests to control data loading
-    if ((window as any).Cypress) {
-      return;
-    }
-
-    if (squadron && squadron !== oldSquadron) {
+    if (startChanged || endChanged) {
       passesStore.loadPasses({
-        squadron: squadron.username,
+        squadron: rootStore.squadron.username,
         dateRange: {
-          start: passesStore.startDate,
-          end: passesStore.endDate,
+          start: newStart,
+          end: newEnd,
         },
       });
     }
-  },
-);
+  }
+};
 </script>

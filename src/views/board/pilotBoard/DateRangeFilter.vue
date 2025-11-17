@@ -5,14 +5,14 @@
       type="daterange"
       :shortcuts="shortcuts"
       :disabled="pilotDataStore.pilotDataLoading"
-      @update:value="handleDateRangeChange"
+      @confirm="handleDateRangeConfirm"
     />
     <slot name="actions" />
   </n-space>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { ref, watch } from "vue";
 import { NDatePicker, NSpace } from "naive-ui";
 import { DateTime } from "luxon";
 import { usePilotDataStore } from "@/stores/pilotData";
@@ -28,46 +28,27 @@ const props = defineProps<Props>();
 const pilotDataStore = usePilotDataStore();
 const rootStore = useRootStore();
 
-// Convert DateTime to timestamp for Naive UI
-const dateRange = computed({
-  get: () => {
-    const start = pilotDataStore.startDate;
-    const end = pilotDataStore.endDate;
+// Local state for the date picker - separate from the store
+// This allows users to edit dates without triggering loads until they confirm
+const dateRange = ref<[number, number]>([
+  pilotDataStore.startDate.toMillis(),
+  pilotDataStore.endDate.toMillis(),
+]);
 
-    if (!start || !end) {
-      const now = DateTime.now();
-      return [now.minus({ weeks: 4 }).startOf("day").toMillis(), now.endOf("day").toMillis()] as [
-        number,
-        number,
-      ];
-    }
-
-    if (!(start instanceof DateTime) || !(end instanceof DateTime)) {
-      const now = DateTime.now();
-      return [now.minus({ weeks: 4 }).startOf("day").toMillis(), now.endOf("day").toMillis()] as [
-        number,
-        number,
-      ];
-    }
-
-    if (!start.isValid || !end.isValid) {
-      const now = DateTime.now();
-      return [now.minus({ weeks: 4 }).startOf("day").toMillis(), now.endOf("day").toMillis()] as [
-        number,
-        number,
-      ];
-    }
-
-    return [start.toMillis(), end.toMillis()] as [number, number];
-  },
-  set: (value: [number, number] | null) => {
-    if (value) {
-      const [start, end] = value;
-      pilotDataStore.startDate = DateTime.fromMillis(start).startOf("day");
-      pilotDataStore.endDate = DateTime.fromMillis(end).endOf("day");
+// Sync local state when store changes (e.g., after a load completes)
+watch(
+  () => [pilotDataStore.startDate, pilotDataStore.endDate],
+  ([newStart, newEnd]) => {
+    if (
+      newStart instanceof DateTime &&
+      newEnd instanceof DateTime &&
+      newStart.isValid &&
+      newEnd.isValid
+    ) {
+      dateRange.value = [newStart.toMillis(), newEnd.toMillis()];
     }
   },
-});
+);
 
 // Define shortcuts for quick date selections
 const shortcuts = {
@@ -94,17 +75,26 @@ const shortcuts = {
   },
 };
 
-const handleDateRangeChange = (value: [number, number] | null) => {
+const handleDateRangeConfirm = (value: [number, number] | null) => {
   if (value && !isNull(rootStore.squadron)) {
     const [start, end] = value;
-    pilotDataStore.loadPilotData({
-      squadron: rootStore.squadron.username,
-      pilot: props.pilot,
-      dateRange: {
-        start: DateTime.fromMillis(start).startOf("day"),
-        end: DateTime.fromMillis(end).endOf("day"),
-      },
-    });
+    const newStart = DateTime.fromMillis(start).startOf("day");
+    const newEnd = DateTime.fromMillis(end).endOf("day");
+
+    // Only reload if the dates have actually changed
+    const startChanged = !pilotDataStore.startDate.equals(newStart);
+    const endChanged = !pilotDataStore.endDate.equals(newEnd);
+
+    if (startChanged || endChanged) {
+      pilotDataStore.loadPilotData({
+        squadron: rootStore.squadron.username,
+        pilot: props.pilot,
+        dateRange: {
+          start: newStart,
+          end: newEnd,
+        },
+      });
+    }
   }
 };
 </script>

@@ -67,6 +67,7 @@ async function doMerge(): Promise<void> {
     await router.push({
       name: "SquadronBoard",
       params: { squadron: route.params.squadron },
+      query: route.query,
     });
     showModal.value = false;
   } catch (err: unknown) {

@@ -92,10 +92,10 @@ function handleMenuSelect(key: string): void {
       router.push({ name: "LogIn" });
       break;
     case "editSquadron":
-      router.push({ name: "EditSquadron" });
+      router.push({ name: "EditSquadron", query: route.query });
       break;
     case "changePassword":
-      router.push({ name: "ChangePassword" });
+      router.push({ name: "ChangePassword", query: route.query });
       break;
     case "logout":
       logOutClicked();

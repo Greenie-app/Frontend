@@ -117,7 +117,7 @@ describe('pilotBoard/Header.vue', () => {
       expect(deleteSpy).toHaveBeenCalledTimes(1)
       expect(loadPassesSpy).toHaveBeenCalledWith({ squadron: '72nd' })
       expect(loadPassesSpy).toHaveBeenCalledTimes(1)
-      expect(pushSpy).toHaveBeenCalledWith({ name: 'SquadronBoard', params: { squadron: '72nd' } })
+      expect(pushSpy).toHaveBeenCalledWith({ name: 'SquadronBoard', params: { squadron: '72nd' }, query: { from: undefined, to: undefined } })
       expect(pushSpy).toHaveBeenCalledTimes(1)
     })
 

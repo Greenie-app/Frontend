@@ -12,7 +12,7 @@ context('Date Range Filtering', () => {
       cy.get('#login-field').type('squadron-1')
       cy.get('#password-field').type('password123')
       cy.dataCy('loginSubmitButton').click()
-      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?$/)
+      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
     })
 
     it('shows date range picker', () => {
@@ -37,7 +37,7 @@ context('Date Range Filtering', () => {
       cy.get('#login-field').type('squadron-1')
       cy.get('#password-field').type('password123')
       cy.dataCy('loginSubmitButton').click()
-      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?$/)
+      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
     })
 
     it('loads passes when selecting a date range with test data', () => {
@@ -73,7 +73,7 @@ context('Date Range Filtering', () => {
       cy.get('#login-field').type('squadron-1')
       cy.get('#password-field').type('password123')
       cy.dataCy('loginSubmitButton').click()
-      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?$/)
+      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
     })
 
     it('maintains selected date range when adding a new pass', () => {
