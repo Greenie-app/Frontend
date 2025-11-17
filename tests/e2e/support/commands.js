@@ -60,7 +60,7 @@ Cypress.Commands.add('nSelect', (selector, value) => {
 Cypress.Commands.add('nSelectType', (selector, text) => {
   cy.get(selector).click()
   // Wait for the dropdown menu to appear, then find the input
-  cy.get('.n-base-select-menu', { timeout: 5000 }).should('be.visible')
+  cy.get('.n-base-select-menu').should('be.visible')
   cy.get('.n-base-select-menu .n-base-select-option__content input, .n-base-selection-input input').type(text)
   cy.get('.n-base-select-option').contains(text).click()
 })
@@ -74,7 +74,7 @@ Cypress.Commands.add('nInput', { prevSubject: 'optional' }, (subject, selector) 
   if (subject) {
     return cy.wrap(subject).find(selector).should('exist').find('input')
   }
-  return cy.get(selector, { timeout: 5000 }).should('exist').find('input')
+  return cy.get(selector).should('exist').find('input')
 })
 
 /**
@@ -82,21 +82,17 @@ Cypress.Commands.add('nInput', { prevSubject: 'optional' }, (subject, selector) 
  * @param {string} startDate - The start date in YYYY-MM-DD format
  * @param {string} endDate - The end date in YYYY-MM-DD format
  * @param {Object} options - Optional configuration
- * @param {string} options.selector - Custom selector for the date picker (default: '.n-date-picker')
- * @param {number} options.waitBefore - Wait time before interacting (default: 500)
- * @param {number} options.waitAfter - Wait time after setting dates (default: 0)
+ * @param {string} options.selector - Custom selector for the date picker (default:
+ *   '.n-date-picker')
  * @param {boolean} options.closePanel - Whether to close the panel with Escape (default: false)
  */
 Cypress.Commands.add('nDateRange', (startDate, endDate, options = {}) => {
   const {
     selector = '.n-date-picker',
-    waitBefore = 500,
-    waitAfter = 0,
     closePanel = false
   } = options
 
   cy.get(selector).should('be.visible')
-  if (waitBefore > 0) cy.wait(waitBefore)
 
   cy.get(`${selector} input`).first().click().type(`{selectall}${startDate}`)
   cy.get(`${selector} input`).last().click().type(`{selectall}${endDate}`)
@@ -108,8 +104,6 @@ Cypress.Commands.add('nDateRange', (startDate, endDate, options = {}) => {
   if (closePanel) {
     cy.get('body').type('{esc}')
   }
-
-  if (waitAfter > 0) cy.wait(waitAfter)
 })
 
 /**

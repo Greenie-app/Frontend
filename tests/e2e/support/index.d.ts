@@ -1,4 +1,4 @@
- 
+
 
 // load type definitions that come with Cypress module
 /// <reference types="cypress" />
@@ -71,8 +71,6 @@ declare namespace Cypress {
 
     nDateRange(startDate: string, endDate: string, options?: {
       selector?: string
-      waitBefore?: number
-      waitAfter?: number
       closePanel?: boolean
     }): Chainable<void>
 

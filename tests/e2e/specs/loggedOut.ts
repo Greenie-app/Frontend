@@ -21,7 +21,7 @@ context('Logged out', () => {
     cy.visit('/#/squadrons/squadron-1')
 
     // Set date range to 2020 to show test data
-    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 2000 })
+    cy.nDateRange('2020-01-01', '2020-12-31')
 
     cy.get('[data-cy-pilot=Raamon]').dataCy('passCell').first().
       click()
@@ -38,7 +38,7 @@ context('Logged out', () => {
     cy.visit('/#/squadrons/squadron-1')
 
     // Set date range to 2020 to show test data
-    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 2000 })
+    cy.nDateRange('2020-01-01', '2020-12-31')
 
     cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').dataCy('passHeaderCell').find('a').
       click()
@@ -98,7 +98,7 @@ context('Logged out', () => {
         cy.get('#squadron-password input').type('password123')
         cy.get('#squadron-password_confirmation input').type('password1234')
         cy.dataCy('resetPasswordSubmit').click()
-        cy.dataCy('squadron-password_confirmation-group', { timeout: 10000 }).
+        cy.dataCy('squadron-password_confirmation-group').
           should('not.be.empty').
           and('contain.text', 'match')
       })
@@ -121,7 +121,7 @@ context('Logged out', () => {
         cy.dataCy('resetPasswordSubmit').click()
 
         // Wait for and click any dialog button (success or error)
-        cy.get('.n-dialog', { timeout: 10000 }).should('exist')
+        cy.get('.n-dialog').should('exist')
         cy.get('.n-dialog .n-button').first().click()
 
         // Wait for navigation after dialog closes

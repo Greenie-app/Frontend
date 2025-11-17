@@ -12,7 +12,7 @@ context('Date Range Filtering', () => {
       cy.get('#login-field').type('squadron-1')
       cy.get('#password-field').type('password123')
       cy.dataCy('loginSubmitButton').click()
-      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
+      cy.location('hash').should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
     })
 
     it('shows date range picker', () => {
@@ -37,23 +37,23 @@ context('Date Range Filtering', () => {
       cy.get('#login-field').type('squadron-1')
       cy.get('#password-field').type('password123')
       cy.dataCy('loginSubmitButton').click()
-      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
+      cy.location('hash').should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
     })
 
     it('loads passes when selecting a date range with test data', () => {
       // We know test data is from 2020, so we'll use the date picker input directly
       // This is more reliable than navigating through the date panel UI
 
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
+      cy.nDateRange('2020-01-01', '2020-12-31')
 
       // Verify passes are loaded (we know test data has passes in 2020)
-      cy.dataCy('passCell', { timeout: 10000 }).should('exist')
+      cy.dataCy('passCell').should('exist')
       cy.dataCy('passCell').should('have.length.greaterThan', 0)
     })
 
     it('shows no passes message for dates without data', () => {
       // Select a date range with no data (2019)
-      cy.nDateRange('2019-01-01', '2019-12-31', { waitAfter: 3000 })
+      cy.nDateRange('2019-01-01', '2019-12-31')
 
       // Should show no passes message
       cy.get('body').should('contain', 'No passes found in selected date range.')
@@ -73,15 +73,15 @@ context('Date Range Filtering', () => {
       cy.get('#login-field').type('squadron-1')
       cy.get('#password-field').type('password123')
       cy.dataCy('loginSubmitButton').click()
-      cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
+      cy.location('hash').should('match', /^#\/squadrons\/squadron-1\/?(\?.*)?$/)
     })
 
     it('maintains selected date range when adding a new pass', () => {
       // Select full 2020 date range to ensure we have passes
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
+      cy.nDateRange('2020-01-01', '2020-12-31')
 
       // Verify passes loaded
-      cy.dataCy('passCell', { timeout: 10000 }).should('exist')
+      cy.dataCy('passCell').should('exist')
 
       // Add a new pass (with 2020 date)
       cy.dataCy('addPassButton').click()
@@ -107,7 +107,7 @@ context('Date Range Filtering', () => {
       cy.nDateRange('2020-01-01', '2025-12-31', { closePanel: true })
 
       // Verify the specific pilot was added
-      cy.get('[data-cy-pilot="TestPilot2020"]', { timeout: 10000 }).should('exist')
+      cy.get('[data-cy-pilot="TestPilot2020"]').should('exist')
 
       // Verify the date range is maintained (should include both 2020 and current year)
       cy.get('.n-date-picker input').first().should('have.value', '2020-01-01')
@@ -116,19 +116,19 @@ context('Date Range Filtering', () => {
 
     it('handles date range filtering correctly after operations', () => {
       // Set date range to 2020
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
+      cy.nDateRange('2020-01-01', '2020-12-31')
 
       // Verify passes are shown
-      cy.dataCy('passCell', { timeout: 10000 }).should('exist')
+      cy.dataCy('passCell').should('exist')
 
       // Now change to 2021 (no passes)
-      cy.nDateRange('2021-01-01', '2021-12-31', { waitAfter: 3000 })
+      cy.nDateRange('2021-01-01', '2021-12-31')
 
       // Should show no passes message
       cy.get('body').should('contain', 'No passes found in selected date range.')
 
       // Go back to 2020
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 3000 })
+      cy.nDateRange('2020-01-01', '2020-12-31')
 
       // Passes should be shown again
       cy.dataCy('passCell').should('exist')

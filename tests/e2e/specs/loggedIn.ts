@@ -21,7 +21,6 @@ context('Sign up', () => {
       )
 
       cy.dataCy('signUpSubmit').click()
-      cy.wait(500)
       cy.get('body').should('contain', "doesn’t match password")
     })
   })
@@ -67,7 +66,7 @@ context('Logged in without passes', () => {
 
   it('does not upload invalid files', () => {
     // Need to trigger passes loading since Cypress environment check prevents auto-load
-    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+    cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
     cy.dataCy('uploadButton').click()
     cy.fixture('image.png', 'base64').then(data => {
       cy.get('#logfile-files').attachFile(
@@ -81,14 +80,13 @@ context('Logged in without passes', () => {
       )
 
       cy.dataCy('uploadSubmit').click()
-      cy.wait(1000)
       cy.get('.n-alert, .n-form-item-feedback__line').should('contain', 'invalid content type')
     })
   })
 
   it('uploads a dcs.log file', () => {
     // Need to trigger passes loading since Cypress environment check prevents auto-load
-    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+    cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
     cy.dataCy('uploadButton').click()
 
     cy.fixture('dcs.log', 'base64').then(data => {
@@ -126,11 +124,10 @@ context('Logged in with passes', () => {
     cy.dataCy('loginSubmitButton').click()
 
     // Wait for page to load (URL will have default date range params)
-    cy.location('hash', { timeout: 10000 }).should('match', /^#\/squadrons\/squadron-1\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}$/)
+    cy.location('hash').should('match', /^#\/squadrons\/squadron-1\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}$/)
 
     // Set date range to cover all 2020 test data
-    cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 2000, closePanel: true })
-    cy.wait(500)
+    cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
     // Verify passes loaded
     cy.dataCy('passCell').should('exist')
@@ -196,7 +193,7 @@ context('Logged in with passes', () => {
       cy.location('hash').should('eql', '#/squadrons/squadron-1/pilots/Jambo72nd?from=2020-01-01&to=2020-12-31')
 
       // Wait for pilot board to load and set date range to 2020 (test data year)
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+      cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
       // Verify pilot board title
       cy.dataCy('pilotBoardTitle').should('contain', 'Jambo72nd')
@@ -240,14 +237,13 @@ context('Logged in with passes', () => {
 
         // Wait for pilot board to load and set date range to 2020 (test data year)
         cy.location('hash').should('include', '/pilots/Jambo72nd')
-        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+        cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
-        cy.dataCy('renameButton', { timeout: 10000 }).should('be.visible')
+        cy.dataCy('renameButton').should('be.visible')
         cy.dataCy('renameButton').click()
 
         cy.get('#pilot-name').type(' ')
         cy.dataCy('renameSubmit').click()
-        cy.wait(500)
         cy.get('body').should('contain', "can’t be blank")
       })
 
@@ -259,9 +255,9 @@ context('Logged in with passes', () => {
 
         // Wait for pilot board to load and set date range to 2020 (test data year)
         cy.location('hash').should('include', '/pilots/Jambo72nd')
-        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+        cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
-        cy.dataCy('renameButton', { timeout: 10000 }).should('be.visible')
+        cy.dataCy('renameButton').should('be.visible')
         cy.dataCy('renameButton').click()
 
         cy.get('#pilot-name').type('Jambo')
@@ -278,9 +274,9 @@ context('Logged in with passes', () => {
 
         // Wait for pilot board to load and set date range to 2020 (test data year)
         cy.location('hash').should('include', '/pilots/Stretch')
-        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+        cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
-        cy.dataCy('mergeButton', { timeout: 10000 }).should('be.visible')
+        cy.dataCy('mergeButton').should('be.visible')
         cy.dataCy('mergeButton').click()
         cy.nDropdownOption('Jambo72nd')
         cy.dataCy('mergeConfirmButton').click()
@@ -301,9 +297,9 @@ context('Logged in with passes', () => {
 
         // Wait for pilot board to load and set date range to 2020 (test data year)
         cy.location('hash').should('include', '/pilots/Jambo72nd')
-        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+        cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
-        cy.dataCy('pilotBoardTable', { timeout: 10000 }).find('tr').should('have.length', 4)
+        cy.dataCy('pilotBoardTable').find('tr').should('have.length', 4)
       })
 
       it('deletes a pilot', () => {
@@ -314,9 +310,9 @@ context('Logged in with passes', () => {
 
         // Wait for pilot board to load and set date range to 2020 (test data year)
         cy.location('hash').should('include', '/pilots/Raamon')
-        cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+        cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
-        cy.dataCy('deletePilotButton', { timeout: 10000 }).should('be.visible')
+        cy.dataCy('deletePilotButton').should('be.visible')
         cy.dataCy('deletePilotButton').click()
         cy.nDialogConfirm('error')
 
@@ -333,10 +329,8 @@ context('Logged in with passes', () => {
           click()
 
         cy.nSelect('#pass-grade', 'Fair')
-        cy.wait(200) // Wait for score calculation after grade change
         cy.get('#pass-score input[type="text"]').should('have.value', '3')
         cy.dataCy('savePassButton').click()
-        cy.wait(500) // Wait for save and UI update
         cy.get('[data-cy-pilot=Stretch\\|55FS]').
           dataCy('passCell').
           first().
@@ -382,28 +376,27 @@ context('Logged in with passes', () => {
   context('Editing squadron', () => {
     it('handles password form errors', () => {
       // Wait for squadron board to load before clicking any links
-      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
+      cy.dataCy('squadronBoardTitle').should('be.visible')
 
       cy.dataCy('changePasswordLink').click()
       cy.location('hash').should('include', '/password/change')
 
-      cy.get('#squadron-current_password', { timeout: 10000 }).should('be.visible')
+      cy.get('#squadron-current_password').should('be.visible')
       cy.nInput('#squadron-current_password').type('password123')
       cy.nInput('#squadron-new_password').type('password1234')
       cy.nInput('#squadron-password_confirmation').type('password123')
       cy.dataCy('changePasswordSubmit').click()
-      cy.wait(500)
       cy.get('.n-form-item-feedback__line').should('contain', "doesn’t match password")
     })
 
     it("changes the squadron's password", () => {
       // Wait for squadron board to load before clicking any links
-      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
+      cy.dataCy('squadronBoardTitle').should('be.visible')
 
       cy.dataCy('changePasswordLink').click()
       cy.location('hash').should('include', '/password/change')
 
-      cy.get('#squadron-current_password', { timeout: 10000 }).should('be.visible')
+      cy.get('#squadron-current_password').should('be.visible')
       cy.nInput('#squadron-current_password').type('password123')
       cy.nInput('#squadron-new_password').type('password1234')
       cy.nInput('#squadron-password_confirmation').type('password1234')
@@ -426,27 +419,26 @@ context('Logged in with passes', () => {
 
     it('handles edit form errors', () => {
       // Wait for squadron board to load before clicking any links
-      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
+      cy.dataCy('squadronBoardTitle').should('be.visible')
 
       cy.dataCy('editSquadronLink').click()
       cy.location('hash').should('include', '/squadron/edit')
 
-      cy.get('#squadron-name', { timeout: 10000 }).should('be.visible')
+      cy.get('#squadron-name').should('be.visible')
       cy.get('#squadron-name input').clear()
       cy.get('#squadron-name input').type(' ')
       cy.dataCy('editSquadronSubmit').click()
-      cy.wait(500)
       cy.get('.n-form-item-feedback__line').should('contain', "can’t be blank")
     })
 
     it('edits the squadron', () => {
       // Wait for squadron board to load before clicking any links
-      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
+      cy.dataCy('squadronBoardTitle').should('be.visible')
 
       cy.dataCy('editSquadronLink').click()
       cy.location('hash').should('include', '/squadron/edit')
 
-      cy.get('#squadron-name', { timeout: 10000 }).should('be.visible')
+      cy.get('#squadron-name').should('be.visible')
       cy.get('#squadron-name input').type('New Name')
       cy.dataCy('editSquadronSubmit').click()
       cy.location('hash').should('eql', '#/squadrons/squadron-1?from=2020-01-01&to=2020-12-31')
@@ -505,7 +497,7 @@ context('Logged in with passes', () => {
 
       // Wait for pilot board to load and set date range to 2020 (test data year)
       cy.location('hash').should('include', '/pilots/Jambo72nd')
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+      cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
       cy.dataCy('renameButton').should('not.exist')
       cy.dataCy('mergeButton').should('not.exist')
@@ -516,10 +508,10 @@ context('Logged in with passes', () => {
   context('Deleting squadron', () => {
     it('deletes the squadron', () => {
       // Wait for squadron board to load before clicking any links
-      cy.dataCy('squadronBoardTitle', { timeout: 10000 }).should('be.visible')
+      cy.dataCy('squadronBoardTitle').should('be.visible')
 
       cy.dataCy('editSquadronLink').click()
-      cy.dataCy('deleteSquadronButton', { timeout: 10000 }).should('be.visible')
+      cy.dataCy('deleteSquadronButton').should('be.visible')
       cy.dataCy('deleteSquadronButton').click()
       // Click the Delete button in the confirmation modal
       cy.nDialogConfirm('error', 'Delete')
@@ -536,7 +528,7 @@ context('Logged in with passes', () => {
   context('URL date range parameters', () => {
     it('persists date range in URL when changed', () => {
       // Set a specific date range
-      cy.nDateRange('2020-03-01', '2020-06-30', { waitAfter: 1000, closePanel: true })
+      cy.nDateRange('2020-03-01', '2020-06-30', { closePanel: true })
 
       // Verify URL contains the date parameters (in hash fragment)
       cy.location('hash').should('include', 'from=2020-03-01')
@@ -545,7 +537,7 @@ context('Logged in with passes', () => {
 
     it('restores date range from URL on page refresh', () => {
       // Set a specific date range
-      cy.nDateRange('2020-02-15', '2020-09-20', { waitAfter: 1000, closePanel: true })
+      cy.nDateRange('2020-02-15', '2020-09-20', { closePanel: true })
 
       // Verify URL has the parameters (in hash fragment)
       cy.location('hash').should('include', 'from=2020-02-15')
@@ -555,7 +547,7 @@ context('Logged in with passes', () => {
       cy.reload()
 
       // Wait for passes to load
-      cy.dataCy('passCell', { timeout: 10000 }).should('exist')
+      cy.dataCy('passCell').should('exist')
 
       // Verify the URL parameters are still present after reload
       cy.location('hash').should('include', 'from=2020-02-15')
@@ -564,7 +556,7 @@ context('Logged in with passes', () => {
 
     it('carries date range to pilot board', () => {
       // Set a specific date range on squadron board
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+      cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
       // Click on a pilot link
       cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
@@ -578,7 +570,7 @@ context('Logged in with passes', () => {
       cy.location('hash').should('include', 'to=2020-12-31')
 
       // Wait for pilot board to load
-      cy.dataCy('pilotBoardTitle', { timeout: 10000 }).should('contain', 'Jambo72nd')
+      cy.dataCy('pilotBoardTitle').should('contain', 'Jambo72nd')
 
       // Verify pilot data is loaded with the correct date range
       cy.dataCy('pilotBoardTable').should('be.visible')
@@ -586,7 +578,7 @@ context('Logged in with passes', () => {
 
     it('updates URL when date range changes on pilot board', () => {
       // Navigate to pilot board with initial date range
-      cy.nDateRange('2020-01-01', '2020-12-31', { waitAfter: 1000, closePanel: true })
+      cy.nDateRange('2020-01-01', '2020-12-31', { closePanel: true })
 
       cy.get('[data-cy=squadronBoardRow][data-cy-pilot=Jambo72nd]').
         dataCy('passHeaderCell').
@@ -594,10 +586,10 @@ context('Logged in with passes', () => {
         click()
 
       cy.location('hash').should('include', '/pilots/Jambo72nd')
-      cy.dataCy('pilotBoardTitle', { timeout: 10000 }).should('contain', 'Jambo72nd')
+      cy.dataCy('pilotBoardTitle').should('contain', 'Jambo72nd')
 
       // Change date range on pilot board
-      cy.nDateRange('2020-05-01', '2020-08-31', { waitAfter: 1000, closePanel: true })
+      cy.nDateRange('2020-05-01', '2020-08-31', { closePanel: true })
 
       // Verify URL is updated (in hash fragment)
       cy.location('hash').should('include', 'from=2020-05-01')
