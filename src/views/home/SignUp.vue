@@ -36,6 +36,7 @@
         object="squadron"
         placeholder=""
         required
+        autocomplete="username"
         v-model="squadron.username"
       >
         <n-text depth="3" tag="p">{{ $t("home.signUp.help") }}</n-text>
@@ -49,6 +50,7 @@
         placeholder=""
         required
         type="email"
+        autocomplete="email"
         v-model="squadron.email"
       />
 
@@ -60,6 +62,7 @@
         placeholder=""
         required
         type="password"
+        autocomplete="new-password"
         v-model="squadron.password"
       />
 
@@ -71,6 +74,7 @@
         placeholder=""
         required
         type="password"
+        autocomplete="new-password"
         v-model="squadron.password_confirmation"
       />
     </n-space>
@@ -88,20 +92,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { computed, ref, watch } from "vue";
 import {
+  type FormInst,
+  NAlert,
+  NButton,
   NForm,
   NFormItem,
-  NButton,
-  NAlert,
   NSpace,
   NText,
   NUpload,
-  type FormInst,
   type UploadFileInfo,
 } from "naive-ui";
 import slugify from "slugify";
-import { isString, isUndefined, isNull, has } from "lodash-es";
+import { has, isNull, isString, isUndefined } from "lodash-es";
 import { useAccountStore } from "@/stores/account";
 import type { SquadronJSONUp } from "@/stores/coding";
 import { useFormErrors } from "@/composables/useFormErrors";

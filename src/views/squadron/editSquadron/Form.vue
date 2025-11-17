@@ -35,6 +35,7 @@
         placeholder=""
         required
         type="email"
+        autocomplete="email"
         v-model="squadron.email"
       />
     </n-space>

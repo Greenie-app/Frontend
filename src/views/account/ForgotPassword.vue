@@ -14,6 +14,7 @@
               object="squadron"
               required
               sr-only
+              autocomplete="email"
               v-model="email"
               class="email-field"
             />
