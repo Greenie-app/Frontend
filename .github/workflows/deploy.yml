@@ -20,13 +20,37 @@ env:
 
 jobs:
   deploy:
-      name: Deploy to Fly.io
-      if: ${{ github.event.workflow_run.conclusion == 'success' }}
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check out repository
-          uses: actions/checkout@v4
-        - name: Set up flyctl
-          uses: superfly/flyctl-actions/setup-flyctl@master
-        - name: Deploy to Fly.io
-          run: flyctl deploy --remote-only
+    name: Deploy to Fly.io
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only --build-arg VITE_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: yarn
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: yarn install
+      - name: Build for source maps
+        run: yarn build
+        env:
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - name: Create Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: timcodes
+          SENTRY_PROJECT: greenie-frontend
+        with:
+          environment: production
+          release: ${{ github.sha }}
+          sourcemaps: './dist'
