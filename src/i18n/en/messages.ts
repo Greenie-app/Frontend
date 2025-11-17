@@ -223,6 +223,10 @@ const en: Record<string, any> = {
       score: "Score",
     },
     noPassesInRange: "No passes found in the selected date range.",
+    showNotes: "Show",
+    notesModal: {
+      title: "Pass Notes",
+    },
   },
   errorModal: "Error",
 };

@@ -10,13 +10,22 @@
       :max-height="600"
       :scroll-x="1200"
     />
+
+    <n-modal
+      v-model:show="showNotesModal"
+      preset="card"
+      :title="t('pilotBoard.notesModal.title')"
+      style="max-width: 600px"
+    >
+      <pre class="notes-content">{{ selectedNotes }}</pre>
+    </n-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, h } from "vue";
 import { useI18n } from "vue-i18n";
-import { NDataTable } from "naive-ui";
+import { NDataTable, NButton, NModal } from "naive-ui";
 import { isEmpty, isNull } from "lodash-es";
 import { DateTime } from "luxon";
 import numeral from "numeral";
@@ -43,6 +52,14 @@ const boardingRate = computed(() => {
   if (!pilotDataStore.pilotData) return "0.00";
   return numeral(pilotDataStore.pilotData.boardingRate).format("0.00");
 });
+
+const showNotesModal = ref(false);
+const selectedNotes = ref("");
+
+function openNotesModal(notes: string | null) {
+  selectedNotes.value = notes || "";
+  showNotesModal.value = true;
+}
 
 function formatTime(time: DateTime): string {
   return time.toLocaleString({
@@ -87,6 +104,18 @@ const columns = computed<DataTableColumns<Pass>>(() => [
   {
     key: "notes",
     title: t("pilotBoard.tableHeaders.notes"),
+    render: (row) =>
+      row.notes
+        ? h(
+            NButton,
+            {
+              text: true,
+              type: "primary",
+              onClick: () => openNotesModal(row.notes),
+            },
+            { default: () => t("pilotBoard.showNotes") },
+          )
+        : "",
   },
 ]);
 
@@ -112,5 +141,15 @@ function rowProps(row: Pass) {
 #pilot-table :deep(td),
 #pilot-table :deep(td *) {
   white-space: nowrap;
+}
+
+.notes-content {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  font-family: monospace;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 0;
 }
 </style>
