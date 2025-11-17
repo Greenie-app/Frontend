@@ -69,11 +69,21 @@ export interface ErrorStatistic {
   count: number;
 }
 
+export interface PhaseErrorStatistics {
+  phaseDescription: string;
+  errors: ErrorStatistic[];
+}
+
+export interface ErrorStatistics {
+  overall: ErrorStatistic[];
+  byPhase: Record<string, PhaseErrorStatistics>;
+}
+
 export interface PilotData {
   pilot: {
     name: string;
   };
   passes: Pass[];
   boardingRate: number;
-  errorStatistics: ErrorStatistic[];
+  errorStatistics: ErrorStatistics;
 }

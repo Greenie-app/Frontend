@@ -63,10 +63,11 @@ describe('Vuex: passes', () => {
         expect(passesStore.passesError?.message).toEqual('Invalid HTTP response: 500')
       })
 
-      it('stores boarding rate from response', async () => {
+      it('computes boarding rate from passes', async () => {
         await passesStore.loadPasses({ squadron: '72nd' })
 
-        expect(passesStore.boardingRate).toEqual(0.5)
+        // 4 traps out of 12 passes = 0.333...
+        expect(passesStore.boardingRate).toBeCloseTo(4 / 12, 5)
       })
     })
 

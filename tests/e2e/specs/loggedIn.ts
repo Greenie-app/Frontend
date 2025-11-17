@@ -209,29 +209,26 @@ context('Logged in with passes', () => {
       cy.dataCy('pilotBoardTable').should('contain', 'C')
       cy.dataCy('pilotBoardTable').should('contain', '3')
 
-      // Verify error statistics table is displayed
-      cy.dataCy('errorStatisticsTable').should('be.visible')
+      // Verify error statistics overall table is displayed
+      cy.dataCy('errorStatisticsOverallTable').should('be.visible')
 
-      // Verify error statistics contains expected error codes and descriptions
-      // The pass has errors: LUL (3x), LO (2x), F, P, PPP
-      cy.dataCy('errorStatisticsTable').should('contain', 'LUL')
-      cy.dataCy('errorStatisticsTable').should('contain', 'Lined up left')
-      cy.dataCy('errorStatisticsTable').should('contain', 'LO')
-      cy.dataCy('errorStatisticsTable').should('contain', 'Low')
-      cy.dataCy('errorStatisticsTable').should('contain', 'F')
-      cy.dataCy('errorStatisticsTable').should('contain', 'Fast')
-      cy.dataCy('errorStatisticsTable').should('contain', 'P')
-      cy.dataCy('errorStatisticsTable').should('contain', 'Power')
-      cy.dataCy('errorStatisticsTable').should('contain', 'PPP')
-      cy.dataCy('errorStatisticsTable').should('contain', 'Power, power, power')
+      // Verify overall error statistics contains expected top 3 error codes
+      // The pass has errors: LUL (3x), LO (2x), F, P, PPP - top 3 by score should be LUL, LO, F/P/PPP
+      cy.dataCy('errorStatisticsOverallTable').should('contain', 'LUL')
+      cy.dataCy('errorStatisticsOverallTable').should('contain', 'Lined up left')
+      cy.dataCy('errorStatisticsOverallTable').should('contain', 'LO')
+      cy.dataCy('errorStatisticsOverallTable').should('contain', 'Low')
 
       // Verify counts are correct - LUL appears 3 times so count should be 3
-      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LUL').parent('tr').should('contain', '3')
-      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LO').parent('tr').should('contain', '2')
+      cy.dataCy('errorStatisticsOverallTable').find('tbody tr').contains('LUL').parent('tr').should('contain', '3')
+      cy.dataCy('errorStatisticsOverallTable').find('tbody tr').contains('LO').parent('tr').should('contain', '2')
 
       // Verify scores are displayed - LUL with count 3 should have score 6.0
-      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LUL').parent('tr').should('contain', '6.0')
-      cy.dataCy('errorStatisticsTable').find('tbody tr').contains('LO').parent('tr').should('contain', '4.0')
+      cy.dataCy('errorStatisticsOverallTable').find('tbody tr').contains('LUL').parent('tr').should('contain', '6.0')
+      cy.dataCy('errorStatisticsOverallTable').find('tbody tr').contains('LO').parent('tr').should('contain', '4.0')
+
+      // Verify errors are also grouped by phase (the pass has phases X and IC based on notes)
+      cy.get('.error-section h4').should('contain', 'Overall')
     })
 
     context('Editing pilots', () => {

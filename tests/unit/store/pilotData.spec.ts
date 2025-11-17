@@ -55,19 +55,29 @@ describe('Vuex: pilotData', () => {
         })
 
         expect(pilotDataStore.pilotData?.errorStatistics).toBeDefined()
-        expect(pilotDataStore.pilotData?.errorStatistics.length).toEqual(2)
+        expect(pilotDataStore.pilotData?.errorStatistics.overall.length).toEqual(2)
 
-        const lulStat = pilotDataStore.pilotData?.errorStatistics.find((s) => s.code === 'LUL')
+        const lulStat = pilotDataStore.pilotData?.errorStatistics.overall.find((s) => s.code === 'LUL')
         expect(lulStat).toBeDefined()
         expect(lulStat?.description).toEqual('Lined up left')
         expect(lulStat?.score).toEqual(4.0)
         expect(lulStat?.count).toEqual(2)
 
-        const fStat = pilotDataStore.pilotData?.errorStatistics.find((s) => s.code === 'F')
+        const fStat = pilotDataStore.pilotData?.errorStatistics.overall.find((s) => s.code === 'F')
         expect(fStat).toBeDefined()
         expect(fStat?.description).toEqual('Fast')
         expect(fStat?.score).toEqual(2.0)
         expect(fStat?.count).toEqual(1)
+
+        // Check by-phase statistics
+        expect(pilotDataStore.pilotData?.errorStatistics.byPhase).toBeDefined()
+        expect(pilotDataStore.pilotData?.errorStatistics.byPhase.X).toBeDefined()
+        expect(pilotDataStore.pilotData?.errorStatistics.byPhase.X?.phaseDescription).toEqual('At the start')
+        expect(pilotDataStore.pilotData?.errorStatistics.byPhase.X?.errors.length).toEqual(1)
+
+        expect(pilotDataStore.pilotData?.errorStatistics.byPhase.IM).toBeDefined()
+        expect(pilotDataStore.pilotData?.errorStatistics.byPhase.IM?.phaseDescription).toEqual('In the middle')
+        expect(pilotDataStore.pilotData?.errorStatistics.byPhase.IM?.errors.length).toEqual(2)
       })
 
       it('handles errors', async () => {
@@ -93,7 +103,10 @@ describe('Vuex: pilotData', () => {
               pilot: { name: 'Pilot Name' },
               passes: [],
               boarding_rate: 0.0,
-              error_statistics: []
+              error_statistics: {
+                overall: [],
+                by_phase: {}
+              }
             })
           )
         )

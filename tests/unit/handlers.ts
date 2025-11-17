@@ -93,20 +93,52 @@ const handlers = [
     pilot: { name: 'Jambo72nd' },
     passes: passesJSON.filter((p) => p.pilot === 'Jambo72nd'),
     boarding_rate: 0.75,
-    error_statistics: [
-      {
-        code: 'LUL',
-        description: 'Lined up left',
-        score: 4.0,
-        count: 2
-      },
-      {
-        code: 'F',
-        description: 'Fast',
-        score: 2.0,
-        count: 1
+    error_statistics: {
+      overall: [
+        {
+          code: 'LUL',
+          description: 'Lined up left',
+          score: 4.0,
+          count: 2
+        },
+        {
+          code: 'F',
+          description: 'Fast',
+          score: 2.0,
+          count: 1
+        }
+      ],
+      by_phase: {
+        X: {
+          phase_description: 'At the start',
+          errors: [
+            {
+              code: 'LUL',
+              description: 'Lined up left',
+              score: 2.0,
+              count: 1
+            }
+          ]
+        },
+        IM: {
+          phase_description: 'In the middle',
+          errors: [
+            {
+              code: 'LUL',
+              description: 'Lined up left',
+              score: 2.0,
+              count: 1
+            },
+            {
+              code: 'F',
+              description: 'Fast',
+              score: 2.0,
+              count: 1
+            }
+          ]
+        }
       }
-    ]
+    }
   }))
 ]
 

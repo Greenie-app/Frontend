@@ -217,6 +217,7 @@ const en: Record<string, any> = {
     },
     errorStatistics: {
       title: "Error Statistics",
+      overall: "Overall",
       code: "Code",
       description: "Description",
       count: "Count",

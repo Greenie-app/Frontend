@@ -59,19 +59,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import {
+  type FormInst,
+  NAlert,
+  NButton,
   NForm,
   NFormItem,
-  NButton,
   NSpace,
-  NAlert,
   NUpload,
-  type FormInst,
   type UploadFileInfo,
 } from "naive-ui";
-import { isString, isNull, has } from "lodash-es";
+import { has, isNull, isString } from "lodash-es";
 import { useRootStore } from "@/stores/root";
 import { useMySquadronStore } from "@/stores/mySquadron";
 import type { SquadronJSONUp } from "@/stores/coding";

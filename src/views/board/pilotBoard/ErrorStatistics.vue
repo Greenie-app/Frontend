@@ -1,13 +1,34 @@
 <template>
   <div v-if="hasErrors" class="error-statistics">
     <h3>{{ $t("pilotBoard.errorStatistics.title") }}</h3>
-    <n-data-table
-      :columns="columns"
-      :data="errorStatistics"
-      :bordered="false"
-      size="small"
-      data-cy="errorStatisticsTable"
-    />
+
+    <!-- Overall Top 3 Errors -->
+    <div v-if="hasOverallErrors" class="error-section">
+      <h4>{{ $t("pilotBoard.errorStatistics.overall") }}</h4>
+      <n-data-table
+        :columns="columns"
+        :data="errorStatistics.overall"
+        :bordered="false"
+        size="small"
+        data-cy="errorStatisticsOverallTable"
+      />
+    </div>
+
+    <!-- Errors by Phase -->
+    <div
+      v-for="(phaseData, phaseCode) in errorStatistics.byPhase"
+      :key="phaseCode"
+      class="error-section"
+    >
+      <h4>{{ phaseData.phaseDescription }}</h4>
+      <n-data-table
+        :columns="columns"
+        :data="phaseData.errors"
+        :bordered="false"
+        size="small"
+        :data-cy="`errorStatistics${phaseCode}Table`"
+      />
+    </div>
   </div>
 </template>
 
@@ -17,16 +38,18 @@ import { useI18n } from "vue-i18n";
 import { NDataTable } from "naive-ui";
 import { isEmpty } from "lodash-es";
 import type { DataTableColumns } from "naive-ui";
-import type { ErrorStatistic } from "@/types";
+import type { ErrorStatistic, ErrorStatistics } from "@/types";
 
 interface Props {
-  errorStatistics: ErrorStatistic[];
+  errorStatistics: ErrorStatistics;
 }
 
 const props = defineProps<Props>();
 const { t } = useI18n();
 
-const hasErrors = computed(() => !isEmpty(props.errorStatistics));
+const hasOverallErrors = computed(() => !isEmpty(props.errorStatistics.overall));
+const hasPhaseErrors = computed(() => !isEmpty(props.errorStatistics.byPhase));
+const hasErrors = computed(() => hasOverallErrors.value || hasPhaseErrors.value);
 
 const columns = computed<DataTableColumns<ErrorStatistic>>(() => [
   {
@@ -60,5 +83,15 @@ const columns = computed<DataTableColumns<ErrorStatistic>>(() => [
 
 .error-statistics h3 {
   margin-bottom: 1rem;
+}
+
+.error-section {
+  margin-bottom: 1.5rem;
+}
+
+.error-section h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 </style>

@@ -22,7 +22,6 @@ export const usePassesStore = defineStore("passes", () => {
   const passes = ref<Pass[] | null>(null);
   const passesLoading = ref(false);
   const passesError = ref<Error | null>(null);
-  const boardingRate = ref<number | null>(null);
   // Initialize with valid DateTime objects
   const now = DateTime.now();
   const initialStartDate = now.minus({ weeks: 4 }).startOf("day");
@@ -34,6 +33,20 @@ export const usePassesStore = defineStore("passes", () => {
   const passesLoaded = computed(
     () => !isNull(passes.value) && !passesLoading.value && isNull(passesError.value),
   );
+
+  // Calculate boarding rate from current passes
+  const boardingRate = computed((): number | null => {
+    if (isNull(passes.value) || passes.value.length === 0) return null;
+
+    // Count passes where trap is not null (these count towards boarding rate)
+    const attempts = passes.value.filter((p) => !isNull(p.trap)).length;
+    if (attempts === 0) return null;
+
+    // Count successful traps
+    const traps = passes.value.filter((p) => p.trap === true).length;
+
+    return traps / attempts;
+  });
 
   const passesByPilot = computed((): [string | null, Pass[]][] => {
     if (isNull(passes.value)) return [];
@@ -195,7 +208,6 @@ export const usePassesStore = defineStore("passes", () => {
       const responseData = loadResponseBodyOrThrowError(result);
       const passesData = responseData.passes.map((pass) => passFromJSON(pass));
       passes.value = passesData;
-      boardingRate.value = responseData.boarding_rate;
       passesLoading.value = false;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -362,7 +374,6 @@ export const usePassesStore = defineStore("passes", () => {
     passes.value = null;
     passesError.value = null;
     passesLoading.value = false;
-    boardingRate.value = null;
     const resetNow = DateTime.now();
     startDate.value = resetNow.minus({ weeks: 4 }).startOf("day");
     endDate.value = resetNow.endOf("day");

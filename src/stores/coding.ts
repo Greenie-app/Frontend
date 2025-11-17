@@ -1,6 +1,15 @@
-import { isNull, omit } from "lodash-es";
+import { isNull, omit, mapValues } from "lodash-es";
 import { DateTime } from "luxon";
-import { AttachedFile, ErrorStatistic, Logfile, Pass, PilotData, Squadron } from "@/types";
+import {
+  AttachedFile,
+  ErrorStatistic,
+  ErrorStatistics,
+  Logfile,
+  Pass,
+  PhaseErrorStatistics,
+  PilotData,
+  Squadron,
+} from "@/types";
 
 /** The shape of the squadron JSON data sent from the backend to the frontend. */
 export type SquadronJSONDown = Omit<
@@ -164,6 +173,18 @@ export function logfileFromJSON(JSON: LogfileJSON): Logfile {
   };
 }
 
+/** The shape of JSON data for phase error statistics from the backend. */
+type PhaseErrorStatisticsJSONDown = {
+  phase_description: string;
+  errors: ErrorStatistic[];
+};
+
+/** The shape of JSON data for error statistics from the backend. */
+type ErrorStatisticsJSONDown = {
+  overall: ErrorStatistic[];
+  by_phase: Record<string, PhaseErrorStatisticsJSONDown>;
+};
+
 /** The shape of JSON data for a pilot show response from the backend. */
 export type PilotDataJSONDown = {
   pilot: {
@@ -171,8 +192,34 @@ export type PilotDataJSONDown = {
   };
   passes: PassJSONDown[];
   boarding_rate: number;
-  error_statistics: ErrorStatistic[];
+  error_statistics: ErrorStatisticsJSONDown;
 };
+
+/**
+ * Converts JSON-serialized phase error statistics into a PhaseErrorStatistics object.
+ *
+ * @param JSON The serialized data.
+ * @return The PhaseErrorStatistics object.
+ */
+function phaseErrorStatisticsFromJSON(JSON: PhaseErrorStatisticsJSONDown): PhaseErrorStatistics {
+  return {
+    phaseDescription: JSON.phase_description,
+    errors: JSON.errors,
+  };
+}
+
+/**
+ * Converts JSON-serialized error statistics into an ErrorStatistics object.
+ *
+ * @param JSON The serialized data.
+ * @return The ErrorStatistics object.
+ */
+function errorStatisticsFromJSON(JSON: ErrorStatisticsJSONDown): ErrorStatistics {
+  return {
+    overall: JSON.overall,
+    byPhase: mapValues(JSON.by_phase, phaseErrorStatisticsFromJSON),
+  };
+}
 
 /**
  * Converts a JSON-serialized PilotData into a PilotData object.
@@ -185,6 +232,6 @@ export function pilotDataFromJSON(JSON: PilotDataJSONDown): PilotData {
     pilot: JSON.pilot,
     passes: JSON.passes.map((pass) => passFromJSON(pass)),
     boardingRate: JSON.boarding_rate,
-    errorStatistics: JSON.error_statistics,
+    errorStatistics: errorStatisticsFromJSON(JSON.error_statistics),
   };
 }
