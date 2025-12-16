@@ -11,13 +11,13 @@ export default defineConfig({
       on('file:preprocessor', vitePreprocessor({
         viteConfig: {
           build: {
-            sourcemap: true
-          }
-        }
+            sourcemap: 'inline',
+          },
+        },
       }))
     },
     baseUrl: 'http://localhost:5100',
     specPattern: 'tests/e2e/specs/**/*.{js,jsx,ts,tsx}',
-    supportFile: 'tests/e2e/support/index.js'
+    supportFile: 'tests/e2e/support/e2e.ts'
   }
 })

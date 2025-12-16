@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1
 
 # Adjust NODE_VERSION as desired
-ARG NODE_VERSION=22.6.0
+ARG NODE_VERSION=25
 FROM node:${NODE_VERSION}-slim as base
 
 LABEL fly_launch_runtime="NodeJS"
@@ -11,7 +11,7 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
-RUN corepack enable yarn
+RUN npm install -g --force corepack && corepack enable yarn
 
 
 # Throw-away build stage to reduce size of final image
