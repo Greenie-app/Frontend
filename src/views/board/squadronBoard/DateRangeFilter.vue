@@ -46,24 +46,24 @@ watch(
 
 // Define shortcuts for quick date selections
 const shortcuts = {
-  'Last 4 Weeks': () => {
+  'Last 4 Weeks': (): [number, number] => {
     const now = Date.now()
     const fourWeeksAgo = now - 28 * 24 * 60 * 60 * 1000
     return [fourWeeksAgo, now]
   },
-  'Current Month': () => {
+  'Current Month': (): [number, number] => {
     const now = DateTime.now()
     return [now.startOf('month').toMillis(), now.endOf('day').toMillis()]
   },
-  'Past Month': () => {
+  'Past Month': (): [number, number] => {
     const lastMonth = DateTime.now().minus({ months: 1 })
     return [lastMonth.startOf('month').toMillis(), lastMonth.endOf('month').toMillis()]
   },
-  'Current Week': () => {
+  'Current Week': (): [number, number] => {
     const now = DateTime.now()
     return [now.startOf('week').toMillis(), now.endOf('day').toMillis()]
   },
-  'Past Week': () => {
+  'Past Week': (): [number, number] => {
     const lastWeek = DateTime.now().minus({ weeks: 1 })
     return [lastWeek.startOf('week').toMillis(), lastWeek.endOf('week').toMillis()]
   },

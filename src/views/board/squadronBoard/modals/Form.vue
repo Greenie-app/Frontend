@@ -247,7 +247,7 @@ const trapOptions = computed(() => [
 ])
 
 const wireOptions = computed(() => [
-  { label: '(none)', value: null },
+  { label: '(none)', value: undefined },
   ...range(1, 5).map((n) => ({ label: n.toString(), value: n })),
 ])
 

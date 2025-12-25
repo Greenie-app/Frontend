@@ -32,12 +32,12 @@ const showModal = defineModel<boolean>('show', { default: false })
 const formRef = ref<InstanceType<typeof PassForm> | null>(null)
 const busy = ref(false)
 
-async function onSubmit(pass: Omit<Pass, 'ID'>): Promise<void> {
+async function onSubmit(pass: Partial<Pass>): Promise<void> {
   resetErrors()
   busy.value = true
 
   try {
-    const result = await passesStore.createPass({ pass: pass as Pass })
+    const result = await passesStore.createPass({ pass: pass as Omit<Pass, 'ID'> })
     if (result.ok) {
       showModal.value = false
       formRef.value?.reset()

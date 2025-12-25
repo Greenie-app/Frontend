@@ -30,8 +30,6 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy to Fly.io
         run: flyctl deploy --remote-only --build-arg VITE_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
-      - name: Enable Corepack
-        run: corepack enable
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

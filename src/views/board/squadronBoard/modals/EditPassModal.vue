@@ -51,12 +51,12 @@ watch(
   },
 )
 
-async function onSubmit(pass: Pass): Promise<void> {
+async function onSubmit(pass: Partial<Pass>): Promise<void> {
   resetErrors()
   busy.value = true
 
   try {
-    const result = await passesStore.updatePass({ pass })
+    const result = await passesStore.updatePass({ pass: pass as Pass })
     if (result.ok) {
       showModal.value = false
     } else {

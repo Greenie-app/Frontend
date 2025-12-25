@@ -9,12 +9,7 @@
     </div>
     <div class="upload-text">
       <n-text class="upload-title">
-        {{
-          $t('uploadModal.logfile.title', {
-            date: formatDate(logfile.createdAt),
-            size: formatSize(logfile.files[0].byteSize),
-          })
-        }}
+        {{ uploadTitle }}
       </n-text>
       <n-flex align="center" data-cy="uploadStatus">
         <n-spin v-if="isLoading" size="small" />
@@ -30,6 +25,7 @@
 import { computed } from 'vue'
 import { NFlex, NSpin, NText } from 'naive-ui'
 import { DateTime } from 'luxon'
+import { useI18n } from 'vue-i18n'
 import numeral from 'numeral'
 import { Logfile, LogfileState } from '@/types'
 
@@ -38,6 +34,18 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const { t } = useI18n()
+
+const firstFile = computed(() => props.logfile.files[0])
+
+const uploadTitle = computed(() => {
+  const date = formatDate(props.logfile.createdAt)
+  if (firstFile.value?.byteSize != null) {
+    return t('uploadModal.logfile.title', { date, size: formatSize(firstFile.value.byteSize) })
+  }
+  return t('uploadModal.logfile.titleNoSize', { date })
+})
 
 const isLoading = computed(() => props.logfile.state === LogfileState.InProgress)
 const isFailed = computed(() => props.logfile.state === LogfileState.Failed)

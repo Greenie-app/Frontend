@@ -117,6 +117,7 @@ const en: Record<string, LocaleMessageValue> = {
     placeholder: 'logfile',
     logfile: {
       title: '{date} ({size})',
+      titleNoSize: '{date}',
       state: {
         pending: 'Pending',
         in_progress: 'Processing…',

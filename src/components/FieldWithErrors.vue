@@ -4,7 +4,7 @@
     <n-form-item
       :class="formGroupClass"
       :data-cy="cypressGroupName"
-      :label="srOnly ? undefined : $t(label, interpolations)"
+      :label="srOnly ? undefined : $t(label, interpolations ?? {})"
       :validation-status="hasError ? 'error' : undefined"
       :feedback="fieldErrors.join(', ')"
       :show-feedback="hasError"
@@ -45,7 +45,7 @@
         :class="klass"
         :id="id"
         :name="name"
-        :placeholder="$t(placeholderOrLabel, interpolations)"
+        :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
         v-model:value="internalValue as number"
         v-bind="$attrs"
       />
@@ -55,8 +55,8 @@
         :class="klass"
         :id="id"
         :name="name"
-        :options="optionList"
-        :placeholder="$t(placeholderOrLabel, interpolations)"
+        :options="selectOptions"
+        :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
         v-model:value="internalValue as string | number"
         v-bind="$attrs"
       />
@@ -66,8 +66,8 @@
         :class="klass"
         :id="id"
         :name="name"
-        :options="optionList"
-        :placeholder="$t(placeholderOrLabel, interpolations)"
+        :options="autoCompleteOptions"
+        :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
         :show-on-focus="true"
         v-model:value="internalValue as string"
         v-bind="$attrs"
@@ -78,7 +78,7 @@
         :class="klass"
         :id="id"
         :name="name"
-        :placeholder="$t(placeholderOrLabel, interpolations)"
+        :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
         :type="type as 'text' | 'password' | 'textarea'"
         v-model:value="internalValue as string"
         v-bind="$attrs"
@@ -94,7 +94,7 @@
     v-else
     :class="formGroupClass"
     :data-cy="cypressGroupName"
-    :label="srOnly ? undefined : $t(label, interpolations)"
+    :label="srOnly ? undefined : $t(label, interpolations ?? {})"
     :validation-status="hasError ? 'error' : undefined"
     :feedback="fieldErrors.join(', ')"
     :show-feedback="hasError"
@@ -135,7 +135,7 @@
       :class="klass"
       :id="id"
       :name="name"
-      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
       v-model:value="internalValue as number"
       v-bind="$attrs"
     />
@@ -145,8 +145,8 @@
       :class="klass"
       :id="id"
       :name="name"
-      :options="optionList"
-      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :options="selectOptions"
+      :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
       v-model:value="internalValue as string | number"
       v-bind="$attrs"
     />
@@ -156,8 +156,8 @@
       :class="klass"
       :id="id"
       :name="name"
-      :options="optionList"
-      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :options="autoCompleteOptions"
+      :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
       v-model:value="internalValue as string"
       v-bind="$attrs"
     />
@@ -167,7 +167,7 @@
       :class="klass"
       :id="id"
       :name="name"
-      :placeholder="$t(placeholderOrLabel, interpolations)"
+      :placeholder="$t(placeholderOrLabel, interpolations ?? {})"
       :type="type as 'text' | 'password' | 'textarea'"
       v-model:value="internalValue as string"
       v-bind="$attrs"
@@ -185,6 +185,7 @@ import {
   NSelect,
   NSpace,
   NUpload,
+  type AutoCompleteOption,
   type SelectOption,
 } from 'naive-ui'
 import { has, isArray, isNull, isString } from 'lodash-es'
@@ -227,8 +228,8 @@ interface Props {
   klass?: string | null
   /** If true, the parameterized name of the input will have `[]` appended to it. */
   multi?: boolean
-  /** Options to use for the select if type is "select". */
-  options?: string | SelectOption[]
+  /** Options to use for the select if type is "select" or "autocomplete". */
+  options?: string | SelectOption[] | string[]
   /** Interpolations to use when resolving the Vue-i18n key to a translated string. */
   interpolations?: Record<string, unknown> | undefined
   /** If true, shows the default upload button for file inputs. */
@@ -294,23 +295,43 @@ const placeholderOrLabel = computed(() =>
   isNull(props.placeholder) ? props.label : props.placeholder,
 )
 
-const optionList = computed((): SelectOption[] | string[] => {
-  if (props.type !== 'select' && props.type !== 'autocomplete') return []
+const selectOptions = computed((): SelectOption[] => {
+  if (props.type !== 'select') return []
   if (isNull(props.options) || props.options === undefined) return []
 
   if (isString(props.options)) {
     return optionListFromI18n.value
   }
   if (isArray(props.options)) {
-    // For autocomplete, if it's an array of strings, return as-is
-    if (props.type === 'autocomplete' && props.options.every((opt) => typeof opt === 'string')) {
-      return props.options as string[]
-    }
     // Convert from old format {text, value} to Naive UI format {label, value}
     return (props.options as Array<{ text?: string; label?: string; value: string | number }>).map(
       (opt): SelectOption => ({
         label: opt.text || opt.label,
         value: opt.value,
+      }),
+    )
+  }
+  throw new Error('Invalid value for :options')
+})
+
+const autoCompleteOptions = computed((): (string | AutoCompleteOption)[] => {
+  if (props.type !== 'autocomplete') return []
+  if (isNull(props.options) || props.options === undefined) return []
+
+  if (isString(props.options)) {
+    // For autocomplete with i18n, convert to string array
+    return optionListFromI18n.value.map((opt) => String(opt.label))
+  }
+  if (isArray(props.options)) {
+    // If it's an array of strings, return as-is
+    if (props.options.every((opt) => typeof opt === 'string')) {
+      return props.options as string[]
+    }
+    // Convert SelectOption to AutoCompleteOption (value must be string)
+    return (props.options as Array<{ text?: string; label?: string; value: string | number }>).map(
+      (opt): AutoCompleteOption => ({
+        label: String(opt.text || opt.label),
+        value: String(opt.value),
       }),
     )
   }
